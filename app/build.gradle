@@ -9,11 +9,28 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // multiDexEnabled true
+
+
+        vectorDrawables.useSupportLibrary =
+                true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "tier"
+    productFlavors {
+        free {
+            dimension "tier"
+            applicationId "com.planetpeopleplatform.freegan.free"
+        }
+        paid {
+            dimension "tier"
+            applicationId "com.planetpeopleplatform.freegan.paid"
         }
     }
 }
@@ -31,6 +48,8 @@ dependencies {
     implementation "com.android.support:preference-v7:$androidSupportVersion"
 
     implementation 'com.jakewharton:butterknife:8.8.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:support-vector-drawable:27.1.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     // Circle images
