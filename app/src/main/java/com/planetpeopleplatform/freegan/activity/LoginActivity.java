@@ -1,12 +1,12 @@
 package com.planetpeopleplatform.freegan.activity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,9 +24,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    @BindView(R.id.emailEditText)
+    @BindView(R.id.login_data)
+    android.support.constraint.ConstraintLayout mLoginData;
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
+    @BindView(R.id.email_edit_text)
     TextView emailEditText;
-    @BindView(R.id.passwordEditText)
+    @BindView(R.id.password_edit_text)
     TextView passwordEditText;
 
     private int RC_SIGN_IN = 1;
@@ -49,6 +53,11 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void loadTweets(){
+
+        if (mAuth == null){
+            finish();
+        }
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if(currentUser!=null) {
@@ -63,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void loginToFireBase(String email, String password){
-        showProgressDialog();
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -75,15 +83,23 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     Log.d("TAG", "loginToFireBase: Failed");
                     Toast.makeText(getApplicationContext(),"login failed",Toast.LENGTH_LONG).show();
+                    showDataView();
                 }
             }
         });
 
-
-        hideProgressDialog();
     }
 
     public void signInTapped(View view) {
+        if (emailEditText.getText() == null || passwordEditText.getText() == null){
+            Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!(emailEditText.getText().toString().length() > 0) || !(passwordEditText.getText().toString().length() > 0)){
+            Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
+            return;
+        }
+        showLoading();
         loginToFireBase(emailEditText.getText().toString(), passwordEditText.getText().toString());
     }
 
@@ -99,25 +115,24 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // loading display
 
-    ProgressDialog mProgressDialog = null;
-
-    private void showProgressDialog() {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage("uploading");
-            mProgressDialog.isIndeterminate();
-        }
-
-        mProgressDialog.show();
+    private void showDataView() {
+        /* First, hide the loading indicator */
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Finally, make sure the data is visible */
+        mLoginData.setVisibility(View.VISIBLE);
     }
 
-    private void hideProgressDialog() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-        }
+    private void showLoading() {
+        /* Then, hide the data */
+        mLoginData.setVisibility(View.INVISIBLE);
+        /* Finally, show the loading indicator */
+        mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
 
+    public void goToRegister(View view) {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        startActivityForResult(intent, RC_SIGN_IN);
+    }
 }

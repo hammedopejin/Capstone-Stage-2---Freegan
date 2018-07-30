@@ -1,12 +1,12 @@
 package com.planetpeopleplatform.freegan.activity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,13 +27,18 @@ public class RegisterActivity extends AppCompatActivity {
 
     String userName = "";
 
-
-    @BindView(R.id.emailEditText)
+    @BindView(R.id.register_data)
+    android.support.constraint.ConstraintLayout mLoginData;
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
+    @BindView(R.id.email_edit_text)
     TextView emailEditText;
-    @BindView(R.id.passwordEditText)
+    @BindView(R.id.password_edit_ext)
     TextView passwordEditText;
-    @BindView(R.id.userNameEditText)
+    @BindView(R.id.user_name_edit_text)
     TextView userNameEditText;
+
+    private int RC_REGISTER = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +50,20 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser!=null) {
+            Intent intent = new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivityForResult(intent, RC_REGISTER);
+        }
+    }
+
 
     private void createUserInFireBase(String email, String password){
+
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -60,6 +77,7 @@ public class RegisterActivity extends AppCompatActivity {
                 {
                     Log.d("TAG", "createUserWithEmail: Failed");
                     Toast.makeText(getApplicationContext(),"registration failed",Toast.LENGTH_LONG).show();
+                    showDataView();
                 }
             }
         });
@@ -67,37 +85,56 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveUserAndLogIn() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        showProgressDialog();
         User.registerUserWith(currentUser.getEmail(), currentUser.getUid(), userName);
         Intent intent = new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        hideProgressDialog();
+        startActivityForResult(intent, RC_REGISTER);
     }
 
-    // loading display
 
-    ProgressDialog mProgressDialog = null;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    private void showProgressDialog() {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage("uploading");
-            mProgressDialog.isIndeterminate();
+        if (requestCode == RC_REGISTER){
+            if (resultCode == RESULT_CANCELED) {
+                finish();
+            }
         }
-
-        mProgressDialog.show();
     }
 
-    private void hideProgressDialog() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-        }
-    };
+    private void showDataView() {
+        /* First, hide the loading indicator */
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Finally, make sure the data is visible */
+        mLoginData.setVisibility(View.VISIBLE);
+    }
+
+    private void showLoading() {
+        /* Then, hide the data */
+        mLoginData.setVisibility(View.INVISIBLE);
+        /* Finally, show the loading indicator */
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+    }
 
 
 
     public void registerButtonTapped(View view) {
+        if (userNameEditText.getText() == null || emailEditText.getText() == null || passwordEditText.getText() == null){
+            Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!(userNameEditText.getText().toString().length() > 0) || !(emailEditText.getText().toString().length() > 0)
+                || !(passwordEditText.getText().toString().length() > 0)){
+            Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
+            return;
+        }
+        showLoading();
         userName = userNameEditText.getText().toString();
         createUserInFireBase(emailEditText.getText().toString(), passwordEditText.getText().toString());
+    }
+
+    public void goToLogin(View view) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivityForResult(intent, RC_REGISTER);
     }
 }
