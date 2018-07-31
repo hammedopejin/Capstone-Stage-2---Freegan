@@ -10,10 +10,12 @@ import android.view.MenuItem;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.GridFragment;
 
+
 public class MainActivity extends AppCompatActivity {
 
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,12 +26,15 @@ public class MainActivity extends AppCompatActivity {
             // Return here to prevent adding additional GridFragments when changing orientation.
             return;
         }
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, new GridFragment(), GridFragment.class.getSimpleName())
                 .commit();
     }
+
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -46,10 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
         //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int id = item.getItemId();
         switch (id) {

@@ -2,12 +2,17 @@ package com.planetpeopleplatform.freegan.utils;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class Constants {
 
     //Firebase Reference
     public static FirebaseDatabase database = FirebaseDatabase.getInstance();
     public static DatabaseReference firebase = database.getReference();
+
+    public static FirebaseStorage storage = FirebaseStorage.getInstance();
+    public static StorageReference storageRef = storage.getReferenceFromUrl("gs://freegan-eabd2.appspot.com");
 
     // The Constant EXTRA_DATA.
     public static final String EXTRA_DATA = "extraData";

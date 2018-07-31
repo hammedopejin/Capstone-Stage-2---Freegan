@@ -25,18 +25,18 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    String userName = "";
+    String mUserName = "";
 
     @BindView(R.id.register_data)
-    android.support.constraint.ConstraintLayout mLoginData;
+    android.support.constraint.ConstraintLayout mRegisterData;
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
     @BindView(R.id.email_edit_text)
-    TextView emailEditText;
+    TextView mEmailEditText;
     @BindView(R.id.password_edit_ext)
-    TextView passwordEditText;
+    TextView mPasswordEditText;
     @BindView(R.id.user_name_edit_text)
-    TextView userNameEditText;
+    TextView mUserNameEditText;
 
     private int RC_REGISTER = 0;
 
@@ -85,7 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveUserAndLogIn() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        User.registerUserWith(currentUser.getEmail(), currentUser.getUid(), userName);
+        User.registerUserWith(currentUser.getEmail(), currentUser.getUid(), mUserName);
         Intent intent = new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivityForResult(intent, RC_REGISTER);
     }
@@ -106,12 +106,12 @@ public class RegisterActivity extends AppCompatActivity {
         /* First, hide the loading indicator */
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         /* Finally, make sure the data is visible */
-        mLoginData.setVisibility(View.VISIBLE);
+        mRegisterData.setVisibility(View.VISIBLE);
     }
 
     private void showLoading() {
         /* Then, hide the data */
-        mLoginData.setVisibility(View.INVISIBLE);
+        mRegisterData.setVisibility(View.INVISIBLE);
         /* Finally, show the loading indicator */
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
@@ -119,18 +119,18 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     public void registerButtonTapped(View view) {
-        if (userNameEditText.getText() == null || emailEditText.getText() == null || passwordEditText.getText() == null){
+        if (mUserNameEditText.getText() == null || mEmailEditText.getText() == null || mPasswordEditText.getText() == null){
             Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
             return;
         }
-        if (!(userNameEditText.getText().toString().length() > 0) || !(emailEditText.getText().toString().length() > 0)
-                || !(passwordEditText.getText().toString().length() > 0)){
+        if (!(mUserNameEditText.getText().toString().length() > 0) || !(mEmailEditText.getText().toString().length() > 0)
+                || !(mPasswordEditText.getText().toString().length() > 0)){
             Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
             return;
         }
         showLoading();
-        userName = userNameEditText.getText().toString();
-        createUserInFireBase(emailEditText.getText().toString(), passwordEditText.getText().toString());
+        mUserName = mUserNameEditText.getText().toString();
+        createUserInFireBase(mEmailEditText.getText().toString(), mPasswordEditText.getText().toString());
     }
 
     public void goToLogin(View view) {

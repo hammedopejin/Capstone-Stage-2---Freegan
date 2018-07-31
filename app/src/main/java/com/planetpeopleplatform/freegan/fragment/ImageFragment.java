@@ -24,12 +24,12 @@ import com.planetpeopleplatform.freegan.R;
  */
 public class ImageFragment extends Fragment {
 
-    private static final String KEY_IMAGE_RES = "com.google.samples.gridtopager.key.imageRes";
+    private static final String KEY_IMAGE_RES = "com.planetpeopleplatform.freegan.key.imageRes";
 
-    public static ImageFragment newInstance(@DrawableRes int drawableRes) {
+    public static ImageFragment newInstance(String drawableRes) {
         ImageFragment fragment = new ImageFragment();
         Bundle argument = new Bundle();
-        argument.putInt(KEY_IMAGE_RES, drawableRes);
+        argument.putString(KEY_IMAGE_RES, drawableRes);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -41,7 +41,7 @@ public class ImageFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
 
         Bundle arguments = getArguments();
-        @DrawableRes int imageRes = arguments.getInt(KEY_IMAGE_RES);
+        String imageRes = arguments.getString(KEY_IMAGE_RES);
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.

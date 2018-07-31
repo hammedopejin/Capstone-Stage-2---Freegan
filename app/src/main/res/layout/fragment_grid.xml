@@ -1,13 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/recycler_view"
-    android:scrollbarStyle="outsideOverlay"
+<FrameLayout android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp"
-    android:scrollbars="vertical"
-    app:layoutManager="GridLayoutManager"
-    app:spanCount="@integer/grid_span_count"/>
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.widget.RecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/recycler_view"
+        android:scrollbarStyle="outsideOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:scrollbars="vertical"
+        app:layoutManager="GridLayoutManager"
+        app:spanCount="@integer/grid_span_count"/>
+
+    <ImageButton
+        android:id="@+id/item_photo_image_button"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="450dp"
+        android:background="@drawable/common_google_signin_btn_icon_dark"
+        android:contentDescription="Image @string/common_google_play_services_update_button" />
+
+    <EditText
+        android:id="@+id/item_description_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="450dp"
+        android:layout_marginLeft="200dp"/>
+
+    <Button
+        android:id="@+id/item_post_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="300dp"
+        android:text="Post"/>
+
+</FrameLayout>

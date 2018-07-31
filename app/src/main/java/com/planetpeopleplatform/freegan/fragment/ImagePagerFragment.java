@@ -23,18 +23,33 @@ import java.util.Map;
  */
 public class ImagePagerFragment extends Fragment {
 
-    private ViewPager viewPager;
+    private static final String KEY_IMAGE_STRING = "com.planetpeopleplatform.freegan.key.imageString";
+
+    private ViewPager mViewPager;
+    private String mImageUrl;
+
+    public static ImagePagerFragment newInstance(String imageUrl) {
+        ImagePagerFragment fragment = new ImagePagerFragment();
+        Bundle argument = new Bundle();
+        argument.putString(KEY_IMAGE_STRING, imageUrl);
+        fragment.setArguments(argument);
+        return fragment;
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        viewPager = (ViewPager) inflater.inflate(R.layout.fragment_pager, container, false);
-        viewPager.setAdapter(new ImagePagerAdapter(this));
+        mViewPager = (ViewPager) inflater.inflate(R.layout.fragment_pager, container, false);
+
+        Bundle arguments = getArguments();
+        mImageUrl = arguments.getString(KEY_IMAGE_STRING);
+
+        mViewPager.setAdapter(new ImagePagerAdapter(this, mImageUrl));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
-        viewPager.setCurrentItem(MainActivity.currentPosition);
-        viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+        mViewPager.setCurrentItem(MainActivity.currentPosition);
+        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 MainActivity.currentPosition = position;
@@ -48,7 +63,7 @@ public class ImagePagerFragment extends Fragment {
             postponeEnterTransition();
         }
 
-        return viewPager;
+        return mViewPager;
     }
 
     /**
@@ -69,8 +84,8 @@ public class ImagePagerFragment extends Fragment {
                         // visible). To locate the fragment, call instantiateItem with the selection position.
                         // At this stage, the method will simply return the fragment at the position and will
                         // not create a new one.
-                        Fragment currentFragment = (Fragment) viewPager.getAdapter()
-                                .instantiateItem(viewPager, MainActivity.currentPosition);
+                        Fragment currentFragment = (Fragment) mViewPager.getAdapter()
+                                .instantiateItem(mViewPager, MainActivity.currentPosition);
                         View view = currentFragment.getView();
                         if (view == null) {
                             return;

@@ -29,9 +29,9 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
     @BindView(R.id.email_edit_text)
-    TextView emailEditText;
+    TextView mEmailEditText;
     @BindView(R.id.password_edit_text)
-    TextView passwordEditText;
+    TextView mPasswordEditText;
 
     private int RC_SIGN_IN = 1;
 
@@ -91,16 +91,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void signInTapped(View view) {
-        if (emailEditText.getText() == null || passwordEditText.getText() == null){
+        if (mEmailEditText.getText() == null || mPasswordEditText.getText() == null){
             Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
             return;
         }
-        if (!(emailEditText.getText().toString().length() > 0) || !(passwordEditText.getText().toString().length() > 0)){
+        if (!(mEmailEditText.getText().toString().length() > 0) || !(mPasswordEditText.getText().toString().length() > 0)){
             Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
             return;
         }
         showLoading();
-        loginToFireBase(emailEditText.getText().toString(), passwordEditText.getText().toString());
+        loginToFireBase(mEmailEditText.getText().toString(), mPasswordEditText.getText().toString());
     }
 
 

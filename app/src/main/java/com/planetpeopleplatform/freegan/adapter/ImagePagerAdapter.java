@@ -10,9 +10,13 @@ import com.planetpeopleplatform.freegan.fragment.ImageFragment;
 
 public class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
-    public ImagePagerAdapter(Fragment fragment) {
+    private String mImageUrl;
+
+    public ImagePagerAdapter(Fragment fragment, String imageUrl) {
         // Note: Initialize with the child fragment manager.
         super(fragment.getChildFragmentManager());
+
+        this.mImageUrl = imageUrl;
     }
 
     @Override
@@ -22,6 +26,6 @@ public class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return ImageFragment.newInstance(R.drawable.ic_launcher_background);
+        return ImageFragment.newInstance(mImageUrl);
     }
 }

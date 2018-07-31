@@ -3,6 +3,7 @@ package com.planetpeopleplatform.freegan.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +21,9 @@ import com.bumptech.glide.request.target.Target;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ImagePagerFragment;
+import com.planetpeopleplatform.freegan.model.Post;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -36,44 +39,47 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
 
         void onLoadCompleted(ImageView view, int adapterPosition);
 
-        void onItemClicked(View view, int adapterPosition);
+        void onItemClicked(View view, int adapterPosition, ArrayList<Post> listPost);
     }
 
-    private final RequestManager requestManager;
-    private final ViewHolderListener viewHolderListener;
+    private final RequestManager mRequestManager;
+    private final ViewHolderListener mViewHolderListener;
     private Context mContext;
+    private  ArrayList<Post> mListPosts;
 
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
      */
-    public GridAdapter(Fragment fragment, Context context) {
-        this.requestManager = Glide.with(fragment);
-        this.viewHolderListener = new ViewHolderListenerImpl(fragment);
+    public GridAdapter(Fragment fragment, Context context, ArrayList<Post> listPosts) {
+        this.mRequestManager = Glide.with(fragment);
+        this.mViewHolderListener = new ViewHolderListenerImpl(fragment);
         this.mContext = context;
+        this.mListPosts = listPosts;
     }
 
+    @NonNull
     @Override
-    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.image_card, parent, false);
-        return new ImageViewHolder(view, requestManager, viewHolderListener);
+        return new ImageViewHolder(view, mRequestManager, mViewHolderListener);
     }
 
     @Override
-    public void onBindViewHolder(ImageViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         holder.onBind();
     }
 
     @Override
     public int getItemCount() {
-        return 1;
+        return mListPosts.size();
     }
 
 
     /**
      * Default {@link ViewHolderListener} implementation.
      */
-    private static class ViewHolderListenerImpl implements ViewHolderListener {
+    private class ViewHolderListenerImpl implements ViewHolderListener {
 
         private Fragment fragment;
         private AtomicBoolean enterTransitionStarted;
@@ -104,7 +110,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
          * @param position the selected view position
          */
         @Override
-        public void onItemClicked(View view, int position) {
+        public void onItemClicked(View view, int position, ArrayList<Post> listPosts) {
             // Update the position.
             MainActivity.currentPosition = position;
 
@@ -119,7 +125,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
                     .beginTransaction()
                     .setReorderingAllowed(true) // Optimize for shared element transition
                     .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, new ImagePagerFragment(), ImagePagerFragment.class
+                    .replace(R.id.fragment_container, ImagePagerFragment.newInstance(mListPosts.get(position).getImageUrl()), ImagePagerFragment.class
                             .getSimpleName())
                     .addToBackStack(null)
                     .commit();
@@ -129,7 +135,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
     /**
      * ViewHolder for the grid's images.
      */
-    static class ImageViewHolder extends RecyclerView.ViewHolder implements
+     class ImageViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener {
 
         private final ImageView image;
@@ -161,7 +167,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
         void setImage(final int adapterPosition) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             requestManager
-                    .load(R.drawable.ic_launcher_background)
+                    .load(mListPosts.get(adapterPosition).getImageUrl())
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,
@@ -183,7 +189,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
         @Override
         public void onClick(View view) {
             // Let the listener start the ImagePagerFragment.
-            viewHolderListener.onItemClicked(view, getAdapterPosition());
+            viewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
         }
     }
 
