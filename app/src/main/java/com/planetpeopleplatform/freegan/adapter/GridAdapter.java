@@ -125,7 +125,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
                     .beginTransaction()
                     .setReorderingAllowed(true) // Optimize for shared element transition
                     .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, ImagePagerFragment.newInstance(mListPosts.get(position).getImageUrl()), ImagePagerFragment.class
+                    .replace(R.id.fragment_container, ImagePagerFragment.newInstance(mListPosts), ImagePagerFragment.class
                             .getSimpleName())
                     .addToBackStack(null)
                     .commit();

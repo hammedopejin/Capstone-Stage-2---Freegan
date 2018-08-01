@@ -1,6 +1,7 @@
 package com.planetpeopleplatform.freegan.fragment;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
@@ -14,7 +15,9 @@ import android.view.ViewGroup;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.adapter.ImagePagerAdapter;
+import com.planetpeopleplatform.freegan.model.Post;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,15 +26,16 @@ import java.util.Map;
  */
 public class ImagePagerFragment extends Fragment {
 
-    private static final String KEY_IMAGE_STRING = "com.planetpeopleplatform.freegan.key.imageString";
+    private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
 
     private ViewPager mViewPager;
-    private String mImageUrl;
+    private ArrayList<Post> listPosts =  new ArrayList<Post>();
+    private ArrayList<? extends Parcelable> list;
 
-    public static ImagePagerFragment newInstance(String imageUrl) {
+    public static ImagePagerFragment newInstance(ArrayList<Post> listPosts) {
         ImagePagerFragment fragment = new ImagePagerFragment();
         Bundle argument = new Bundle();
-        argument.putString(KEY_IMAGE_STRING, imageUrl);
+        argument.putParcelableArrayList(KEY_ARRAY_LIST, listPosts);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -43,9 +47,14 @@ public class ImagePagerFragment extends Fragment {
         mViewPager = (ViewPager) inflater.inflate(R.layout.fragment_pager, container, false);
 
         Bundle arguments = getArguments();
-        mImageUrl = arguments.getString(KEY_IMAGE_STRING);
+        list = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
 
-        mViewPager.setAdapter(new ImagePagerAdapter(this, mImageUrl));
+        for (Parcelable item : list){
+            Post post = (Post) item;
+            listPosts.add(post);
+        }
+
+        mViewPager.setAdapter(new ImagePagerAdapter(this, listPosts));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         mViewPager.setCurrentItem(MainActivity.currentPosition);

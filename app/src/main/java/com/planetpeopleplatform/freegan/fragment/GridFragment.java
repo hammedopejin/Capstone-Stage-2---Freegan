@@ -2,8 +2,6 @@ package com.planetpeopleplatform.freegan.fragment;
 
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,35 +13,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.activity.PostActivity;
 import com.planetpeopleplatform.freegan.adapter.GridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
-import com.planetpeopleplatform.freegan.model.User;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,38 +34,22 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
-import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 
 /**
  * A fragment for displaying a grid of images.
  */
 public class GridFragment extends Fragment {
 
-    private static final String KEY_USER_ID = "com.google.samples.gridtopager.key.userId";
-
-
-    private String mCurrentUserUid = null;
-    private User mCurrentUser = null;
 
     private Fragment mFragment = null;
 
-    public boolean mImageSelected;
-    private String mPostDownloadURL;
-
     private ArrayList<Post> listPosts = new ArrayList<Post>();
 
-    private static final int RC_PHOTO_PICKER = 2;
+    private static final int RC_POST_ITEM = 1;
 
 
     @BindView(R.id.item_photo_image_button)
     ImageButton mPhotoPickerButton;
-
-    @BindView(R.id.item_description_edit_text)
-    EditText mItemDescriptionEditText;
-
-    @BindView(R.id.item_post_button)
-    Button mItemPostButton;
 
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
@@ -99,59 +64,22 @@ public class GridFragment extends Fragment {
 
         ButterKnife.bind(this, rootView);
 
-        mCurrentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         mFragment = this;
-
-        loadPost();
-
-
-
-        firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
 
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                Intent intent = new Intent(getContext(), PostActivity.class);
+                startActivityForResult(intent, RC_POST_ITEM);
             }
         });
 
-        mItemPostButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String description = mItemDescriptionEditText.getText().toString();
-                if(description.equals("")){
-                    Toast.makeText(getActivity(),"Item must have description", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if(!mImageSelected){
-                    Toast.makeText(getActivity(),"An image must be selected", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                postToFirebase();
-            }
-        });
+
 
         prepareTransitions();
         postponeEnterTransition();
-
+        loadPost();
         return rootView;
     }
 
@@ -161,6 +89,15 @@ public class GridFragment extends Fragment {
 
         scrollToPosition();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_POST_ITEM && data!=null && resultCode == RESULT_OK) {
+            loadPost();
+        }
+    }
+
 
     /**
      * Scrolls the recycler view to show the last viewed item in the grid. This is important when
@@ -221,97 +158,6 @@ public class GridFragment extends Fragment {
                                 .put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.card_image));
                     }
                 });
-    }
-
-
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-         if (requestCode == RC_PHOTO_PICKER && data!=null && resultCode == RESULT_OK) {
-             Uri selectedImageUri = data.getData();
-
-             // Load the image with Glide to prevent OOM error when the image drawables are very large.
-             Glide.with(this)
-                     .load(selectedImageUri)
-                     .listener(new RequestListener<Drawable>() {
-                         @Override
-                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                 target, boolean isFirstResource) {
-
-                             return false;
-                         }
-
-                         @Override
-                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                 target, DataSource dataSource, boolean isFirstResource) {
-
-                             return false;
-                         }
-                     })
-                     .into(mPhotoPickerButton);
-
-
-             mPhotoPickerButton.setBackgroundResource(R.color.transparent);
-             mImageSelected = true;
-
-
-             SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
-             Date dataobj = new Date();
-
-             StorageReference ImageRef = storageRef.child("post_pics");
-             // Get a reference to store file at post-pics/<FILENAME>
-             final StorageReference photoRef = ImageRef.child(selectedImageUri.getLastPathSegment());
-
-             // Upload file to Firebase Storage
-             photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                 @Override
-                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                     if (!task.isSuccessful()) {
-                         throw task.getException();
-                     }
-                     return photoRef.getDownloadUrl();
-                 }
-             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-
-                 @Override
-                 public void onComplete(@NonNull Task<Uri> task) {
-                     if (task.isSuccessful()) {
-                         Uri downloadUri = task.getResult();
-                         mPostDownloadURL = downloadUri.toString();
-                     } else {
-                         Toast.makeText(getContext(), "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                     }
-                 }
-             });
-         }
-    }
-
-
-    private void postToFirebase() {
-
-
-        SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-        Date dataobj= new Date();
-
-        HashMap<String, Object> post = new HashMap<String, Object>();
-        post.put("description", (Object) mItemDescriptionEditText.getText().toString() );
-        post.put("imageUrl", (Object) mPostDownloadURL);
-        post.put("profileImgUrl", (Object) mCurrentUser.getUserImgUrl());
-        post.put("userName", (Object) mCurrentUser.getUserName());
-        post.put("postDate", (Object) sfd.format(dataobj));
-        post.put("postUserObjectId", (Object) mCurrentUserUid);
-
-        firebase.child("posts").push().setValue(post);
-
-        mPhotoPickerButton.setImageResource(R.drawable.common_google_signin_btn_icon_dark);
-
-        mItemDescriptionEditText.getText().clear();
-        mItemDescriptionEditText.clearFocus();
-        mImageSelected = false;
-
-
     }
 
     private void loadPost(){

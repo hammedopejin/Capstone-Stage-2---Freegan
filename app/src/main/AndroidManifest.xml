@@ -9,10 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".activity.MainActivity" />
+        <activity android:name=".activity.MainActivity" />
         <activity android:name=".fragment.ImagePagerActivity" />
-        <activity android:name=".activity.RegisterActivity"
+        <activity
+            android:name=".activity.RegisterActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,11 +26,12 @@
             android:label="@string/title_activity_settings" />
 
         <provider
+            android:name=".data.FreeganProvider"
             android:authorities="com.planetpeopleplatform.freegan"
-            android:name="com.planetpeopleplatform.freegan.data.FreeganProvider"
             android:exported="false"
-            android:syncable="true"/>
+            android:syncable="true" />
 
+        <activity android:name=".activity.PostActivity"></activity>
     </application>
 
 </manifest>

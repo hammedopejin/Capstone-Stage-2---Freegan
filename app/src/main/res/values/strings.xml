@@ -7,14 +7,6 @@
     <string name="title_activity_settings">Settings</string>
 
 
-
-
-
-
-
-
-
-
     <!-- Strings related to Settings -->
     <string name="myCoolButton">logout key</string>
 
@@ -38,5 +30,6 @@
     <string name="sign_in_button_text">Sign In</string>
     <string name="sign_up_text_view">Not a member yet? Sign up now</string>
     <string name="login_text_view">Already a member? Login</string>
+    <string name="enter_item_description">Enter item description</string>
 
 </resources>

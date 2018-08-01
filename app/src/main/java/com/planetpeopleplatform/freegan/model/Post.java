@@ -1,10 +1,13 @@
 package com.planetpeopleplatform.freegan.model;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.HashMap;
 
 
-public class Post {
+public class Post implements Parcelable {
 
     private String description;
     private String imageUrl;
@@ -33,6 +36,27 @@ public class Post {
         this.userName = userName;
         this.postDate = postDate;
     }
+
+    protected Post(Parcel in) {
+        description = in.readString();
+        imageUrl = in.readString();
+        userName = in.readString();
+        postUserObjectId = in.readString();
+        profileImgUrl = in.readString();
+        postDate = in.readString();
+    }
+
+    public static final Creator<Post> CREATOR = new Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel in) {
+            return new Post(in);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
 
     public String getPostUserObjectId () {
         return this.postUserObjectId;
@@ -76,4 +100,18 @@ public class Post {
         this.postDate = postDate;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(description);
+        parcel.writeString(imageUrl);
+        parcel.writeString(userName);
+        parcel.writeString(postUserObjectId);
+        parcel.writeString(profileImgUrl);
+        parcel.writeString(postDate);
+    }
 }
