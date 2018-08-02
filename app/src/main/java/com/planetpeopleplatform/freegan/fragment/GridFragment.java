@@ -40,21 +40,17 @@ import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
  */
 public class GridFragment extends Fragment {
 
-
     private Fragment mFragment = null;
 
     private ArrayList<Post> listPosts = new ArrayList<Post>();
 
     private static final int RC_POST_ITEM = 1;
 
-
     @BindView(R.id.item_photo_image_button)
     ImageButton mPhotoPickerButton;
 
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
-
-
 
     @Nullable
     @Override
@@ -75,18 +71,16 @@ public class GridFragment extends Fragment {
             }
         });
 
-
-
         prepareTransitions();
         postponeEnterTransition();
         loadPost();
         return rootView;
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         scrollToPosition();
     }
 
@@ -98,6 +92,12 @@ public class GridFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
+        mToolbarContainer.setVisibility(View.VISIBLE);
+    }
 
     /**
      * Scrolls the recycler view to show the last viewed item in the grid. This is important when
@@ -175,7 +175,7 @@ public class GridFragment extends Fragment {
                         listPosts.add(new Post(post));
                     }
 
-                    mRecyclerView.setAdapter(new GridAdapter(mFragment, getContext(), listPosts));
+                    mRecyclerView.setAdapter(new GridAdapter(mFragment, listPosts));
                 }catch (Exception ex){
                     String exception = ex.getLocalizedMessage();
                 }
@@ -188,6 +188,5 @@ public class GridFragment extends Fragment {
         });
 
     }
-
 
 }

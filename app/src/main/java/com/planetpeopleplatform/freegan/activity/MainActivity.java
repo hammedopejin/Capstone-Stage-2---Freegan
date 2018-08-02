@@ -27,14 +27,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
                 .beginTransaction()
                 .add(R.id.fragment_container, new GridFragment(), GridFragment.class.getSimpleName())
                 .commit();
     }
-
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

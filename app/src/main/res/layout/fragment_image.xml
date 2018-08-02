@@ -2,6 +2,7 @@
 <FrameLayout
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:background="@android:color/transparent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ImageView
@@ -13,20 +14,23 @@
         android:scaleType="fitXY"/>
 
     <TextView
+        android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Nice Things"
         android:textColor="#ffffff"
         android:gravity="bottom"
+        android:layout_margin="16dp"
         android:textSize="34sp"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Contact"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="16dp"
         android:layout_marginLeft="250dp"
-        android:layout_marginStart="250dp"
-        android:layout_marginTop="450dp"
-        android:id="@+id/buttonView"/>
+        android:id="@+id/button_view"
+        android:layout_marginStart="250dp" />
 
 </FrameLayout>

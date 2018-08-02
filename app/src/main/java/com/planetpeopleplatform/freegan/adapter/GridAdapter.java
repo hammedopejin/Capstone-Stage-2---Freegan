@@ -1,7 +1,5 @@
 package com.planetpeopleplatform.freegan.adapter;
 
-
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,21 +37,19 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
 
         void onLoadCompleted(ImageView view, int adapterPosition);
 
-        void onItemClicked(View view, int adapterPosition, ArrayList<Post> listPost);
+        void onItemClicked(View view, int adapterPosition, ArrayList<Post> listPosts);
     }
 
     private final RequestManager mRequestManager;
     private final ViewHolderListener mViewHolderListener;
-    private Context mContext;
     private  ArrayList<Post> mListPosts;
 
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
      */
-    public GridAdapter(Fragment fragment, Context context, ArrayList<Post> listPosts) {
+    public GridAdapter(Fragment fragment, ArrayList<Post> listPosts) {
         this.mRequestManager = Glide.with(fragment);
         this.mViewHolderListener = new ViewHolderListenerImpl(fragment);
-        this.mContext = context;
         this.mListPosts = listPosts;
     }
 

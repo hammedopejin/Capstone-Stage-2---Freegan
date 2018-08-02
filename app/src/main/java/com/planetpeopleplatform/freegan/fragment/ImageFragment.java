@@ -9,7 +9,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -17,18 +20,25 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.model.Post;
 
-/**
- * A fragment for displaying an image.
- */
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ImageFragment extends Fragment {
 
-    private static final String KEY_IMAGE_RES = "com.planetpeopleplatform.freegan.key.imageRes";
+    private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
 
-    public static ImageFragment newInstance(String drawableRes) {
+    @BindView(R.id.text_view)
+    TextView mTextView;
+
+    @BindView(R.id.button_view)
+    Button mButtonView;
+
+    public static ImageFragment newInstance(Post post) {
         ImageFragment fragment = new ImageFragment();
         Bundle argument = new Bundle();
-        argument.putString(KEY_IMAGE_RES, drawableRes);
+        argument.putParcelable(KEY_POST_RES, post);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -38,17 +48,20 @@ public class ImageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
+        ButterKnife.bind(this, view);
 
         Bundle arguments = getArguments();
-        String imageRes = arguments.getString(KEY_IMAGE_RES);
+        Post post = arguments.getParcelable(KEY_POST_RES);
+        String postImage = post.getImageUrl();
+        String postDescription = post.getDescription();
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        view.findViewById(R.id.image).setTransitionName(String.valueOf(imageRes));
+        view.findViewById(R.id.image).setTransitionName(String.valueOf(postImage));
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(this)
-                .load(imageRes)
+                .load(postImage)
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
@@ -72,7 +85,7 @@ public class ImageFragment extends Fragment {
                 })
                 .into((ImageView) view.findViewById(R.id.image));
 
-        view.findViewById(R.id.buttonView).setOnClickListener(new View.OnClickListener() {
+        mButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), MainActivity.class);
@@ -80,6 +93,14 @@ public class ImageFragment extends Fragment {
                 getActivity().finish();
             }
         });
+        mTextView.setText(postDescription);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
+        mToolbarContainer.setVisibility(View.GONE);
     }
 }
