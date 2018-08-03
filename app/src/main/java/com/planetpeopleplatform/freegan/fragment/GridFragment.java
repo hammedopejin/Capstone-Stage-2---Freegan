@@ -8,12 +8,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ProgressBar;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -42,12 +43,15 @@ public class GridFragment extends Fragment {
 
     private Fragment mFragment = null;
 
-    private ArrayList<Post> listPosts = new ArrayList<Post>();
+    private ArrayList<Post> mListPosts = new ArrayList<Post>();
 
     private static final int RC_POST_ITEM = 1;
 
-    @BindView(R.id.item_photo_image_button)
-    ImageButton mPhotoPickerButton;
+    @BindView(R.id.new_item_button_view)
+    android.support.design.widget.FloatingActionButton mPhotoPickerButton;
+
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
 
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
@@ -59,8 +63,21 @@ public class GridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_grid, container, false);
 
         ButterKnife.bind(this, rootView);
+        SearchView mSearchView = getActivity().findViewById(R.id.searchView);
 
         mFragment = this;
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return searchFeed(newText);
+            }
+        });
 
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +90,7 @@ public class GridFragment extends Fragment {
 
         prepareTransitions();
         postponeEnterTransition();
+        showLoading();
         loadPost();
         return rootView;
     }
@@ -167,15 +185,16 @@ public class GridFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
 
-                    listPosts.clear();
+                    mListPosts.clear();
                     HashMap<String, Object> td= (HashMap<String, Object>) dataSnapshot.getValue();
 
                     for (String key : td.keySet()){
                         HashMap<String, Object> post = (HashMap<String, Object>) td.get(key);
-                        listPosts.add(new Post(post));
+                        mListPosts.add(new Post(post));
                     }
 
-                    mRecyclerView.setAdapter(new GridAdapter(mFragment, listPosts));
+                    mRecyclerView.setAdapter(new GridAdapter(mFragment, mListPosts));
+                    showDataView();
                 }catch (Exception ex){
                     String exception = ex.getLocalizedMessage();
                 }
@@ -187,6 +206,44 @@ public class GridFragment extends Fragment {
             }
         });
 
+    }
+
+    private Boolean searchFeed(String newText) {
+        GridAdapter gridadapter = new GridAdapter(mFragment, mListPosts);
+        if (newText != null && newText.length() > 0) {
+            gridadapter = new GridAdapter(mFragment, filter(newText));
+            mRecyclerView.setAdapter(gridadapter);
+        } else if (newText.isEmpty()){
+            loadPost();
+        }
+        gridadapter.notifyDataSetChanged();
+        return true;
+    }
+
+    private ArrayList<Post> filter(String text) {
+        ArrayList<Post> filterdPost = new ArrayList<Post>();
+        for (Post post : mListPosts) {
+            if (post.getDescription().toLowerCase().contains(text.toLowerCase())) {
+                filterdPost.add(post);
+            }
+        }
+        mListPosts.clear();
+        mListPosts.addAll(filterdPost);
+        return mListPosts;
+    }
+
+    private void showDataView() {
+        /* First, hide the loading indicator */
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        /* Finally, make sure the data is visible */
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showLoading() {
+        /* Then, hide the data */
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        /* Finally, show the loading indicator */
+        mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
 }

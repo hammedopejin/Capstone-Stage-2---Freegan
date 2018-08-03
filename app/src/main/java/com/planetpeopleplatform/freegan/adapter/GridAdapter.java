@@ -25,9 +25,6 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-/**
- * A fragment for displaying a grid of images.
- */
 public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolder> {
 
     /**

@@ -1,6 +1,5 @@
 package com.planetpeopleplatform.freegan.fragment;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,12 +17,17 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.planetpeopleplatform.freegan.activity.MainActivity;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 
 public class ImageFragment extends Fragment {
 
@@ -32,8 +36,14 @@ public class ImageFragment extends Fragment {
     @BindView(R.id.text_view)
     TextView mTextView;
 
-    @BindView(R.id.button_view)
-    Button mButtonView;
+    @BindView(R.id.back_arrow)
+    ImageButton mBackArrow;
+
+    @BindView(R.id.poster_image_button)
+    de.hdodenhof.circleimageview.CircleImageView mPosterImageButton;
+
+    @BindView(R.id.contact_button_view)
+    android.support.design.widget.FloatingActionButton mButtonView;
 
     public static ImageFragment newInstance(Post post) {
         ImageFragment fragment = new ImageFragment();
@@ -85,15 +95,23 @@ public class ImageFragment extends Fragment {
                 })
                 .into((ImageView) view.findViewById(R.id.image));
 
+
+
+        mBackArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().onBackPressed();
+            }
+        });
+
         mButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(), MainActivity.class);
-                getActivity().startActivity(intent);
-                getActivity().finish();
+                getActivity().onBackPressed();
             }
         });
         mTextView.setText(postDescription);
+        loadUserProfilePicture(view, this, post.getPostUserObjectId());
         return view;
     }
 
@@ -103,4 +121,41 @@ public class ImageFragment extends Fragment {
         android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
         mToolbarContainer.setVisibility(View.GONE);
     }
+
+    private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
+        firebase.child("users").child(posterId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+                    User user = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+
+                    Glide.with(fragment)
+                            .load(user.getUserImgUrl())
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                        target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                        target, DataSource dataSource, boolean isFirstResource) {
+                                    return false;
+                                }
+                            })
+                            .into((de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.poster_image_button));
+
+
+                }catch (Exception ex){}
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
 }
