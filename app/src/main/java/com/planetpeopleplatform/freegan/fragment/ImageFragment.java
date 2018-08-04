@@ -1,5 +1,6 @@
 package com.planetpeopleplatform.freegan.fragment;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,21 +18,33 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.activity.ChatActivity;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.Utils;
+
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 public class ImageFragment extends Fragment {
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
+    private String mChatMateId;
+    private Post mPost = null;
+    private String mChatRoomId = null;
+    private User mCurrentUser = null;
+    public String mCurrentUserUid = null;
+    private FirebaseAuth mAuth;
 
     @BindView(R.id.text_view)
     TextView mTextView;
@@ -43,7 +56,7 @@ public class ImageFragment extends Fragment {
     de.hdodenhof.circleimageview.CircleImageView mPosterImageButton;
 
     @BindView(R.id.contact_button_view)
-    android.support.design.widget.FloatingActionButton mButtonView;
+    android.support.design.widget.FloatingActionButton mContactButtonView;
 
     public static ImageFragment newInstance(Post post) {
         ImageFragment fragment = new ImageFragment();
@@ -60,10 +73,12 @@ public class ImageFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
         ButterKnife.bind(this, view);
 
+        mAuth= FirebaseAuth.getInstance();
+
         Bundle arguments = getArguments();
-        Post post = arguments.getParcelable(KEY_POST_RES);
-        String postImage = post.getImageUrl();
-        String postDescription = post.getDescription();
+        mPost = arguments.getParcelable(KEY_POST_RES);
+        String postImage = mPost.getImageUrl();
+        String postDescription = mPost.getDescription();
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
@@ -104,14 +119,50 @@ public class ImageFragment extends Fragment {
             }
         });
 
-        mButtonView.setOnClickListener(new View.OnClickListener() {
+        mContactButtonView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().onBackPressed();
+
+                final Intent intent = new Intent(getActivity(), ChatActivity.class);
+                mChatMateId = mPost.getPostUserObjectId();
+
+                firebase.child(kUSER).child(mChatMateId).addValueEventListener(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()) {
+                            User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                            if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
+
+                                if (mCurrentUser != null) {
+                                    mChatRoomId = Utils.startChat(mCurrentUser, chatMate);
+
+                                    //  Toast.makeText(applicationContext, chatRoomId, Toast.LENGTH_LONG).show()
+
+                                    intent.putExtra("uid", mChatMateId);
+                                    intent.putExtra("currentUserUID", mCurrentUserUid);
+                                    intent.putExtra("userName", chatMate.getUserName());
+                                    intent.putExtra("chatRoomId", mChatRoomId);
+
+                                    startActivity(intent);
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
+
         mTextView.setText(postDescription);
-        loadUserProfilePicture(view, this, post.getPostUserObjectId());
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        loadUserProfilePicture(view, this, mPost.getPostUserObjectId());
+        getCurrentUser(mCurrentUserUid);
+
         return view;
     }
 
@@ -123,7 +174,7 @@ public class ImageFragment extends Fragment {
     }
 
     private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
-        firebase.child("users").child(posterId).addValueEventListener(new ValueEventListener() {
+        firebase.child(kUSER).child(posterId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
@@ -156,6 +207,24 @@ public class ImageFragment extends Fragment {
             }
         });
 
+    }
+
+    private User getCurrentUser(String currentUserUid) {
+        firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        return mCurrentUser;
     }
 
 }

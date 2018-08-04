@@ -1,6 +1,36 @@
 <resources>
     <string name="app_name">Freegan</string>
 
+
+    <string name="add_a_caption">Add a caption</string>
+
+
+    <string name="type_msg">Type message</string>
+
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+
+    <string name="or">or</string>
+    <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="register">Register</string>
+    <string name="log_in">Log in</string>
+    <string name="forgot_my_pwd">I’ve forgotten my password?</string>
+    <string name="my_chats">My Chats</string>
+    <string name="all_chats">All Chats</string>
+    <string name="search">Search</string>
+    <string name="to">To:</string>
+    <string name="edit">Edit</string>
+    <string name="new_chat">New Chat</string>
+    <string name="alert_wait">Please wait…</string>
+    <string name="err_fields_empty">Please fill all the fields.</string>
+    <string name="err_singup">Error occurred while signup:</string>
+    <string name="err_login">Error occurred while login:</string>
+    <string name="err_users">Error occurred while finding users:</string>
+    <string name="alert_loading">Loading…</string>
+    <string name="msg_no_user_found">No recent chats!</string>
+
     <string name="action_settings">Settings</string>
 
     <string name="image_description">Fragment Image</string>
@@ -10,8 +40,7 @@
     <!-- Strings related to Settings -->
     <string name="myCoolButton">logout key</string>
 
-    <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
+
 
 
     <!-- Example settings for Notifications -->
@@ -31,5 +60,37 @@
     <string name="sign_up_text_view">Not a member yet? Sign up now</string>
     <string name="login_text_view">Already a member? Login</string>
     <string name="enter_item_description">Enter item description</string>
+
+
+
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <!-- - - - - - - - - - - -->
+    <!--Used by Preferences  -->
+    <!-- - - - - - - - - - - -->
+
+    <!-- Label for the location preference [CHAR LIMIT=30] -->
+    <string name="pref_location_label">Location</string>
+
+    <!-- Key name for storing location in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_location_key" translatable="false">location</string>
+
+    <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
+    <string name="pref_location_default" translatable="false">Mountain View, CA 94043</string>
+
+    <!-- Label for the privacy -->
+    <string name="pref_privacy_label">Privacy</string>
+
+    <!-- Key name for privacy -->
+    <string name="pref_privacy_key" translatable="false">privacy</string>
+
+    <!-- Label for the terms of service -->
+    <string name="pref_terms_of_service_label">Terms of Service</string>
+
+    <!-- Key name for terms of service -->
+    <string name="pref_terms_of_service_key" translatable="false">terms of service</string>
+
 
 </resources>

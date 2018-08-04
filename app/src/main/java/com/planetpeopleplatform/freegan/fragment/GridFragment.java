@@ -35,6 +35,7 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 
 /**
  * A fragment for displaying a grid of images.
@@ -180,7 +181,7 @@ public class GridFragment extends Fragment {
 
     private void loadPost(){
 
-        firebase.child("posts").addValueEventListener(new ValueEventListener() {
+        firebase.child(kPOST).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {

@@ -31,7 +31,9 @@
             android:exported="false"
             android:syncable="true" />
 
-        <activity android:name=".activity.PostActivity"></activity>
+        <activity android:name=".activity.PostActivity" />
+        <activity android:name=".activity.CustomActivity" />
+        <activity android:name=".activity.ChatActivity"></activity>
     </application>
 
 </manifest>
