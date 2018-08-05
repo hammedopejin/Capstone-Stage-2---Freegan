@@ -33,7 +33,8 @@
 
         <activity android:name=".activity.PostActivity" />
         <activity android:name=".activity.CustomActivity" />
-        <activity android:name=".activity.ChatActivity"></activity>
+        <activity android:name=".activity.ChatActivity" />
+        <activity android:name=".activity.RecentChatActivity"></activity>
     </application>
 
 </manifest>

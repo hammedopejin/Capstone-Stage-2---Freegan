@@ -47,7 +47,6 @@ public class Utils {
 
         if (value < 0) {
             chatRoomId = userId1 + userId2;
-
         } else {
             chatRoomId = userId2 + userId1;
         }
@@ -67,9 +66,11 @@ public class Utils {
 
     }
 
-    public static void createRecent(final String userId, final String chatRoomId, final List<String> members, final String withUserUserId, final String withUserUsername, final String type) {
+    public static void createRecent(final String userId, final String chatRoomId, final List<String> members,
+                                    final String withUserUserId, final String withUserUsername, final String type) {
 
-        firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo(chatRoomId).addListenerForSingleValueEvent(new ValueEventListener() {
+        firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo(chatRoomId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -78,7 +79,7 @@ public class Utils {
                 if (dataSnapshot.exists()) {
                     for (Object recent : ( (HashMap<String, Object>) dataSnapshot.getValue()).values() ){
                         HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
-                        if ((String)currentRecent.get(kUSERID) == userId){
+                        if (currentRecent.get(kUSERID).equals(userId)){
                             create = false;
                         }
 
@@ -96,7 +97,7 @@ public class Utils {
                                 });
                     }
                 }
-                if (create && userId != withUserUserId) {
+                if (create && !(userId.equals(withUserUserId))) {
 
                     createRecentItem(userId, chatRoomId, members, withUserUserId, withUserUsername, type);
                 }
@@ -174,7 +175,7 @@ public class Utils {
 
         Long counter = (Long) recent.get(kCOUNTER);
 
-        if (recent.get(kUSERID) !=  FirebaseAuth.getInstance().getCurrentUser().getUid()) {
+        if (!(recent.get(kUSERID).equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))) {
             counter += 1;
         }
 
@@ -196,7 +197,7 @@ public class Utils {
 
                     for (Object recent : (((HashMap<String, Object>) dataSnapshot.getValue()).values())) {
                         HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
-                        if (currentRecent.get(kUSERID) == FirebaseAuth.getInstance().getCurrentUser().getUid()) {
+                        if (currentRecent.get(kUSERID).equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
 
                             clearRecentCounterItem(currentRecent);
                         }

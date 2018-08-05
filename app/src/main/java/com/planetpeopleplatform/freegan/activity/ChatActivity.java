@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -38,13 +39,14 @@ import java.util.List;
 import tgio.rncryptor.RNCryptorNative;
 
 import static butterknife.internal.Utils.listOf;
+import static com.planetpeopleplatform.freegan.model.Message.STATUS_READ;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kAUDIO;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGES;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPICTURE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERNAME;
@@ -64,13 +66,10 @@ public class ChatActivity extends CustomActivity {
     private ArrayList convList = new ArrayList<Message>();
 
         /** The chat adapter.  */
-        private ChatAdapter adp = null;
+        private ChatAdapter mChatAdapter = null;
 
         /** The Editext to compose the message.  */
-        private EditText txt = null;
-
-        /** The user name of buddy.  */
-        private String chatMate = "";
+        private EditText mChatMessageEdittext;
 
         /** The date of last message in conversation.  */
         private Date lastMsgDate = null;
@@ -83,31 +82,27 @@ public class ChatActivity extends CustomActivity {
         /**
          * Allow access to the current user info
          */
-        User currentUser = null;
+        User mCurrentUser = null;
 
-        String UserUID = null;
-        String currentUserUID = null;
-        private Message message = null;
+        String mCurrentUserUID = null;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_chat);
 
-            UserUID = getIntent().getStringExtra("uid");
-            currentUserUID = getIntent().getStringExtra("currentUserUID");
-            chatMate = getIntent().getStringExtra("userName");
-            chatRoomId = getIntent().getStringExtra("chatRoomId");
+            mCurrentUserUID = getIntent().getStringExtra("currentUserUID");
+            chatRoomId = getIntent().getStringExtra(kCHATROOMID);
            // getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#51b79f")));
             //getSupportActionBar().setTitle(chatMate);
 
 
-            firebase.child(kUSER).child(currentUserUID).addValueEventListener(new ValueEventListener() {
+            firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
 
-                        currentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
+                        mCurrentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
                     }
                 }
 
@@ -117,20 +112,19 @@ public class ChatActivity extends CustomActivity {
                 }
             });
 
-            txt = findViewById(R.id.txt1);
-            txt.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+            mChatMessageEdittext = findViewById(R.id.chat_message_edit_text);
+            mChatMessageEdittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 
             setTouchNClick(R.id.btnSend);
 
             ListView listView = findViewById(R.id.list);
 
-            adp = new ChatAdapter();
-            listView.setAdapter(adp);
+            mChatAdapter = new ChatAdapter();
+            listView.setAdapter(mChatAdapter);
             listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
             listView.setStackFromBottom(true);
 
             //listView.setOnScrollListener(AbsListView.OnScrollListener{ })
-
         }
 
 
@@ -168,27 +162,25 @@ public class ChatActivity extends CustomActivity {
          * is empty.
          */
         private void sendMessage() {
-            if (txt.length() == 0) {
+            if (mChatMessageEdittext.length() == 0) {
                 return;
             }
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(txt.getWindowToken(), 0);
+            inputMethodManager.hideSoftInputFromWindow(mChatMessageEdittext.getWindowToken(), 0);
 
             SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
             RNCryptorNative rncryptor =  new RNCryptorNative();
 
+            String encrypted = String.valueOf((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), chatRoomId)));
+            mChatMessageEdittext.setText(null);
+            DatabaseReference reference = chatRef.child(chatRoomId).push();
+            String messageId = reference.getKey();
+            Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUID,
+                    mCurrentUser.getUserName(),  Message.STATUS_DELIVERED, kTEXT);
 
-                String encrypted =  String.valueOf(rncryptor.encrypt(txt.getText().toString(), chatRoomId));
-                txt.setText(null);
-                DatabaseReference reference = chatRef.child(chatRoomId).push();
-                String messageId = reference.getKey();
-                Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, (String)currentUserUID,
-                    (String) currentUser.getUserName(),  Message.STATUS_DELIVERED, kTEXT);
+            reference.setValue(cryptMessage);
 
-                reference.setValue(cryptMessage);
-
-                //val decryptedString = DecryptText(chatRoomID: chatRoomID, string: (item[kMESSAGES] as? String)!)
-                Utils.updateRecents(chatRoomId, encrypted);
+            Utils.updateRecents(chatRoomId, mChatMessageEdittext.getText().toString());
 
         }
 
@@ -203,33 +195,35 @@ public class ChatActivity extends CustomActivity {
                 chatRef.child(chatRoomId).addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
                         if (dataSnapshot.exists()){
 
 
                             HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
-
+//                            Toast.makeText(getApplicationContext(), item.get(kMESSAGE).toString(), Toast.LENGTH_SHORT).show();
                             if (item.get(kTYPE) != null) {
 
                                 if (legitTypes.contains(item.get(kTYPE))) {
 
                                     RNCryptorNative rncryptor  =  new RNCryptorNative();
-                                    String decrypted = rncryptor.decrypt((String)item.get(kMESSAGES), chatRoomId);
-                                    message = new Message((String) decrypted, (String) item.get(kDATE),
+                                    String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                                    Message message = new Message(decrypted, (String) item.get(kDATE),
                                             (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
                                             (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                             (String) item.get(kTYPE));
                                     convList.add(message);
 
                                     // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
-                                    //    lastMsgDate = c.date
+                                    //    lastMsgDate = message.getDate()
                                     //}
 
-                                    if ((item.get(kSENDERID)) != currentUserUID) {
+                                    if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
                                         Utils.updateChatStatus(item, chatRoomId);
                                     }
                                 }
+
                             }
-                            adp.notifyDataSetChanged();
+                            mChatAdapter.notifyDataSetChanged();
                         }
                     }
 
@@ -300,12 +294,12 @@ public class ChatActivity extends CustomActivity {
             public View getView(int pos, View v, ViewGroup arg2){
                 View myView;
                 Message message = getItem(pos);
-                if (currentUser.getUserName().equals(message.getSenderName())) {
+                if (mCurrentUser.getUserName().equals(message.getSenderName())) {
                     myView = getLayoutInflater().inflate(R.layout.chat_item_sent, null);
                 }else{
                     myView = getLayoutInflater().inflate(R.layout.chat_item_receive, null);
                 }
-                TextView lbl = null;
+                TextView lbl;
                 try {
                         lbl = myView.findViewById(R.id.lbl1);
                         lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(),
@@ -320,7 +314,7 @@ public class ChatActivity extends CustomActivity {
 
                     lbl = myView.findViewById(R.id.lbl3);
 
-                    if (currentUser.getUserName().equals(message.getSenderName()) && (pos == convList.size() - 1)) {
+                    if (mCurrentUser.getUserName().equals(message.getSenderName()) && (pos == convList.size() - 1)) {
                     lbl.setText(message.getStatus());
                     } else{
                         lbl.setText("");
@@ -344,13 +338,14 @@ public class ChatActivity extends CustomActivity {
 
                 HashMap<String, Object> temp = (HashMap<String, Object>) item.values();
 
-                if ((String)item.get(kMESSAGEID) == (String) temp.get(kMESSAGEID)) {
+                if (item.get(kMESSAGEID).equals(temp.get(kMESSAGEID))) {
 
-                    Message c = new Message((String) item.get("Message"), (String) item.get("date"),
-                            (String) item.get("messageId"), (String) item.get("senderId"),
-                            (String) item.get("senderName"),  "Read", "text");
+                    Message c = new Message((String) item.get(kMESSAGE), (String) item.get(kDATE),
+                            (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                            (String) item.get(kSENDERNAME),  STATUS_READ, kTEXT);
                     convList.add(c);
-                    adp.notifyDataSetChanged();
+
+                    mChatAdapter.notifyDataSetChanged();
                     }
             }
         }

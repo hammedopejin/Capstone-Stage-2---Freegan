@@ -41,8 +41,6 @@
     <string name="myCoolButton">logout key</string>
 
 
-
-
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
 
@@ -60,8 +58,6 @@
     <string name="sign_up_text_view">Not a member yet? Sign up now</string>
     <string name="login_text_view">Already a member? Login</string>
     <string name="enter_item_description">Enter item description</string>
-
-
 
 
     <!-- Example General settings -->

@@ -38,7 +38,7 @@ public class Constants {
     public static final String kLIKE = "likes";
 
     //recent
-    public static final String kRECENT = "Recent";
+    public static final String kRECENT = "recent";
     public static final String kCHATROOMID = "chatRoomID";
     public static final String kUSERID = "userId";
     public static final String kDATE = "date";
@@ -55,8 +55,7 @@ public class Constants {
     public static final String kWITHUSERUSERID = "withUserUserID";
     public static final String kOWNERID = "ownerID";
     public static final String kSTATUS = "status";
-    public static final String kMESSAGE = "Message";
-    public static final String kMESSAGES = "message";
+    public static final String kMESSAGE = "message";
     public static final String kMESSAGEID = "messageId";
     public static final String kNAME = "name";
     public static final String kSENDERID = "senderId";

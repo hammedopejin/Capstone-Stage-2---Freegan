@@ -34,6 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 public class ImageFragment extends Fragment {
@@ -139,10 +140,8 @@ public class ImageFragment extends Fragment {
 
                                     //  Toast.makeText(applicationContext, chatRoomId, Toast.LENGTH_LONG).show()
 
-                                    intent.putExtra("uid", mChatMateId);
                                     intent.putExtra("currentUserUID", mCurrentUserUid);
-                                    intent.putExtra("userName", chatMate.getUserName());
-                                    intent.putExtra("chatRoomId", mChatRoomId);
+                                    intent.putExtra(kCHATROOMID, mChatRoomId);
 
                                     startActivity(intent);
                                 }

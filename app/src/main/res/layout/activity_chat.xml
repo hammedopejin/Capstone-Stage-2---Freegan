@@ -28,7 +28,7 @@
 
 
         <EditText
-            android:id="@+id/txt1"
+            android:id="@+id/chat_message_edit_text"
             style="@style/edittext_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
