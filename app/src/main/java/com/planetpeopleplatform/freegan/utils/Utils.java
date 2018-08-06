@@ -181,10 +181,12 @@ public class Utils {
             counter += 1;
         }
 
-        firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).child(kLASTMESSAGE).setValue(lastMessage);
-        firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).child(kCOUNTER).setValue(counter);
-        firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).child(kDATE).setValue(date);
+        HashMap<String, Object> newRecent = new HashMap<String, Object>();
+        newRecent.put(kLASTMESSAGE, lastMessage);
+        newRecent.put(kCOUNTER, counter);
+        newRecent.put(kDATE, date);
 
+        firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).updateChildren(newRecent);
 
     }
 

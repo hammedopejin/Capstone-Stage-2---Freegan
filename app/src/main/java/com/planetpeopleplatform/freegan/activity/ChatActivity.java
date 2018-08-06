@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.format.DateUtils;
 import android.view.MenuItem;
@@ -16,8 +17,8 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -29,20 +30,18 @@ import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import tgio.rncryptor.RNCryptorNative;
 
-import static butterknife.internal.Utils.arrayOf;
-import static butterknife.internal.Utils.listOf;
 import static com.planetpeopleplatform.freegan.model.Message.STATUS_READ;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kAUDIO;
@@ -62,18 +61,28 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kVIDEO;
 
 public class ChatActivity extends CustomActivity {
 
+    private ChildEventListener mChildEventListener;
+    private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference chatRef = firebase.child(kMESSAGE);
     private String chatRoomId = null;
     Boolean initialLoadComplete = false;
+
+
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
+
+    // The Editext to compose the message.
+    @BindView(R.id.chat_message_edit_text)
+    EditText mChatMessageEdittext;
+
+    @BindView(R.id.chat_list_view)
+    ListView mListView;
 
     /** The Conversation list.  */
     private ArrayList convList = new ArrayList<Message>();
 
         /** The chat adapter.  */
         private ChatAdapter mChatAdapter = null;
-
-        /** The Editext to compose the message.  */
-        private EditText mChatMessageEdittext;
 
         /** The date of last message in conversation.  */
         private Date lastMsgDate = null;
@@ -94,12 +103,15 @@ public class ChatActivity extends CustomActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_chat);
+            ButterKnife.bind(this);
+            mLoadingIndicator.setVisibility(View.VISIBLE);
 
             mCurrentUserUID = getIntent().getStringExtra("currentUserUID");
             chatRoomId = getIntent().getStringExtra(kCHATROOMID);
            // getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#51b79f")));
             //getSupportActionBar().setTitle(chatMate);
 
+            mMessagesDatabaseReference = firebase.child(kMESSAGE).child(chatRoomId);
 
             firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -121,12 +133,11 @@ public class ChatActivity extends CustomActivity {
 
             setTouchNClick(R.id.btnSend);
 
-            ListView listView = findViewById(R.id.list);
 
             mChatAdapter = new ChatAdapter();
-            listView.setAdapter(mChatAdapter);
-            listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-            listView.setStackFromBottom(true);
+            mListView.setAdapter(mChatAdapter);
+            mListView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+            mListView.setStackFromBottom(true);
 
             //listView.setOnScrollListener(AbsListView.OnScrollListener{ })
         }
@@ -135,7 +146,8 @@ public class ChatActivity extends CustomActivity {
         @Override
         public void onResume() {
             super.onResume();
-            loadConversationList();
+            //loadConversationList();
+            attachDatabaseReadListener();
             Utils.clearRecentCounter(chatRoomId);
             isRunning = true;
         }
@@ -145,6 +157,8 @@ public class ChatActivity extends CustomActivity {
         public void onPause() {
             super.onPause();
             isRunning = false;
+            convList.clear();
+            detachDatabaseReadListener();
         }
 
         @Override
@@ -184,95 +198,66 @@ public class ChatActivity extends CustomActivity {
 
             reference.setValue(cryptMessage);
 
-            Utils.updateRecents(chatRoomId, mChatMessageEdittext.getText().toString());
+            Utils.updateRecents(chatRoomId, encrypted);
 
         }
 
-        /**
-         * Load the conversation list and save the date of last
-         * message that will be used to load only recent new messages
-         */
+    private void attachDatabaseReadListener() {
+        String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
+        final List<String> legitTypes = new ArrayList<>(Arrays.asList(array));
+        if (mChildEventListener == null) {
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-        private void loadConversationList() {
-
-            String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
-            final List<String> legitTypes = new ArrayList<>(Arrays.asList(array));
-
-            // createTypingObservers()
-            chatRef.child(chatRoomId).addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                        if (dataSnapshot.exists()){
+                    if (dataSnapshot.exists()){
 
 
-                            HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
-//                            Toast.makeText(getApplicationContext(), item.get(kTYPE).toString(), Toast.LENGTH_SHORT).show();
-                            if (item.get(kTYPE) != null) {
+                        HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
 
-                                if (legitTypes.contains(item.get(kTYPE))) {
+                        if (item.get(kTYPE) != null) {
 
-                                    RNCryptorNative rncryptor  =  new RNCryptorNative();
-                                    String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
-                                    Message message = new Message(decrypted, (String) item.get(kDATE),
-                                            (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
-                                            (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
-                                            (String) item.get(kTYPE));
-                                    convList.add(message);
+                            if (legitTypes.contains(item.get(kTYPE))) {
 
-                                    // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
-                                    //    lastMsgDate = message.getDate()
-                                    //}
+                                RNCryptorNative rncryptor  =  new RNCryptorNative();
+                                String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                                Message message = new Message(decrypted, (String) item.get(kDATE),
+                                        (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                        (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
+                                        (String) item.get(kTYPE));
+                                convList.add(message);
 
-                                    if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
-                                        Utils.updateChatStatus(item, chatRoomId);
-                                    }
+                                // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
+                                //    lastMsgDate = message.getDate()
+                                //}
+
+                                if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
+                                    Utils.updateChatStatus(item, chatRoomId);
                                 }
-
                             }
-                            mChatAdapter.notifyDataSetChanged();
+
                         }
+                        mChatAdapter.notifyDataSetChanged();
+                        mLoadingIndicator.setVisibility(View.INVISIBLE);
                     }
+                }
 
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-            });
-
-                chatRef.child(chatRoomId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        try {
-
-                            //this.insertMessages();
-
-                        }catch (Exception e){}
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+                public void onChildRemoved(DataSnapshot dataSnapshot) {}
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                public void onCancelled(DatabaseError databaseError) {}
+            };
+            mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
         }
+    }
 
+
+    private void detachDatabaseReadListener() {
+        if (mChildEventListener != null) {
+            mMessagesDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
+    }
 
         /**
          * The Class ChatAdapter is the adapter class for Chat ListView. This

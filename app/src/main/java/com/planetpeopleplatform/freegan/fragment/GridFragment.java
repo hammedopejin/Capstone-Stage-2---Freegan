@@ -210,14 +210,14 @@ public class GridFragment extends Fragment {
     }
 
     private Boolean searchFeed(String newText) {
-        GridAdapter gridadapter = new GridAdapter(mFragment, mListPosts);
+        GridAdapter gridAdapter = new GridAdapter(mFragment, mListPosts);
         if (newText != null && newText.length() > 0) {
-            gridadapter = new GridAdapter(mFragment, filter(newText));
-            mRecyclerView.setAdapter(gridadapter);
+            gridAdapter = new GridAdapter(mFragment, filter(newText));
+            mRecyclerView.setAdapter(gridAdapter);
         } else if (newText.isEmpty()){
             loadPost();
         }
-        gridadapter.notifyDataSetChanged();
+        gridAdapter.notifyDataSetChanged();
         return true;
     }
 

@@ -15,8 +15,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -25,8 +25,10 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.fragment.MyDeleteDialogFragment;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.ItemTouchHelperAdapter;
 import com.planetpeopleplatform.freegan.utils.MyItemTouchHelperCallback;
@@ -37,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import tgio.rncryptor.RNCryptorNative;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
@@ -46,178 +50,192 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLASTMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPRIVATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
+import static com.planetpeopleplatform.freegan.utils.Constants.kRECENTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTYPE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERID;
 
-public class RecentChatActivity extends CustomActivity{
+public class RecentChatActivity extends CustomActivity  implements MyDeleteDialogFragment.OnCompleteListener {
+
+    private static final String TAG = RegisterActivity.class.getSimpleName();
+
+    private ValueEventListener mValueEventListener;
+    private DatabaseReference mRecentsDatabaseReference;
+
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
+
+    @BindView(R.id.recent_recyclerview)
+    RecyclerView mRecentRecyclerView;
+
+    private final int CHAT_ACTIVITY = 777;
+
+    private String mCurrentUserUID;
+
+    private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
+
+    /**
+     * The Recent chat list.
+     */
+    private ArrayList mUserList = new ArrayList<User>();
 
 
-        private final int CHAT_ACTIVITY = 777;
+    PostAdapater mAdapater;
 
-        private String mCurrentUserUID;
+    /** The user. */
+    private User mCurrentUser = null;
 
-        private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
-
-        /**
-         * The Recent chat list.
-         */
-        private ArrayList mUserList = new ArrayList<User>();
+    /** Flag to hold if the activity is running or not.  */
+    private boolean isRunning = false;
 
 
-        PostAdapater mAdapater;
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_recent_chat);
+        ButterKnife.bind(this);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
 
-        /** The user. */
-        private User mCurrentUser = null;
+        mCurrentUserUID = getIntent().getStringExtra("currentUserUID");
+        //  Toast.makeText(getApplicationContext(), mCurrentUserUID,Toast.LENGTH_LONG).show();
+    //      supportActionBar.setBackgroundDrawable(ColorDrawable(Color.parseColor("#51b79f")))
+    //      supportActionBar.title = kRECENT
 
-        /** Flag to hold if the activity is running or not.  */
-        private boolean isRunning = false;
+        firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+                    updateUserStatus(true);
+                    }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        mRecentsDatabaseReference = firebase.child(kRECENT);
+
+        mAdapater = new PostAdapater(this, mUserList);
+
+        MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapater);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(mRecentRecyclerView);
+        mRecentRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecentRecyclerView.hasFixedSize();
+        mRecentRecyclerView.setAdapter(mAdapater);
+    }
 
 
-        @Override
-        public void onCreate(Bundle savedInstanceState){
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_recent_chat);
+    @Override
+    public void onResume(){
+        super.onResume();
+        attachDatabaseReadListener();
+        isRunning = true;
+    }
 
-            mCurrentUserUID = getIntent().getStringExtra("currentUserUID");
-            //  Toast.makeText(getApplicationContext(), mCurrentUserUID,Toast.LENGTH_LONG).show();
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        isRunning = false;
+        mRecents.clear();
+        mUserList.clear();
+        detachDatabaseReadListener();
+    }
 
 
-            firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        updateUserStatus(false);
+    }
+
+    private void attachDatabaseReadListener() {
+        if (mValueEventListener == null) {
+            mValueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
-                        mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-                        updateUserStatus(true);
+
+                    try{
+                        mRecents.clear();
+                        mUserList.clear();
+
+                        Collection<Object> sortedArray =
+                                ((HashMap<String, Object>) dataSnapshot.getValue()).values();
+
+
+
+                        for (Object recent : sortedArray){
+
+                            final HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
+
+                            if(( (currentRecent.get(kTYPE)).equals(kPRIVATE))) {
+
+                                String withUserId = (String) currentRecent.get(kWITHUSERUSERID);
+
+
+                                firebase.child(kUSER).child(withUserId)
+                                        .addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if(dataSnapshot.exists()){
+
+                                                    User fUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
+
+                                                    mUserList.add(fUser);
+                                                    mRecents.add(currentRecent);
+                                                    mAdapater.notifyDataSetChanged();
+                                                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+                            }
                         }
+                    }catch(Exception e){
+                        Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
+                    }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
                 }
-            });
-
-            mAdapater = new PostAdapater(this, mUserList);
-
-            RecyclerView recentRecyclerView = findViewById(R.id.recent_recyclerview);
-            MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapater);
-            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-            touchHelper.attachToRecyclerView(recentRecyclerView);
-            recentRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recentRecyclerView.hasFixedSize();
-            recentRecyclerView.setAdapter(mAdapater);
+            };
+            mRecentsDatabaseReference.orderByChild(kUSERID).equalTo(mCurrentUserUID)
+                    .addValueEventListener(mValueEventListener);
         }
+    }
+
+    private void detachDatabaseReadListener() {
+        if (mValueEventListener != null) {
+            mRecentsDatabaseReference.removeEventListener(mValueEventListener);
+            mValueEventListener = null;
+        }
+    }
 
 
-        @Override
-        public void onResume(){
-            super.onResume();
-            loadRecent();
-            isRunning = true;
-            }
+    private void updateUserStatus(boolean online){
+        mCurrentUser.put("online", online);
+    }
 
 
-            @Override
-            public void onPause(){
-            super.onPause();
-            isRunning = false;
-            }
+    @Override
+    public void onComplete(int position) {
+        mRecentRecyclerView.removeViewAt(position);
+    }
 
 
-            @Override
-            public void onDestroy(){
-            super.onDestroy();
-            updateUserStatus(false);
-            }
-
-
-            private void updateUserStatus(boolean online){
-                mCurrentUser.put("online", online);
-            }
-
-            /**
-             * Load list of users.
-             */
-            private void loadRecent(){
-
-
-
-                firebase.child(kRECENT).orderByChild(kUSERID).equalTo(mCurrentUserUID)
-                        .addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                try{
-                                    mRecents.clear();
-                                    mUserList.clear();
-
-                                    Collection<Object> sortedArray =
-                                            ((HashMap<String, Object>) dataSnapshot.getValue()).values();
-
-
-
-                                    for (Object recent : sortedArray){
-
-                                        final HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
-                                        Log.d("TAG", currentRecent.toString());
-
-                                        firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo((String) currentRecent.get(kCHATROOMID))
-                                                .addValueEventListener(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                    }
-                                                });
-
-                                        if((((HashMap<String, Object>) recent).get(kTYPE)).equals(kPRIVATE)) {
-
-                                            String withUserId = (String) currentRecent.get(kWITHUSERUSERID);
-                                            //Log.d("TAG", withUserId);
-
-                                            firebase.child(kUSER).child(withUserId)
-                                                    .addValueEventListener(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                            if(dataSnapshot.exists()){
-
-                                                                User fUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
-
-                                                                mUserList.add(fUser);
-                                                                mRecents.add(currentRecent);
-
-                                                                }
-                                                            mAdapater.notifyDataSetChanged();
-                                                        }
-
-                                                        @Override
-                                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                        }
-                                                    });
-                                        }
-                                    }
-                                }catch(Exception e){
-                                    Toast.makeText(getApplicationContext(), e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                }
-
-
-                class Item extends RecyclerView.ViewHolder{
+    class Item extends RecyclerView.ViewHolder{
 
                     public Item(View itemView) {
                         super(itemView);
@@ -364,7 +382,7 @@ public class RecentChatActivity extends CustomActivity{
 
                     @Override
                         public int getItemCount(){
-                        return mRecents.size();
+                        return uList.size();
                     }
 
                 @Override
@@ -378,6 +396,9 @@ public class RecentChatActivity extends CustomActivity{
 
                 private void deleteWarning(int position){
 
+                    MyDeleteDialogFragment deleteDialog = MyDeleteDialogFragment.newInstance("ATTENTION !!!",
+                            ((String) ((HashMap<String, Object>) mRecents.get(position)).get(kRECENTID)), kRECENT, position);
+                    deleteDialog.show(getSupportFragmentManager(),"fragment_alert");
 
                 }
 
