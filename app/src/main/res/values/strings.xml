@@ -87,6 +87,7 @@
 
     <!-- Key name for terms of service -->
     <string name="pref_terms_of_service_key" translatable="false">terms of service</string>
+    <string name="action_recent_chats">Recent Chats</string>
 
 
 </resources>

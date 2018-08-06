@@ -9,4 +9,9 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_recent_chats"
+        android:title="@string/action_recent_chats"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
 </menu>

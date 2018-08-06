@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/tv_recent_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_online"
+            android:drawablePadding="@dimen/pad_10dp"
+            android:orientation="horizontal"
+            android:padding="@dimen/pad_10dp"
+            android:text="TextView"
+            android:textColor="@color/black"
+            android:textColorHighlight="@android:color/background_dark"
+            android:textSize="@dimen/txt_18sp" />
+
+        <TextView
+            android:id="@+id/tv_recent_message_date"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="60dp"
+            android:layout_weight="1"
+            android:text="TextView"
+            android:textColor="@color/main_color_gray_lt" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/img_recent_user"
+            android:adjustViewBounds="false"
+            android:layoutDirection="rtl"
+            android:src="@drawable/person_icon"/>
+
+        <TextView
+            android:id="@+id/tv_recent_message"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:padding="@dimen/pad_10dp"
+            android:text="TextView"
+            android:textColor="@color/main_color_gray_lt"
+            android:textSize="@dimen/txt_12sp" />
+
+        <TextView
+            android:id="@+id/tv_recent_counter"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:drawableRight="@drawable/arrow"
+            android:orientation="horizontal"
+            android:padding="@dimen/pad_10dp"
+            android:text="TextView"
+            android:textAlignment="textEnd"
+            android:gravity="end"
+            android:textColor="@color/red"
+            android:textSize="@dimen/txt_12sp" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/main_color_green"
+        android:orientation="vertical">
+    </android.support.v7.widget.LinearLayoutCompat>
+
+</LinearLayout>

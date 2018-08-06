@@ -32,6 +32,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kRECENTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSTATUS;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTYPE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class Utils {
@@ -126,6 +127,7 @@ public class Utils {
         recent.put(kCHATROOMID, chatRoomId);
         recent.put(kMEMBERS, members);
         recent.put(kWITHUSERUSERNAME, withUserUsername);
+        recent.put(kWITHUSERUSERID, withUserUserId);
         recent.put(kLASTMESSAGE, "");
         recent.put(kCOUNTER, 0);
         recent.put(kDATE, date);

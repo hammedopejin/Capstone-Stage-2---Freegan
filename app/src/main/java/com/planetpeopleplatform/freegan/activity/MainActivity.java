@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.GridFragment;
 
@@ -16,12 +17,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
+    public String mCurrentUserUid = null;
+    private FirebaseAuth mAuth;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mAuth= FirebaseAuth.getInstance();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .add(R.id.fragment_container, new GridFragment(), GridFragment.class.getSimpleName())
                 .commit();
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
     }
 
     @Override
@@ -61,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+
+            case R.id.action_recent_chats:
+                startActivity(new Intent(this, RecentChatActivity.class)
+                        .putExtra("currentUserUID", mCurrentUserUid));
                 return true;
 
             default:

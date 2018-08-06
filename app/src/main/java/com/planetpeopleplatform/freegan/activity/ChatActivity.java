@@ -29,15 +29,19 @@ import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import tgio.rncryptor.RNCryptorNative;
 
+import static butterknife.internal.Utils.arrayOf;
 import static butterknife.internal.Utils.listOf;
 import static com.planetpeopleplatform.freegan.model.Message.STATUS_READ;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
@@ -171,7 +175,7 @@ public class ChatActivity extends CustomActivity {
             SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
             RNCryptorNative rncryptor =  new RNCryptorNative();
 
-            String encrypted = String.valueOf((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), chatRoomId)));
+            String encrypted = new String((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), chatRoomId)));
             mChatMessageEdittext.setText(null);
             DatabaseReference reference = chatRef.child(chatRoomId).push();
             String messageId = reference.getKey();
@@ -190,9 +194,12 @@ public class ChatActivity extends CustomActivity {
          */
 
         private void loadConversationList() {
-            final List<String> legitTypes = listOf(kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE);
-                // createTypingObservers()
-                chatRef.child(chatRoomId).addChildEventListener(new ChildEventListener() {
+
+            String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
+            final List<String> legitTypes = new ArrayList<>(Arrays.asList(array));
+
+            // createTypingObservers()
+            chatRef.child(chatRoomId).addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -200,7 +207,7 @@ public class ChatActivity extends CustomActivity {
 
 
                             HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
-//                            Toast.makeText(getApplicationContext(), item.get(kMESSAGE).toString(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), item.get(kTYPE).toString(), Toast.LENGTH_SHORT).show();
                             if (item.get(kTYPE) != null) {
 
                                 if (legitTypes.contains(item.get(kTYPE))) {
@@ -246,7 +253,7 @@ public class ChatActivity extends CustomActivity {
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
-                });
+            });
 
                 chatRef.child(chatRoomId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

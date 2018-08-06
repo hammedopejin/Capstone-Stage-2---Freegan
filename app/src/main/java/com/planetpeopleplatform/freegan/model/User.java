@@ -137,7 +137,7 @@ public class User {
     }
 
     //Set User status
-    void put(String status, Boolean online){
+    public void put(String status, Boolean online){
         if (online){
             this.status = status;
         }else{
@@ -145,7 +145,7 @@ public class User {
         }
     }
 
-    Boolean getBoolean(String status) {
+    public boolean getBoolean(String status) {
         return status.equals(this.status);
     }
 
