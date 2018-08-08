@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/main_content_swipe_refresh_layout"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/recycler_view"
+            android:scrollbarStyle="outsideOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/list_side_margin"
+            android:paddingEnd="@dimen/list_side_margin"
+            android:fitsSystemWindows="true"
+            android:paddingTop="?actionBarSize"
+            android:clipToPadding="false"
+            android:paddingLeft="@dimen/list_side_margin"
+            android:paddingRight="@dimen/list_side_margin"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layoutManager="GridLayoutManager"
+            app:spanCount="@integer/grid_span_count"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/new_item_button_view"
+        android:contentDescription="Give Button"
+        android:background="@drawable/add_fab_background"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_width="@dimen/fab_layout_width"
+        android:layout_height="@dimen/fab_layout_height"
+        android:elevation="@dimen/fab_elevation"
+        android:layout_marginEnd="@dimen/fab_margin" />
+
+    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
+    <ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        android:layout_width="@dimen/progressbar_size"
+        android:layout_height="@dimen/progressbar_size"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
+
+</android.support.design.widget.CoordinatorLayout>

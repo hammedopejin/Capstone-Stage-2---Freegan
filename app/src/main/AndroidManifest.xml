@@ -9,9 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity"
-            android:launchMode="singleTop"/>
-        <activity android:name=".fragment.ImagePagerActivity" />
+        <activity
+            android:name=".activity.MainActivity"
+            android:launchMode="singleTop" />
         <activity
             android:name=".activity.RegisterActivity"
             android:launchMode="singleTop">
@@ -35,7 +35,8 @@
         <activity android:name=".activity.PostActivity" />
         <activity android:name=".activity.CustomActivity" />
         <activity android:name=".activity.ChatActivity" />
-        <activity android:name=".activity.RecentChatActivity"></activity>
+        <activity android:name=".activity.RecentChatActivity" />
+        <activity android:name=".activity.ProfileActivity"></activity>
     </application>
 
 </manifest>

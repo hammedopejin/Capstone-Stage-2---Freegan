@@ -18,14 +18,14 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.fragment.ImagePagerFragment;
+import com.planetpeopleplatform.freegan.fragment.MainImagePagerFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolder> {
+public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageViewHolder> {
 
     /**
      * A listener that is attached to all ViewHolders to handle image loading events and clicks.
@@ -44,7 +44,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
      */
-    public GridAdapter(Fragment fragment, ArrayList<Post> listPosts) {
+    public MainGridAdapter(Fragment fragment, ArrayList<Post> listPosts) {
         this.mRequestManager = Glide.with(fragment);
         this.mViewHolderListener = new ViewHolderListenerImpl(fragment);
         this.mListPosts = listPosts;
@@ -96,10 +96,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
 
         /**
          * Handles a view click by setting the current position to the given {@code position} and
-         * starting a {@link  ImagePagerFragment} which displays the image at the position.
+         * starting a {@link  MainImagePagerFragment} which displays the image at the position.
          *
          * @param view the clicked {@link ImageView} (the shared element view will be re-mapped at the
-         * GridFragment's SharedElementCallback)
+         * MainGridFragment's SharedElementCallback)
          * @param position the selected view position
          */
         @Override
@@ -118,7 +118,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
                     .beginTransaction()
                     .setReorderingAllowed(true) // Optimize for shared element transition
                     .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, ImagePagerFragment.newInstance(mListPosts), ImagePagerFragment.class
+                    .replace(R.id.fragment_container, MainImagePagerFragment.newInstance(mListPosts), MainImagePagerFragment.class
                             .getSimpleName())
                     .addToBackStack(null)
                     .commit();
@@ -181,7 +181,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageViewHolde
 
         @Override
         public void onClick(View view) {
-            // Let the listener start the ImagePagerFragment.
+            // Let the listener start the MainImagePagerFragment.
             viewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
         }
     }

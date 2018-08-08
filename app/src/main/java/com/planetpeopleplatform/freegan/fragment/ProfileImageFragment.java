@@ -37,7 +37,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
-public class ImageFragment extends Fragment {
+public class ProfileImageFragment extends Fragment {
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private String mChatMateId;
@@ -59,8 +59,8 @@ public class ImageFragment extends Fragment {
     @BindView(R.id.contact_button_view)
     android.support.design.widget.FloatingActionButton mContactButtonView;
 
-    public static ImageFragment newInstance(Post post) {
-        ImageFragment fragment = new ImageFragment();
+    public static ProfileImageFragment newInstance(Post post) {
+        ProfileImageFragment fragment = new ProfileImageFragment();
         Bundle argument = new Bundle();
         argument.putParcelable(KEY_POST_RES, post);
         fragment.setArguments(argument);
@@ -73,6 +73,8 @@ public class ImageFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
         ButterKnife.bind(this, view);
+        mPosterImageButton.setVisibility(View.GONE);
+
 
         mAuth= FirebaseAuth.getInstance();
 
@@ -92,7 +94,7 @@ public class ImageFragment extends Fragment {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
                             target, boolean isFirstResource) {
-                        // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
+                        // The postponeEnterTransition is called on the parent ProfileImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going in case of a failure.
                         getParentFragment().startPostponedEnterTransition();
@@ -102,7 +104,7 @@ public class ImageFragment extends Fragment {
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
                             target, DataSource dataSource, boolean isFirstResource) {
-                        // The postponeEnterTransition is called on the parent ImagePagerFragment, so the
+                        // The postponeEnterTransition is called on the parent ProfileImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going when the image is ready.
                         getParentFragment().startPostponedEnterTransition();
@@ -110,6 +112,13 @@ public class ImageFragment extends Fragment {
                     }
                 })
                 .into((ImageView) view.findViewById(R.id.image));
+
+        mTextView.setText(postDescription);
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        if (mPost.getPostUserObjectId().equals(mCurrentUserUid)) {
+            mContactButtonView.setVisibility(View.GONE);
+        }
+        getCurrentUser(mCurrentUserUid);
 
 
 
@@ -157,56 +166,9 @@ public class ImageFragment extends Fragment {
             }
         });
 
-        mTextView.setText(postDescription);
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
-        loadUserProfilePicture(view, this, mPost.getPostUserObjectId());
-        getCurrentUser(mCurrentUserUid);
-
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
-        mToolbarContainer.setVisibility(View.GONE);
-    }
-
-    private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
-        firebase.child(kUSER).child(posterId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    User user = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-
-                    Glide.with(fragment)
-                            .load(user.getUserImgUrl())
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                        target, boolean isFirstResource) {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                        target, DataSource dataSource, boolean isFirstResource) {
-                                    return false;
-                                }
-                            })
-                            .into((de.hdodenhof.circleimageview.CircleImageView) view.findViewById(R.id.poster_image_button));
-
-
-                }catch (Exception ex){}
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
 
     private User getCurrentUser(String currentUserUid) {
         firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {

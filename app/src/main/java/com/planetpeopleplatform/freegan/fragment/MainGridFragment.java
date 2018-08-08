@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
@@ -22,7 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.PostActivity;
-import com.planetpeopleplatform.freegan.adapter.GridAdapter;
+import com.planetpeopleplatform.freegan.adapter.MainGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 
 import java.util.ArrayList;
@@ -40,13 +41,16 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 /**
  * A fragment for displaying a grid of images.
  */
-public class GridFragment extends Fragment {
+public class MainGridFragment extends Fragment {
 
     private Fragment mFragment = null;
 
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
 
     private static final int RC_POST_ITEM = 1;
+
+    @BindView(R.id.main_content_swipe_refresh_layout)
+    SwipeRefreshLayout mSwipeContainer;
 
     @BindView(R.id.new_item_button_view)
     android.support.design.widget.FloatingActionButton mPhotoPickerButton;
@@ -61,11 +65,10 @@ public class GridFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_grid, container, false);
-
+        View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
-        SearchView mSearchView = getActivity().findViewById(R.id.searchView);
 
+        SearchView mSearchView = getActivity().findViewById(R.id.searchView);
         mFragment = this;
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -160,7 +163,7 @@ public class GridFragment extends Fragment {
         setExitTransition(TransitionInflater.from(getContext())
                 .inflateTransition(R.transition.grid_exit_transition));
 
-        // A similar mapping is set at the ImagePagerFragment with a setEnterSharedElementCallback.
+        // A similar mapping is set at the MainImagePagerFragment with a setEnterSharedElementCallback.
         setExitSharedElementCallback(
                 new SharedElementCallback() {
                     @Override
@@ -194,8 +197,11 @@ public class GridFragment extends Fragment {
                         mListPosts.add(new Post(post));
                     }
 
-                    mRecyclerView.setAdapter(new GridAdapter(mFragment, mListPosts));
+                    mRecyclerView.setAdapter(new MainGridAdapter(mFragment, mListPosts));
                     showDataView();
+                    if (mSwipeContainer.isRefreshing()){
+                        mSwipeContainer.setRefreshing(false);
+                    }
                 }catch (Exception ex){
                     String exception = ex.getLocalizedMessage();
                 }
@@ -207,12 +213,21 @@ public class GridFragment extends Fragment {
             }
         });
 
+        mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
+        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+            @Override
+            public void onRefresh(){
+                loadPost();
+
+            }
+        });
+
     }
 
     private Boolean searchFeed(String newText) {
-        GridAdapter gridAdapter = new GridAdapter(mFragment, mListPosts);
+        MainGridAdapter gridAdapter = new MainGridAdapter(mFragment, mListPosts);
         if (newText != null && newText.length() > 0) {
-            gridAdapter = new GridAdapter(mFragment, filter(newText));
+            gridAdapter = new MainGridAdapter(mFragment, filter(newText));
             mRecyclerView.setAdapter(gridAdapter);
         } else if (newText.isEmpty()){
             loadPost();

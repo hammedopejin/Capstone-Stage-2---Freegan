@@ -8,28 +8,27 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.fragment.MainGridFragment;
+import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 
-public class MainActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity {
 
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
-    public String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
 
+    public String mPosterUid = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mAuth = FirebaseAuth.getInstance();
+        setContentView(R.layout.activity_profile);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mPosterUid = getIntent().getStringExtra(kUSERID);
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
@@ -41,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, new MainGridFragment(), MainGridFragment.class.getSimpleName())
+                .add(R.id.fragment_container, ProfileGridFragment.newInstance(mPosterUid), ProfileGridFragment.class.getSimpleName())
                 .commit();
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+
     }
 
     @Override
@@ -51,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_POSITION, currentPosition);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -69,15 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
 
-            case R.id.action_recent_chats:
-                startActivity(new Intent(this, RecentChatActivity.class)
-                        .putExtra("currentUserUID", mCurrentUserUid));
-                return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }
-

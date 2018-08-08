@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.adapter.ImagePagerAdapter;
+import com.planetpeopleplatform.freegan.adapter.MainImagePagerAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * A fragment for displaying a pager of images.
  */
-public class ImagePagerFragment extends Fragment {
+public class MainImagePagerFragment extends Fragment {
 
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
 
@@ -32,8 +32,8 @@ public class ImagePagerFragment extends Fragment {
     private ArrayList<Post> listPosts =  new ArrayList<Post>();
     private ArrayList<? extends Parcelable> list;
 
-    public static ImagePagerFragment newInstance(ArrayList<Post> listPosts) {
-        ImagePagerFragment fragment = new ImagePagerFragment();
+    public static MainImagePagerFragment newInstance(ArrayList<Post> listPosts) {
+        MainImagePagerFragment fragment = new MainImagePagerFragment();
         Bundle argument = new Bundle();
         argument.putParcelableArrayList(KEY_ARRAY_LIST, listPosts);
         fragment.setArguments(argument);
@@ -54,7 +54,7 @@ public class ImagePagerFragment extends Fragment {
             listPosts.add(post);
         }
 
-        mViewPager.setAdapter(new ImagePagerAdapter(this, listPosts));
+        mViewPager.setAdapter(new MainImagePagerAdapter(this, listPosts));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         mViewPager.setCurrentItem(MainActivity.currentPosition);
@@ -84,12 +84,12 @@ public class ImagePagerFragment extends Fragment {
                         .inflateTransition(R.transition.image_shared_element_transition);
         setSharedElementEnterTransition(transition);
 
-        // A similar mapping is set at the GridFragment with a setExitSharedElementCallback.
+        // A similar mapping is set at the MainGridFragment with a setExitSharedElementCallback.
         setEnterSharedElementCallback(
                 new SharedElementCallback() {
                     @Override
                     public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                        // Locate the image view at the primary fragment (the ImageFragment that is currently
+                        // Locate the image view at the primary fragment (the MainImageFragment that is currently
                         // visible). To locate the fragment, call instantiateItem with the selection position.
                         // At this stage, the method will simply return the fragment at the position and will
                         // not create a new one.
