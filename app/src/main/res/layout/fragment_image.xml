@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         style="@style/Subhead"
         android:layout_gravity="bottom"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/text_padding"
         android:textSize="@dimen/detail_title_text_size"
         android:paddingLeft="@dimen/text_padding"
         android:paddingTop="@dimen/text_padding"

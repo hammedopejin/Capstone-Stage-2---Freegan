@@ -10,7 +10,10 @@ import android.view.MenuItem;
 
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
+import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -18,7 +21,7 @@ public class ProfileActivity extends AppCompatActivity {
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
 
-    public String mPosterUid = null;
+    public Post mPost = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mPosterUid = getIntent().getStringExtra(kUSERID);
+        mPost = getIntent().getParcelableExtra(kUSER);
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
@@ -40,7 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, ProfileGridFragment.newInstance(mPosterUid), ProfileGridFragment.class.getSimpleName())
+                .add(R.id.fragment_container, ProfileGridFragment.newInstance(mPost), ProfileGridFragment.class.getSimpleName())
                 .commit();
 
     }

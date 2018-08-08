@@ -1,5 +1,8 @@
 package com.planetpeopleplatform.freegan.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.DatabaseReference;
 
 import java.text.SimpleDateFormat;
@@ -9,7 +12,7 @@ import java.util.HashMap;
 import com.planetpeopleplatform.freegan.utils.Constants;
 import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
 
-public class User {
+public class User implements Parcelable {
 
     private String objectId;
     private String pushId;
@@ -54,6 +57,30 @@ public class User {
 
     static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
     static Date dataobj= new Date();
+
+    protected User(Parcel in) {
+        objectId = in.readString();
+        pushId = in.readString();
+        createdAt = in.readString();
+        updatedAt = in.readString();
+        email = in.readString();
+        userName = in.readString();
+        userImgUrl = in.readString();
+        loginMethod = in.readString();
+        status = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 
     public static void registerUserWith(String email, String fireUserUid, String userName)
         {
@@ -150,4 +177,21 @@ public class User {
     }
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(objectId);
+        parcel.writeString(pushId);
+        parcel.writeString(createdAt);
+        parcel.writeString(updatedAt);
+        parcel.writeString(email);
+        parcel.writeString(userName);
+        parcel.writeString(userImgUrl);
+        parcel.writeString(loginMethod);
+        parcel.writeString(status);
+    }
 }

@@ -36,6 +36,7 @@ public class Constants {
     //posts
     public static final String kPOST = "posts";
     public static final String kLIKE = "likes";
+    public static final String kPOSTUSEROBJECTID = "postUserObjectId";
 
     //recent
     public static final String kRECENT = "recent";

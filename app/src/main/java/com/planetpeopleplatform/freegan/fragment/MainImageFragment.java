@@ -163,7 +163,7 @@ public class MainImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-                profileIntent.putExtra(kUSERID, mPost.getPostUserObjectId());
+                profileIntent.putExtra(kUSER, mPost);
                 startActivity(profileIntent);
             }
         });

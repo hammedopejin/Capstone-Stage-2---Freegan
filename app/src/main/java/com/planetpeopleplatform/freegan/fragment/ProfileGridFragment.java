@@ -1,5 +1,6 @@
 package com.planetpeopleplatform.freegan.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,12 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
@@ -33,33 +34,38 @@ import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
 
 public class ProfileGridFragment extends Fragment {
 
     private static final String TAG = ProfileGridFragment.class.getSimpleName();
-    private ValueEventListener mValueEventListener;
-    private DatabaseReference mPostsDatabaseReference;
 
     private Fragment mFragment = null;
 
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
-    public String mPosterUid = null;
+    public Post mPost = null;
 
     private static final String KEY_POSTER_UID = "com.planetpeopleplatform.freegan.key.posterUid";
 
     @BindView(R.id.profile_image_view)
-    ImageView mProfileImageView;
+    de.hdodenhof.circleimageview.CircleImageView mProfileImageView;
 
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
+    @BindView(R.id.back_arrow)
+    ImageButton mBackArrow;
+
+    @BindView(R.id.collapsing_toolbar)
+    android.support.design.widget.CollapsingToolbarLayout mCollapsingToolbarLayout;
+
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
 
-    public static ProfileGridFragment newInstance(String posterUid) {
+    public static ProfileGridFragment newInstance(Post post) {
         ProfileGridFragment fragment = new ProfileGridFragment();
         Bundle argument = new Bundle();
-        argument.putString(KEY_POSTER_UID, posterUid);
+        argument.putParcelable(KEY_POSTER_UID, post);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -72,16 +78,24 @@ public class ProfileGridFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         Bundle arguments = getArguments();
-        mPosterUid = arguments.getString(KEY_POSTER_UID);
+        mPost = arguments.getParcelable(KEY_POSTER_UID);
 
         mFragment = this;
 
-        mPostsDatabaseReference = firebase.child(kPOST);
-
-
         prepareTransitions();
         postponeEnterTransition();
+        Glide.with(this).load(mPost.getProfileImgUrl()).into(mProfileImageView);
+        mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
+        mCollapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#DD2C00"));
+        mCollapsingToolbarLayout.setTitle(mPost.getUserName());
         showLoading();
+        loadPost();
+        mBackArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().onBackPressed();
+            }
+        });
 
         return rootView;
     }
@@ -96,14 +110,13 @@ public class ProfileGridFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        attachDatabaseReadListener();
+        loadPost();
     }
 
     @Override
     public void onPause(){
         super.onPause();
         mListPosts.clear();
-        detachDatabaseReadListener();
     }
 
     /**
@@ -168,44 +181,35 @@ public class ProfileGridFragment extends Fragment {
     }
 
 
-    private void attachDatabaseReadListener() {
-        if (mValueEventListener == null) {
-            mValueEventListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+    private void loadPost(){
 
-                    try{
-                        mListPosts.clear();
+        firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPost.getPostUserObjectId())
+                .addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try{
+                    mListPosts.clear();
 
-                        HashMap<String, Object> postData= (HashMap<String, Object>) dataSnapshot.getValue();
+                    HashMap<String, Object> postData= (HashMap<String, Object>) dataSnapshot.getValue();
 
-                        for (String key : postData.keySet()){
-                            HashMap<String, Object> post = (HashMap<String, Object>) postData.get(key);
-                            mListPosts.add(new Post(post));
-                        }
-
-                        mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts));
-                        showDataView();
-                    }catch(Exception e){
-                        Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
+                    for (String key : postData.keySet()){
+                        HashMap<String, Object> post = (HashMap<String, Object>) postData.get(key);
+                        mListPosts.add(new Post(post));
                     }
+
+                    mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts));
+                    showDataView();
+                }catch (Exception e){
+                    Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
-            };
-            mPostsDatabaseReference.orderByChild("postUserObjectId").equalTo(mPosterUid)
-                    .addValueEventListener(mValueEventListener);
-        }
-    }
+            }
+        });
 
-    private void detachDatabaseReadListener() {
-        if (mValueEventListener != null) {
-            mPostsDatabaseReference.removeEventListener(mValueEventListener);
-            mValueEventListener = null;
-        }
     }
 
 

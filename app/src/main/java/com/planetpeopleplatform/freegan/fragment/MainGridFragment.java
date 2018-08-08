@@ -11,6 +11,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
@@ -43,8 +44,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
  */
 public class MainGridFragment extends Fragment {
 
+    private static final String TAG = MainGridFragment.class.getSimpleName();
     private Fragment mFragment = null;
-
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
 
     private static final int RC_POST_ITEM = 1;
@@ -202,8 +203,8 @@ public class MainGridFragment extends Fragment {
                     if (mSwipeContainer.isRefreshing()){
                         mSwipeContainer.setRefreshing(false);
                     }
-                }catch (Exception ex){
-                    String exception = ex.getLocalizedMessage();
+                }catch (Exception e){
+                    Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                 }
             }
 
