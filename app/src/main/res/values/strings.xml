@@ -39,7 +39,7 @@
 
     <!-- Strings related to Settings -->
     <string name="myCoolButton">logout key</string>
-
+    <string name="userProfileImage">userProfileImage key</string>
 
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
@@ -88,6 +88,7 @@
     <!-- Key name for terms of service -->
     <string name="pref_terms_of_service_key" translatable="false">terms of service</string>
     <string name="action_recent_chats">Recent Chats</string>
+    <string name="action_report_user">Report User</string>
 
 
 </resources>

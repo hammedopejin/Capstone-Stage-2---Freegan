@@ -114,7 +114,6 @@ public class MainImageFragment extends Fragment {
                 .into((ImageView) view.findViewById(R.id.image));
 
 
-
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,6 +170,9 @@ public class MainImageFragment extends Fragment {
         mTextView.setText(postDescription);
         mCurrentUserUid = mAuth.getCurrentUser().getUid();
         loadUserProfilePicture(view, this, mPost.getPostUserObjectId());
+        if (mPost.getPostUserObjectId().equals(mCurrentUserUid)) {
+            mContactButtonView.setVisibility(View.GONE);
+        }
         getCurrentUser(mCurrentUserUid);
 
         return view;

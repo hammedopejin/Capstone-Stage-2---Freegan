@@ -62,6 +62,16 @@
                     android:background="@color/transparent"
                     android:src="@drawable/back_arrow" />
 
+                <ImageButton
+                    android:id="@+id/settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
+                    android:layout_gravity="end"
+                    android:src="@android:drawable/ic_menu_manage"
+                    android:paddingEnd="@dimen/general_padding"
+                    android:paddingStart="@dimen/general_padding"/>
+
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
 

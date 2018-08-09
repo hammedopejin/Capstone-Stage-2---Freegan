@@ -32,11 +32,12 @@
     <dimen name="min_margin">2dp</dimen>
     <dimen name="text_padding">16dp</dimen>
 
-    <dimen name="circle_image_padding">4dp</dimen>
+    <dimen name="circle_image_padding">8dp</dimen>
 
     <dimen name="app_bar_layout_elevation">4dp</dimen>
     <dimen name="progressbar_size">42dp</dimen>
     <dimen name="general_layout_margin">8dp</dimen>
+    <dimen name="general_padding">8dp</dimen>
 
     <integer name="grid_span_count">2</integer>
 

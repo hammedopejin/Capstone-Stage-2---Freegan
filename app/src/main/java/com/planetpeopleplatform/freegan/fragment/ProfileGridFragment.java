@@ -1,5 +1,6 @@
 package com.planetpeopleplatform.freegan.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,17 +11,22 @@ import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
+import com.planetpeopleplatform.freegan.activity.SettingsActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 
@@ -41,6 +47,8 @@ public class ProfileGridFragment extends Fragment {
     private static final String TAG = ProfileGridFragment.class.getSimpleName();
 
     private Fragment mFragment = null;
+    public String mCurrentUserUid = null;
+    private FirebaseAuth mAuth;
 
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
     public Post mPost = null;
@@ -49,6 +57,9 @@ public class ProfileGridFragment extends Fragment {
 
     @BindView(R.id.profile_image_view)
     de.hdodenhof.circleimageview.CircleImageView mProfileImageView;
+
+    @BindView(R.id.settings)
+    ImageButton mSettings;
 
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
@@ -81,9 +92,11 @@ public class ProfileGridFragment extends Fragment {
         mPost = arguments.getParcelable(KEY_POSTER_UID);
 
         mFragment = this;
+        mAuth= FirebaseAuth.getInstance();
 
         prepareTransitions();
         postponeEnterTransition();
+
         Glide.with(this).load(mPost.getProfileImgUrl()).into(mProfileImageView);
         mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
         mCollapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#DD2C00"));
@@ -96,6 +109,18 @@ public class ProfileGridFragment extends Fragment {
                 getActivity().onBackPressed();
             }
         });
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        mSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mPost.getPostUserObjectId().equals(mCurrentUserUid)){
+                    Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                    startActivity(settingsIntent);
+                }else {
+                    showUserSettingsPopup(view);
+                }
+            }
+        });
 
         return rootView;
     }
@@ -105,18 +130,6 @@ public class ProfileGridFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         scrollToPosition();
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        loadPost();
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        mListPosts.clear();
     }
 
     /**
@@ -210,6 +223,26 @@ public class ProfileGridFragment extends Fragment {
             }
         });
 
+    }
+
+    private void showUserSettingsPopup(View view) {
+        PopupMenu popup = new PopupMenu(getContext(), view);
+        popup.inflate(R.menu.popup_user_settings);
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.action_report_user:
+                        Toast.makeText(getContext(), "not so quick! lol", Toast.LENGTH_SHORT).show();
+                        return true;
+
+                        default:
+                            return false;
+                }
+            }
+        });
+        popup.show();
     }
 
 

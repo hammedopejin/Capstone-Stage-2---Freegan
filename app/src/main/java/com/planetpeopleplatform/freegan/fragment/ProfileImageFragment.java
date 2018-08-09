@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,7 +74,7 @@ public class ProfileImageFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
         ButterKnife.bind(this, view);
-        mPosterImageButton.setVisibility(View.GONE);
+        mPosterImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
 
 
         mAuth= FirebaseAuth.getInstance();
@@ -119,8 +120,13 @@ public class ProfileImageFragment extends Fragment {
             mContactButtonView.setVisibility(View.GONE);
         }
         getCurrentUser(mCurrentUserUid);
-
-
+        mPosterImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent shareIntent = createShareForecastIntent();
+                startActivity(shareIntent);
+            }
+        });
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +192,15 @@ public class ProfileImageFragment extends Fragment {
             }
         });
         return mCurrentUser;
+    }
+
+    private Intent createShareForecastIntent() {
+        Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
+                .setType("text/plain")
+                .setText("" + "")
+                .getIntent();
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        return shareIntent;
     }
 
 }

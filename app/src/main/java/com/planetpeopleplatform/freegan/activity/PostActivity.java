@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -51,6 +52,9 @@ public class PostActivity extends AppCompatActivity {
 
     @BindView(R.id.item_post_button)
     Button mItemPostButton;
+
+    @BindView(R.id.pb_loading_indicator)
+    ProgressBar mLoadingIndicator;
 
     private static final int RC_PHOTO_PICKER = 2;
 
@@ -99,7 +103,6 @@ public class PostActivity extends AppCompatActivity {
                     return;
                 }
                 postToFirebase();
-                finish();
             }
         });
 
@@ -169,6 +172,8 @@ public class PostActivity extends AppCompatActivity {
 
         final StorageReference imageRef = storageRef.child("post_pics/"+imagePath );
 
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+
         // Upload file to Firebase Storage
         imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
@@ -199,7 +204,11 @@ public class PostActivity extends AppCompatActivity {
                     mItemDescriptionEditText.getText().clear();
                     mItemDescriptionEditText.clearFocus();
                     mImageSelected = false;
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                    Toast.makeText(getApplicationContext(), "Post uploaded successfully!!!", Toast.LENGTH_SHORT).show();
+                    finish();
                 } else {
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Toast.makeText(getApplicationContext(), "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }

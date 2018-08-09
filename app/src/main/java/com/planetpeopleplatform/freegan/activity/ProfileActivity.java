@@ -4,17 +4,14 @@ import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
 import com.planetpeopleplatform.freegan.model.Post;
-import com.planetpeopleplatform.freegan.model.User;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -27,9 +24,6 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         mPost = getIntent().getParcelableExtra(kUSER);
 
