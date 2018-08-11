@@ -6,12 +6,32 @@
 
 
     <Preference android:title="Profile Photo"
-        android:key="@string/userProfileImage"
+        android:key="@string/user_profile_image_key"
         android:summary=""
         android:icon="@android:drawable/ic_menu_gallery" />
+    <Preference android:title="User Name"
+        android:key="@string/user_name_key"
+        android:summary=""
+        android:icon="@android:drawable/ic_menu_sort_alphabetically" />
+    <Preference android:title="Email"
+        android:key="@string/user_email_key"
+        android:summary=""
+        android:icon="@android:drawable/sym_action_email" />
+    <Preference android:title="Password"
+        android:key="@string/user_password_key"
+        android:summary=""
+        android:icon="@android:drawable/ic_lock_lock" />
+    <Preference android:title="Location"
+        android:key="@string/user_location_key"
+        android:summary=""
+        android:icon="@android:drawable/ic_menu_mylocation" />
+
+
+
+
 
     <Preference android:title="Log Out"
-        android:key="@string/myCoolButton"
+        android:key="@string/logout_button_key"
         android:summary=""
         android:icon="@android:drawable/ic_lock_power_off"/>
 

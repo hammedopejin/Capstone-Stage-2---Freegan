@@ -45,7 +45,7 @@ public class ProfileImageFragment extends Fragment {
     private Post mPost = null;
     private String mChatRoomId = null;
     private User mCurrentUser = null;
-    public String mCurrentUserUid = null;
+    private String mCurrentUserUid = null;
     private FirebaseAuth mAuth;
 
     @BindView(R.id.text_view)
@@ -77,7 +77,7 @@ public class ProfileImageFragment extends Fragment {
         mPosterImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
 
 
-        mAuth= FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         Bundle arguments = getArguments();
         mPost = arguments.getParcelable(KEY_POST_RES);

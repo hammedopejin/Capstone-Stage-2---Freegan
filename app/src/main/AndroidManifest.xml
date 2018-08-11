@@ -36,7 +36,8 @@
         <activity android:name=".activity.CustomActivity" />
         <activity android:name=".activity.ChatActivity" />
         <activity android:name=".activity.RecentChatActivity" />
-        <activity android:name=".activity.ProfileActivity"></activity>
+        <activity android:name=".activity.ProfileActivity" />
+        <activity android:name=".activity.UpdateUserNameActivity"></activity>
     </application>
 
 </manifest>

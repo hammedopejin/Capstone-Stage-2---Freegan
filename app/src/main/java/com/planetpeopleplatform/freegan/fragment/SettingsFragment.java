@@ -5,11 +5,14 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.Fragment;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
+import com.planetpeopleplatform.freegan.activity.UpdateUserNameActivity;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.text.SimpleDateFormat;
@@ -33,6 +37,7 @@ import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 
@@ -45,6 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private User mCurrentUser;
     private String mCurrentUserUid;
     private ProgressBar mLoadingIndicator;
+    private Fragment mFragment;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -105,7 +111,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .registerOnSharedPreferenceChangeListener(this);
 
         mAuth = FirebaseAuth.getInstance();
-
+        mFragment = this;
         mCurrentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
@@ -122,7 +128,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             }
         });
 
-        Preference button = findPreference(getString(R.string.myCoolButton));
+        Preference button = findPreference(getString(R.string.logout_button_key));
 
         button.setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
             @Override
@@ -133,7 +139,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             }
         });
 
-        findPreference(getString(R.string.userProfileImage))
+        findPreference(getString(R.string.user_profile_image_key))
                 .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -141,6 +147,19 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 return true;
             }
         });
+
+        findPreference(getString(R.string.user_name_key))
+                .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent updateUserNameIntent = new Intent(getContext(), UpdateUserNameActivity.class);
+                        updateUserNameIntent.putExtra(kUSERNAME, mCurrentUser.getUserName());
+                        getActivity().startActivity(updateUserNameIntent);
+
+                        return true;
+                    }
+                });
+
     }
 
     @Override
@@ -212,7 +231,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         if (requestCode == RC_PHOTO_PICKER && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
             postToFirebase();
-
 
         } else if (requestCode == RC_PHOTO_PICKER){
             if (resultCode == RESULT_CANCELED) {

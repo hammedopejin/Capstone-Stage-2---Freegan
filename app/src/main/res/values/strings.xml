@@ -38,8 +38,12 @@
 
 
     <!-- Strings related to Settings -->
-    <string name="myCoolButton">logout key</string>
-    <string name="userProfileImage">userProfileImage key</string>
+    <string name="logout_button_key">Logout Key</string>
+    <string name="user_profile_image_key">User Profile Image Key</string>
+    <string name="user_name_key">Username Key</string>
+    <string name="user_email_key">User Email Key</string>
+    <string name="user_password_key">User Password Key</string>
+    <string name="user_location_key">User Location Key</string>
 
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
@@ -89,6 +93,7 @@
     <string name="pref_terms_of_service_key" translatable="false">terms of service</string>
     <string name="action_recent_chats">Recent Chats</string>
     <string name="action_report_user">Report User</string>
+    <string name="update_button_text">Update</string>
 
 
 </resources>
