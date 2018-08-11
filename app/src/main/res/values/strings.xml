@@ -55,8 +55,12 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="enter_email_edit_text">Enter email</string>
+    <string name="enter_email_edit_text2">Enter new email</string>
     <string name="enter_password_edit_text">Enter password</string>
+    <string name="enter_password_edit_text2">Enter new password</string>
+    <string name="enter_password_edit_text3">Enter new password again</string>
     <string name="enter_full_name_edit_text">Enter full name</string>
+    <string name="enter_full_name_edit_text2">Enter new name</string>
     <string name="register_button_text">Register</string>
     <string name="sign_in_button_text">Sign In</string>
     <string name="sign_up_text_view">Not a member yet? Sign up now</string>

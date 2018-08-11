@@ -5,14 +5,11 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.Fragment;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -27,6 +24,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
+import com.planetpeopleplatform.freegan.activity.UpdateEmailActivity;
+import com.planetpeopleplatform.freegan.activity.UpdatePasswordActivity;
 import com.planetpeopleplatform.freegan.activity.UpdateUserNameActivity;
 import com.planetpeopleplatform.freegan.model.User;
 
@@ -36,6 +35,7 @@ import java.util.Date;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
@@ -50,7 +50,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private User mCurrentUser;
     private String mCurrentUserUid;
     private ProgressBar mLoadingIndicator;
-    private Fragment mFragment;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -111,7 +110,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .registerOnSharedPreferenceChangeListener(this);
 
         mAuth = FirebaseAuth.getInstance();
-        mFragment = this;
         mCurrentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
@@ -160,6 +158,28 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     }
                 });
 
+        findPreference(getString(R.string.user_password_key))
+                .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent updatePasswordIntent = new Intent(getContext(), UpdatePasswordActivity.class);
+                        getActivity().startActivity(updatePasswordIntent);
+
+                        return true;
+                    }
+                });
+
+        findPreference(getString(R.string.user_email_key))
+                .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent updateEmailIntent = new Intent(getContext(), UpdateEmailActivity.class);
+                        updateEmailIntent.putExtra(kEMAIL, mCurrentUser.getEmail());
+                        getActivity().startActivity(updateEmailIntent);
+
+                        return true;
+                    }
+                });
     }
 
     @Override

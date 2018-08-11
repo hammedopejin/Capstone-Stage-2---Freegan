@@ -37,7 +37,9 @@
         <activity android:name=".activity.ChatActivity" />
         <activity android:name=".activity.RecentChatActivity" />
         <activity android:name=".activity.ProfileActivity" />
-        <activity android:name=".activity.UpdateUserNameActivity"></activity>
+        <activity android:name=".activity.UpdateUserNameActivity" />
+        <activity android:name=".activity.UpdateEmailActivity" />
+        <activity android:name=".activity.UpdatePasswordActivity"></activity>
     </application>
 
 </manifest>

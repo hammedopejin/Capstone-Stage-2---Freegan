@@ -43,7 +43,7 @@
         android:layout_marginTop="?actionBarSize">
 
         <EditText
-            android:id="@+id/user_name_edit_text"
+            android:id="@+id/email_edit_text"
             android:layout_width="200dp"
             android:layout_height="39dp"
             android:layout_marginEnd="@dimen/general_layout_margin"
@@ -52,8 +52,8 @@
             android:layout_marginStart="@dimen/general_layout_margin"
             android:layout_marginTop="30dp"
             android:ems="10"
-            android:hint="@string/enter_full_name_edit_text2"
-            android:inputType="textPersonName"
+            android:hint="@string/enter_email_edit_text2"
+            android:inputType="textEmailAddress"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textColorHint="@color/whitebackground"
@@ -73,7 +73,7 @@
             android:textColor="@android:color/background_light"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/user_name_edit_text" />
+            app:layout_constraintTop_toBottomOf="@+id/email_edit_text" />
 
     </android.support.constraint.ConstraintLayout>
 
