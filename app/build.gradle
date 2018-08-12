@@ -47,9 +47,11 @@ dependencies {
 
     implementation "com.android.support:preference-v7:$androidSupportVersion"
 
+    implementation "com.android.support:support-v4:$androidSupportVersion"
+    implementation "com.android.support:support-vector-drawable:$androidSupportVersion"
+
+    //Views Binding
     implementation 'com.jakewharton:butterknife:8.8.1'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:support-vector-drawable:27.1.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     // Circle images
@@ -68,7 +70,8 @@ dependencies {
     // Encryption
     implementation 'com.github.tgio:rncryptor-native:0.0.9'
 
-
+    //Location
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
