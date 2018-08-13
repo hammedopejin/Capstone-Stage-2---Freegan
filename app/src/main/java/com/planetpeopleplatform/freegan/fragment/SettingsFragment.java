@@ -2,6 +2,7 @@ package com.planetpeopleplatform.freegan.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,10 +10,15 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,11 +37,15 @@ import com.planetpeopleplatform.freegan.model.User;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static android.support.v4.content.ContextCompat.checkSelfPermission;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
+import static com.planetpeopleplatform.freegan.utils.Constants.kLATITUDE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kLONGITUDE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
@@ -43,7 +53,11 @@ import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    public static final String TAG = SettingsFragment.class.getSimpleName();
+
     private FirebaseAuth mAuth;
+    private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
+    private static final int PLACE_PICKER_REQUEST = 1;
     private static final int RC_PHOTO_PICKER = 2;
     private String mPostDownloadURL;
     private Uri mSelectedImageUri = null;
@@ -180,6 +194,23 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                         return true;
                     }
                 });
+
+        findPreference(getString(R.string.user_location_key))
+                .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        if (checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions(
+                                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                    PERMISSIONS_REQUEST_FINE_LOCATION);
+                        }else {
+                            addNewLocation();
+                        }
+
+                        return true;
+                    }
+                });
     }
 
     @Override
@@ -239,12 +270,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         });
     }
 
-
-    private String SplitString(String email) {
-        String[] split= email.split("@");
-        return split[0];
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -255,7 +280,77 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         } else if (requestCode == RC_PHOTO_PICKER){
             if (resultCode == RESULT_CANCELED) {
             }
+        } else if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+            Place place = PlacePicker.getPlace(getContext(), data);
+            if (place == null) {
+                Log.i(TAG, "No place selected");
+                return;
+            }
+            updateUserLocation(place);
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_FINE_LOCATION : {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addNewLocation();
+                } else {
+                    Toast.makeText(getContext(), "Permission needed to complete action", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+
+        }
+    }
+
+    public void addNewLocation() {
+        try {
+            // Start a new Activity for the Place Picker API, this will trigger {@code #onActivityResult}
+            // when a place is selected or with the user cancels.
+            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+            Intent i = builder.build(getActivity());
+            startActivityForResult(i, PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
+        } catch (Exception e) {
+            Log.e(TAG, String.format("PlacePicker Exception: %s", e.getMessage()));
+        }
+    }
+
+    /* Update Geofire */
+    private void updateUserLocation(Place place) {
+
+
+        HashMap<String, Object> newLocation = new HashMap<String, Object>();
+        newLocation.put(kLATITUDE, place.getLatLng().latitude);
+        newLocation.put(kLONGITUDE, place.getLatLng().longitude);
+
+
+        firebase.child(kUSER).child(mCurrentUserUid).updateChildren(newLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Location updated");
+                    Toast.makeText(getContext(), "Location successfully updated!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, "Error location not updated");
+                    Toast.makeText(getContext(), "Location failed to update!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private String SplitString(String email) {
+        String[] split= email.split("@");
+        return split[0];
+    }
+
 
 }

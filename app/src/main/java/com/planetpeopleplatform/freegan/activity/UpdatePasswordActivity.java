@@ -74,7 +74,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
                     return;
                 }
 
-                updatePassword(newPassword);
+                updateUserPassword(newPassword);
             }
         });
 
@@ -82,7 +82,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
     }
 
 
-    private void updatePassword(String newPassword) {
+    private void updateUserPassword(String newPassword) {
 
         mUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

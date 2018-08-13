@@ -32,6 +32,8 @@ public class Constants {
     public static final String kUSERNAME = "userName";
     public static final String kAVATAR = "userImgUrl";
     public static final String kCURRENTUSER = "currentUser";
+    public static final String kLONGITUDE = "longitude";
+    public static final String kLATITUDE = "latitude";
 
     //posts
     public static final String kPOST = "posts";

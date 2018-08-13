@@ -73,7 +73,7 @@ public class UpdateEmailActivity extends AppCompatActivity {
                     return;
                 }
 
-                updateEmail(newEmail);
+                updateUserEmail(newEmail);
             }
         });
 
@@ -81,7 +81,7 @@ public class UpdateEmailActivity extends AppCompatActivity {
     }
 
 
-    private void updateEmail(final String newEmail) {
+    private void updateUserEmail(final String newEmail) {
 
         mUser.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
