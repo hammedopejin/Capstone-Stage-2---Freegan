@@ -23,6 +23,8 @@ public class User implements Parcelable {
     private String userImgUrl = "";
     private String loginMethod;
     private String status = "";
+    private Double latitude;
+    private Double longitude;
 
 
     public User (String _objectId, String _pushId, String _createdAt, String _updatedAt, String _email,
@@ -39,7 +41,6 @@ public class User implements Parcelable {
         this.userImgUrl = _userimgurl;
 
         this.loginMethod = _loginMethod;
-
     }
 
     public User (HashMap<String, Object> dictionary){
@@ -52,7 +53,8 @@ public class User implements Parcelable {
         userName = (String) dictionary.get(Constants.kUSERNAME);
         userImgUrl = (String) dictionary.get(Constants.kAVATAR);
         loginMethod = (String) dictionary.get(Constants.kLOGINMETHOD);
-
+        latitude = (Double) dictionary.get(Constants.kLATITUDE);
+        longitude = (Double) dictionary.get(Constants.kLONGITUDE);
     }
 
     static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
@@ -68,6 +70,8 @@ public class User implements Parcelable {
         userImgUrl = in.readString();
         loginMethod = in.readString();
         status = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -163,6 +167,20 @@ public class User implements Parcelable {
         this.status = status;
     }
 
+    public Double getLatitude() {
+        return latitude;
+    }
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
     //Set User status
     public void put(String status, Boolean online){
         if (online){
@@ -193,5 +211,7 @@ public class User implements Parcelable {
         parcel.writeString(userImgUrl);
         parcel.writeString(loginMethod);
         parcel.writeString(status);
+        parcel.writeDouble(latitude);
+        parcel.writeDouble(longitude);
     }
 }

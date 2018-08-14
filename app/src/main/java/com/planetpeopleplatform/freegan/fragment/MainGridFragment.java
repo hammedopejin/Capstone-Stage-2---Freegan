@@ -18,6 +18,10 @@ import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -38,6 +42,7 @@ import butterknife.ButterKnife;
 import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 
 /**
  * A fragment for displaying a grid of images.
@@ -47,9 +52,13 @@ public class MainGridFragment extends Fragment {
     private static final String TAG = MainGridFragment.class.getSimpleName();
     private Fragment mFragment = null;
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
+    ArrayList<String> mPostIds = new ArrayList<>();
+    GeoQuery mGeoQuery;
+    private GeoFire mGeoFire;
 
     private static final int RC_POST_ITEM = 1;
 
+    SearchView mSearchView;
     @BindView(R.id.main_content_swipe_refresh_layout)
     SwipeRefreshLayout mSwipeContainer;
 
@@ -69,7 +78,10 @@ public class MainGridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
 
-        SearchView mSearchView = getActivity().findViewById(R.id.searchView);
+        mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+
+
+        mSearchView = getActivity().findViewById(R.id.searchView);
         mFragment = this;
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -84,6 +96,8 @@ public class MainGridFragment extends Fragment {
             }
         });
 
+
+
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +110,7 @@ public class MainGridFragment extends Fragment {
         prepareTransitions();
         postponeEnterTransition();
         showLoading();
-        loadPost();
+        checkPosts();
         return rootView;
     }
 
@@ -111,7 +125,7 @@ public class MainGridFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_POST_ITEM && data!=null && resultCode == RESULT_OK) {
-            loadPost();
+            checkPosts();
         }
     }
 
@@ -120,6 +134,12 @@ public class MainGridFragment extends Fragment {
         super.onResume();
         android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
         mToolbarContainer.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mGeoQuery.removeAllListeners();
     }
 
     /**
@@ -183,45 +203,74 @@ public class MainGridFragment extends Fragment {
                 });
     }
 
-    private void loadPost(){
-
-        firebase.child(kPOST).addValueEventListener(new ValueEventListener() {
+    private void checkPosts(){
+        mGeoQuery = mGeoFire.queryAtLocation(new GeoLocation(32.7871725, -117.14520703124998), 50);
+        mPostIds.clear();
+        mGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
+            public void onKeyEntered(String key, GeoLocation location) {
+                mPostIds.add(key);
+            }
 
-                    mListPosts.clear();
-                    HashMap<String, Object> td= (HashMap<String, Object>) dataSnapshot.getValue();
+            @Override
+            public void onKeyExited(String key) {
 
-                    for (String key : td.keySet()){
-                        HashMap<String, Object> post = (HashMap<String, Object>) td.get(key);
-                        mListPosts.add(new Post(post));
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                loadPosts();
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void loadPosts(){
+
+        mListPosts.clear();
+        for (String postId : mPostIds) {
+
+            firebase.child(kPOST).child(postId).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    try {
+                            HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
+                            mListPosts.add(new Post(post));
+
+
+                        mRecyclerView.setAdapter(new MainGridAdapter(mFragment, mListPosts));
+                        showDataView();
+                        if (mSwipeContainer.isRefreshing()) {
+                            mSwipeContainer.setRefreshing(false);
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                     }
-
-                    mRecyclerView.setAdapter(new MainGridAdapter(mFragment, mListPosts));
-                    showDataView();
-                    if (mSwipeContainer.isRefreshing()){
-                        mSwipeContainer.setRefreshing(false);
-                    }
-                }catch (Exception e){
-                    Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
 
-        mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
-        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
-            @Override
-            public void onRefresh(){
-                loadPost();
-
-            }
-        });
+            mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
+            mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+                @Override
+                public void onRefresh(){
+                    checkPosts();
+                }
+            });
+        }
 
     }
 
@@ -231,7 +280,7 @@ public class MainGridFragment extends Fragment {
             gridAdapter = new MainGridAdapter(mFragment, filter(newText));
             mRecyclerView.setAdapter(gridAdapter);
         } else if (newText.isEmpty()){
-            loadPost();
+            checkPosts();
         }
         gridAdapter.notifyDataSetChanged();
         return true;
@@ -248,6 +297,8 @@ public class MainGridFragment extends Fragment {
         mListPosts.addAll(filterdPost);
         return mListPosts;
     }
+
+
 
     private void showDataView() {
         /* First, hide the loading indicator */
