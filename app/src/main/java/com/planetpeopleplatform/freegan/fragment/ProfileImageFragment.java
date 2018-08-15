@@ -36,6 +36,7 @@ import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 public class ProfileImageFragment extends Fragment {
@@ -55,7 +56,7 @@ public class ProfileImageFragment extends Fragment {
     ImageButton mBackArrow;
 
     @BindView(R.id.poster_image_button)
-    de.hdodenhof.circleimageview.CircleImageView mPosterImageButton;
+    de.hdodenhof.circleimageview.CircleImageView mShareImageButton;
 
     @BindView(R.id.contact_button_view)
     android.support.design.widget.FloatingActionButton mContactButtonView;
@@ -74,8 +75,8 @@ public class ProfileImageFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
         ButterKnife.bind(this, view);
-        mPosterImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
 
+        mShareImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -120,7 +121,7 @@ public class ProfileImageFragment extends Fragment {
             mContactButtonView.setVisibility(View.GONE);
         }
         getCurrentUser(mCurrentUserUid);
-        mPosterImageButton.setOnClickListener(new View.OnClickListener() {
+        mShareImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent shareIntent = createShareForecastIntent();
@@ -155,7 +156,7 @@ public class ProfileImageFragment extends Fragment {
 
                                     //  Toast.makeText(applicationContext, chatRoomId, Toast.LENGTH_LONG).show()
 
-                                    intent.putExtra("currentUserUID", mCurrentUserUid);
+                                    intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                                     intent.putExtra(kCHATROOMID, mChatRoomId);
 
                                     startActivity(intent);

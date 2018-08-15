@@ -36,6 +36,8 @@ import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 
@@ -141,7 +143,7 @@ public class MainImageFragment extends Fragment {
 
                                     //  Toast.makeText(applicationContext, chatRoomId, Toast.LENGTH_LONG).show()
 
-                                    intent.putExtra("currentUserUID", mCurrentUserUid);
+                                    intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                                     intent.putExtra(kCHATROOMID, mChatRoomId);
 
                                     startActivity(intent);
@@ -162,7 +164,7 @@ public class MainImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-                profileIntent.putExtra(kUSER, mPost);
+                profileIntent.putExtra(kPOST, mPost);
                 startActivity(profileIntent);
             }
         });

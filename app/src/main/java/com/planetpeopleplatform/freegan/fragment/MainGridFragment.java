@@ -22,6 +22,7 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -30,6 +31,7 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.PostActivity;
 import com.planetpeopleplatform.freegan.adapter.MainGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,8 +43,10 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 /**
  * A fragment for displaying a grid of images.
@@ -53,6 +57,10 @@ public class MainGridFragment extends Fragment {
     private Fragment mFragment = null;
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
     ArrayList<String> mPostIds = new ArrayList<>();
+    private String mCurrentUserUid = null;
+    private User mCurrentUser = null;
+    private FirebaseAuth mAuth;
+    private MainGridAdapter mMainGridAdapter;
     GeoQuery mGeoQuery;
     private GeoFire mGeoFire;
 
@@ -78,8 +86,28 @@ public class MainGridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
 
-        mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
+
+        if(savedInstanceState != null) {
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+        }else {
+            firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+                        checkPosts();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
 
         mSearchView = getActivity().findViewById(R.id.searchView);
         mFragment = this;
@@ -107,10 +135,13 @@ public class MainGridFragment extends Fragment {
             }
         });
 
+        mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
+        mRecyclerView.setAdapter(mMainGridAdapter);
+
         prepareTransitions();
         postponeEnterTransition();
         showLoading();
-        checkPosts();
+
         return rootView;
     }
 
@@ -137,9 +168,17 @@ public class MainGridFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        mGeoQuery.removeAllListeners();
+        if (mGeoQuery != null) {
+            mGeoQuery.removeAllListeners();
+        }
     }
 
     /**
@@ -204,7 +243,9 @@ public class MainGridFragment extends Fragment {
     }
 
     private void checkPosts(){
-        mGeoQuery = mGeoFire.queryAtLocation(new GeoLocation(32.7871725, -117.14520703124998), 50);
+        mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+        mGeoQuery = mGeoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
+                mCurrentUser.getLongitude()), 50);
         mPostIds.clear();
         mGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
@@ -246,13 +287,12 @@ public class MainGridFragment extends Fragment {
                             HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
                             mListPosts.add(new Post(post));
 
-
-                        mRecyclerView.setAdapter(new MainGridAdapter(mFragment, mListPosts));
-                        showDataView();
-                        if (mSwipeContainer.isRefreshing()) {
+                            mMainGridAdapter.notifyDataSetChanged();
+                            showDataView();
+                            if (mSwipeContainer.isRefreshing()) {
                             mSwipeContainer.setRefreshing(false);
-                        }
-                    } catch (Exception e) {
+                            }
+                        } catch (Exception e) {
                         Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                     }
                 }
@@ -271,18 +311,17 @@ public class MainGridFragment extends Fragment {
                 }
             });
         }
+        mPostIds.clear();
+        mMainGridAdapter.notifyDataSetChanged();
 
     }
 
     private Boolean searchFeed(String newText) {
-        MainGridAdapter gridAdapter = new MainGridAdapter(mFragment, mListPosts);
         if (newText != null && newText.length() > 0) {
-            gridAdapter = new MainGridAdapter(mFragment, filter(newText));
-            mRecyclerView.setAdapter(gridAdapter);
+            mRecyclerView.setAdapter(new MainGridAdapter(mFragment, filter(newText)));
         } else if (newText.isEmpty()){
             checkPosts();
         }
-        gridAdapter.notifyDataSetChanged();
         return true;
     }
 

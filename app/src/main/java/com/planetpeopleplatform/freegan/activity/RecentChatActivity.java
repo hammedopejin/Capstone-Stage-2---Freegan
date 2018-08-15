@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -46,6 +47,7 @@ import tgio.rncryptor.RNCryptorNative;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCOUNTER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLASTMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPRIVATE;
@@ -54,6 +56,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kRECENTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTYPE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERID;
 
 public class RecentChatActivity extends CustomActivity  implements MyDeleteDialogFragment.OnCompleteListener {
@@ -71,7 +74,7 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
 
     private final int CHAT_ACTIVITY = 777;
 
-    private String mCurrentUserUID;
+    private String mCurrentUserUid;
 
     private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
 
@@ -95,14 +98,17 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recent_chat);
         ButterKnife.bind(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Chats");
+
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
-        mCurrentUserUID = getIntent().getStringExtra("currentUserUID");
-        //  Toast.makeText(getApplicationContext(), mCurrentUserUID,Toast.LENGTH_LONG).show();
-    //      supportActionBar.setBackgroundDrawable(ColorDrawable(Color.parseColor("#51b79f")))
-    //      supportActionBar.title = kRECENT
+        mCurrentUserUid = getIntent().getStringExtra(kCURRENTUSERID);
 
-        firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
+        firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
@@ -211,7 +217,7 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
 
                 }
             };
-            mRecentsDatabaseReference.orderByChild(kUSERID).equalTo(mCurrentUserUID)
+            mRecentsDatabaseReference.orderByChild(kUSERID).equalTo(mCurrentUserUid)
                     .addValueEventListener(mValueEventListener);
         }
     }
@@ -261,7 +267,7 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
                                                 HashMap<String, Object> td = (HashMap<String, Object>) dataSnapshot.getValue();
 
                                                 for(Object key : td.keySet()){
-                                                    if(key.equals("userImgUrl")){
+                                                    if(key.equals(kUSERIMAGEURL)){
                                                         String userPicUrl = (String) td.get(key);
                                                         Glide.with(getApplicationContext())
                                                                 .load(userPicUrl)
@@ -294,132 +300,121 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
 
 
                     }
+    }
+
+
+    class PostAdapater extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+            implements ItemTouchHelperAdapter{
+
+
+        View myView = null;
+        Context context;
+        ArrayList<User> uList;
+
+        public PostAdapater(Context c, ArrayList userList) {
+            context = c;
+            uList = userList;
+        }
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            myView = LayoutInflater.from(context).inflate(R.layout.recent_item, parent, false);
+            return new Item(myView);
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position){
+
+            ((Item) holder).bindData(uList.get(position));
+            holder.itemView.setTag(position);
+
+            TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
+
+            try {
+                lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(), Utils.DateHelper.DF_SIMPLE_FORMAT
+                                .get().parse((String) ((HashMap<String, Object>) mRecents.get(position)).get(kDATE)).getTime(),DateUtils.SECOND_IN_MILLIS,
+                        DateUtils.SECOND_IN_MILLIS,0));
+                } catch (ParseException e) {
+                e.printStackTrace();
                 }
+                lbl = holder.itemView.findViewById(R.id.tv_recent_message);
+            lbl.setMaxLines(1);
+            RNCryptorNative rncryptor = new RNCryptorNative();
 
+            String decrypted = rncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position)).get(kLASTMESSAGE),
+                    (String) ((HashMap<String, Object>) mRecents.get(position)).get(kCHATROOMID));
 
+            if(decrypted.equals("error decrypting")){
+                decrypted = "";
+                }
+                lbl.setText(decrypted);
 
-                class PostAdapater extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-                    implements ItemTouchHelperAdapter{
+            lbl = holder.itemView.findViewById(R.id.tv_recent_counter);
+            lbl.setText("");
 
+            if( (long) ((HashMap<String, Object>) mRecents.get(position)).get(kCOUNTER)   > 0){
 
-                    View myView = null;
-                    Context context;
-                    ArrayList<User> uList;
+                lbl.setText( ((HashMap<String, Object>) mRecents.get(position)).get(kCOUNTER).toString() + " New  ");
+            }
 
-                    public PostAdapater(Context c, ArrayList userList) {
-                        context = c;
-                        uList = userList;
-                    }
-
-                    @NonNull
-                    @Override
-                    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        myView = LayoutInflater.from(context).inflate(R.layout.recent_item, parent, false);
-                        return new Item(myView);
-                    }
-
-                    @Override
-                    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position){
-
-                    ((Item) holder).bindData(uList.get(position));
-                    holder.itemView.setTag(position);
-
-                    TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
-
-                    try {
-                        lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(), Utils.DateHelper.DF_SIMPLE_FORMAT
-                                        .get().parse((String) ((HashMap<String, Object>) mRecents.get(position)).get(kDATE)).getTime(),DateUtils.SECOND_IN_MILLIS,
-                                DateUtils.SECOND_IN_MILLIS,0));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-
-                    lbl = holder.itemView.findViewById(R.id.tv_recent_message);
-                    lbl.setMaxLines(1);
-                    RNCryptorNative rncryptor = new RNCryptorNative();
-
-                    String decrypted = rncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position)).get(kLASTMESSAGE),
-                            (String) ((HashMap<String, Object>) mRecents.get(position)).get(kCHATROOMID));
-
-                    if(decrypted.equals("error decrypting")){
-                        decrypted = "";
-                    }
-                    lbl.setText(decrypted);
-
-                    lbl = holder.itemView.findViewById(R.id.tv_recent_counter);
-                    lbl.setText("");
-
-                    if( (long) ((HashMap<String, Object>) mRecents.get(position)).get(kCOUNTER)   > 0){
-
-                    lbl.setText( ((HashMap<String, Object>) mRecents.get(position)).get(kCOUNTER).toString() + " New  ");
-
-                    }
-
-                    holder.itemView.setOnClickListener(new View.OnClickListener() {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                        public void onClick(View view) { Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
 
-                            User user2 = (User) uList.get(position);
+                        User user2 = (User) uList.get(position);
 
-                            String chatRoomId = Utils.startChat(mCurrentUser, user2);
+                        String chatRoomId = Utils.startChat(mCurrentUser, user2);
 
-                            intent.putExtra("currentUserUID", mCurrentUserUID);
-                            intent.putExtra(kCHATROOMID, chatRoomId);
+                        intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
+                        intent.putExtra(kCHATROOMID, chatRoomId);
 
 
-                            startActivityForResult(intent, CHAT_ACTIVITY);
+                        startActivityForResult(intent, CHAT_ACTIVITY);
                         }
-                    });
-
-                    }
-
-
-                    @Override
-                    public long getItemId(int p0) {
-                        return (long) p0;
-                    }
-
-                    @Override
-                        public int getItemCount(){
-                        return uList.size();
-                    }
-
-                @Override
-                public void onItemDismiss(int position){
-                    deleteWarning(position);
-                    mAdapater.notifyDataSetChanged();
-                    }
-
-                }
+            });
+        }
 
 
-                private void deleteWarning(int position){
+        @Override
+        public long getItemId(int p0) {
+            return (long) p0;
+        }
 
-                    MyDeleteDialogFragment deleteDialog = MyDeleteDialogFragment.newInstance("ATTENTION !!!",
-                            ((String) ((HashMap<String, Object>) mRecents.get(position)).get(kRECENTID)), kRECENT, position);
-                    deleteDialog.show(getSupportFragmentManager(),"fragment_alert");
+        @Override
+        public int getItemCount(){
+            return uList.size();
+        }
 
-                }
+        @Override
+        public void onItemDismiss(int position){
+            deleteWarning(position);
+            mAdapater.notifyDataSetChanged();
+            }
+    }
 
-                @Override
-                public void onActivityResult(int requestCode, int resultCode, Intent data){
-                    super.onActivityResult(requestCode,resultCode,data);
-                }
 
-                @Override
-                public boolean onOptionsItemSelected(MenuItem item) {
-                    if(item.getItemId()==android.R.id.home){
-                        finish();
-                    }
-                    return super.onOptionsItemSelected(item);
-                }
+    private void deleteWarning(int position){
 
-                @Override
-                public void onBackPressed(){
-                    super.onBackPressed();
-                    Intent intent = new Intent(this, MainActivity.class);
-                    startActivity(intent);
-                }
+        MyDeleteDialogFragment deleteDialog = MyDeleteDialogFragment.newInstance("ATTENTION !!!",
+                ((String) ((HashMap<String, Object>) mRecents.get(position)).get(kRECENTID)), kRECENT, position);
+        deleteDialog.show(getSupportFragmentManager(),"fragment_alert");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 }

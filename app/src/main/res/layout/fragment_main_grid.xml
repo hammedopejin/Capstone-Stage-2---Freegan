@@ -46,6 +46,7 @@
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_width="@dimen/fab_layout_width"
         android:layout_height="@dimen/fab_layout_height"
+        android:src="@drawable/common_google_signin_btn_icon_light"
         android:elevation="@dimen/fab_elevation"
         android:layout_marginEnd="@dimen/fab_margin" />
 

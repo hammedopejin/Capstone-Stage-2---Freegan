@@ -46,6 +46,7 @@ import static com.planetpeopleplatform.freegan.model.Message.STATUS_READ;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kAUDIO;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
@@ -106,7 +107,7 @@ public class ChatActivity extends CustomActivity {
             ButterKnife.bind(this);
             mLoadingIndicator.setVisibility(View.VISIBLE);
 
-            mCurrentUserUID = getIntent().getStringExtra("currentUserUID");
+            mCurrentUserUID = getIntent().getStringExtra(kCURRENTUSERID);
             chatRoomId = getIntent().getStringExtra(kCHATROOMID);
            // getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#51b79f")));
             //getSupportActionBar().setTitle(chatMate);

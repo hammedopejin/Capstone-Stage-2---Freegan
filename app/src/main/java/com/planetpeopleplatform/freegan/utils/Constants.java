@@ -30,7 +30,7 @@ public class Constants {
     public static final String kLASTNAME = "lastname";
     public static final String kFULLNAME = "fullname";
     public static final String kUSERNAME = "userName";
-    public static final String kAVATAR = "userImgUrl";
+    public static final String kUSERIMAGEURL = "userImgUrl";
     public static final String kCURRENTUSER = "currentUser";
     public static final String kLONGITUDE = "longitude";
     public static final String kLATITUDE = "latitude";
@@ -70,6 +70,7 @@ public class Constants {
     public static final String kSENDERID = "senderId";
     public static final String kSENDERNAME = "senderName";
     public static final String kTHUMBNAIL = "thumbnail";
+    public static final String kCURRENTUSERID = "currentUserUid";
 
     //Friends
     public static final String kFRIEND = "friends";

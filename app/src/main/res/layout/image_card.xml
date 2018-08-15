@@ -16,7 +16,7 @@
     android:focusable="true"
     android:foreground="?android:selectableItemBackground"
     android:padding="@dimen/min_margin"
-    card_view:cardCornerRadius="@dimen/min_margin"
+    card_view:cardCornerRadius="@dimen/general_padding"
     card_view:cardElevation="@dimen/min_margin"
     card_view:cardPreventCornerOverlap="true"
     card_view:cardUseCompatPadding="true">

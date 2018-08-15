@@ -11,6 +11,7 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -25,7 +26,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        mPost = getIntent().getParcelableExtra(kUSER);
+        mPost = getIntent().getParcelableExtra(kPOST);
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
@@ -44,8 +45,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_POSITION, currentPosition);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

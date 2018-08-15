@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import com.planetpeopleplatform.freegan.utils.Constants;
 import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 
 public class User implements Parcelable {
 
@@ -51,7 +52,7 @@ public class User implements Parcelable {
         updatedAt = (String) dictionary.get(Constants.kUPDATEDAT);
         email = (String) dictionary.get(kEMAIL);
         userName = (String) dictionary.get(Constants.kUSERNAME);
-        userImgUrl = (String) dictionary.get(Constants.kAVATAR);
+        userImgUrl = (String) dictionary.get(kUSERIMAGEURL);
         loginMethod = (String) dictionary.get(Constants.kLOGINMETHOD);
         latitude = (Double) dictionary.get(Constants.kLATITUDE);
         longitude = (Double) dictionary.get(Constants.kLONGITUDE);
