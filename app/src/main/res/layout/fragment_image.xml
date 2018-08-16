@@ -59,14 +59,13 @@
         android:paddingLeft="@dimen/text_padding"
         android:paddingTop="@dimen/text_padding"
         android:paddingRight="@dimen/text_padding"
-        android:paddingBottom="@dimen/min_margin"
+        android:paddingBottom="@dimen/text_padding"
         android:maxLines="2"/>
 
     <android.support.design.widget.FloatingActionButton
         android:text="Contact"
         android:id="@+id/contact_button_view"
         android:contentDescription="Contact Button"
-        android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"

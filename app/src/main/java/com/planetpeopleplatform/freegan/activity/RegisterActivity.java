@@ -69,14 +69,13 @@ public class RegisterActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
                     Log.d("TAG", "createUserWithEmail: success");
-                    Toast.makeText(getApplicationContext(),"Successful login",Toast.LENGTH_LONG).show();
 
                     saveUserAndLogIn();
 
                 }else
                 {
                     Log.d("TAG", "createUserWithEmail: Failed");
-                    Toast.makeText(getApplicationContext(),"registration failed",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),"Registration failed",Toast.LENGTH_LONG).show();
                     showDataView();
                 }
             }

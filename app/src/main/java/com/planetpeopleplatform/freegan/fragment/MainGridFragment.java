@@ -1,10 +1,14 @@
 package com.planetpeopleplatform.freegan.fragment;
 
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,15 +21,22 @@ import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.PostActivity;
@@ -42,8 +53,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
+import static android.support.v4.content.ContextCompat.checkSelfPermission;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kLATITUDE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kLONGITUDE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
@@ -63,10 +77,13 @@ public class MainGridFragment extends Fragment {
     private MainGridAdapter mMainGridAdapter;
     GeoQuery mGeoQuery;
     private GeoFire mGeoFire;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     private static final int RC_POST_ITEM = 1;
+    private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
 
     SearchView mSearchView;
+
     @BindView(R.id.main_content_swipe_refresh_layout)
     SwipeRefreshLayout mSwipeContainer;
 
@@ -86,19 +103,43 @@ public class MainGridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
 
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
-
-
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
-        }else {
+            mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
+        } else {
+
+            mAuth = FirebaseAuth.getInstance();
+            mCurrentUserUid = mAuth.getCurrentUser().getUid();
+
             firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
+                    if (dataSnapshot.exists()) {
                         mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-                        checkPosts();
+
+                        if (mCurrentUser.getLatitude() == null) {
+                            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+                            if (checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED) {
+                                requestPermissions(
+                                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                        PERMISSIONS_REQUEST_FINE_LOCATION);
+                            }else {
+                                mFusedLocationClient.getLastLocation()
+                                        .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                                            @Override
+                                            public void onSuccess(Location location) {
+                                                // Got last known location. In some rare situations this can be null.
+                                                if (location != null) {
+                                                    updateUserLocation(location);
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            checkPosts();
+                        }
                     }
                 }
 
@@ -107,7 +148,13 @@ public class MainGridFragment extends Fragment {
 
                 }
             });
+
+            showLoading();
+
         }
+
+        prepareTransitions();
+        postponeEnterTransition();
 
         mSearchView = getActivity().findViewById(R.id.searchView);
         mFragment = this;
@@ -125,7 +172,6 @@ public class MainGridFragment extends Fragment {
         });
 
 
-
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,12 +181,16 @@ public class MainGridFragment extends Fragment {
             }
         });
 
+        mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
+        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                checkPosts();
+            }
+        });
+
         mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
         mRecyclerView.setAdapter(mMainGridAdapter);
-
-        prepareTransitions();
-        postponeEnterTransition();
-        showLoading();
 
         return rootView;
     }
@@ -155,10 +205,50 @@ public class MainGridFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_POST_ITEM && data!=null && resultCode == RESULT_OK) {
+        if (requestCode == RC_POST_ITEM && data != null && resultCode == RESULT_OK) {
             checkPosts();
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED &&
+                            ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(getContext(), "Permission needed to complete action", Toast.LENGTH_SHORT).show();
+                        mAuth.signOut();
+                        startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        return;
+                    }
+                    mFusedLocationClient.getLastLocation()
+                            .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                                @Override
+                                public void onSuccess(Location location) {
+                                    // Got last known location. In some rare situations this can be null.
+                                    if (location != null) {
+                                        updateUserLocation(location);
+                                    }
+                                }
+                            });
+
+                } else {
+                    Toast.makeText(getContext(), "Permission needed to complete action", Toast.LENGTH_SHORT).show();
+                    mAuth.signOut();
+                    startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                }
+            }
+
+        }
+    }
+
 
     @Override
     public void onResume() {
@@ -170,6 +260,7 @@ public class MainGridFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        outState.putParcelableArrayList(kPOST, mListPosts);
         super.onSaveInstanceState(outState);
     }
 
@@ -302,14 +393,6 @@ public class MainGridFragment extends Fragment {
 
                 }
             });
-
-            mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
-            mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
-                @Override
-                public void onRefresh(){
-                    checkPosts();
-                }
-            });
         }
         mPostIds.clear();
         mMainGridAdapter.notifyDataSetChanged();
@@ -322,6 +405,7 @@ public class MainGridFragment extends Fragment {
         } else if (newText.isEmpty()){
             checkPosts();
         }
+        mMainGridAdapter.notifyDataSetChanged();
         return true;
     }
 
@@ -337,6 +421,28 @@ public class MainGridFragment extends Fragment {
         return mListPosts;
     }
 
+    /* Update Geofire */
+    private void updateUserLocation(Location location) {
+
+
+        HashMap<String, Object> newLocation = new HashMap<String, Object>();
+        newLocation.put(kLATITUDE, location.getLatitude());
+        newLocation.put(kLONGITUDE, location.getLongitude());
+
+
+        firebase.child(kUSER).child(mCurrentUserUid).updateChildren(newLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Location updated");
+                    Toast.makeText(getContext(), "Location successfully updated!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, "Error location not updated");
+                    Toast.makeText(getContext(), "Location failed to update!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
 
     private void showDataView() {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * A fragment for displaying a pager of images.
  */
@@ -29,7 +30,7 @@ public class MainImagePagerFragment extends Fragment {
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
 
     private ViewPager mViewPager;
-    private ArrayList<Post> listPosts =  new ArrayList<Post>();
+    private ArrayList<Post> mListPosts =  new ArrayList<Post>();
     private ArrayList<? extends Parcelable> list;
 
     public static MainImagePagerFragment newInstance(ArrayList<Post> listPosts) {
@@ -51,10 +52,10 @@ public class MainImagePagerFragment extends Fragment {
 
         for (Parcelable item : list){
             Post post = (Post) item;
-            listPosts.add(post);
+            mListPosts.add(post);
         }
 
-        mViewPager.setAdapter(new MainImagePagerAdapter(this, listPosts));
+        mViewPager.setAdapter(new MainImagePagerAdapter(this, mListPosts));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         mViewPager.setCurrentItem(MainActivity.currentPosition);

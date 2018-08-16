@@ -40,7 +40,6 @@
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_item_button_view"
         android:contentDescription="Give Button"
-        android:background="@drawable/add_fab_background"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"

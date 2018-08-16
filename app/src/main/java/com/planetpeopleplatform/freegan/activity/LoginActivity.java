@@ -76,9 +76,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(getApplicationContext(),"Successful login",Toast.LENGTH_LONG).show();
                     loadTweets();
-
                 }else
                 {
                     Log.d("TAG", "loginToFireBase: Failed");

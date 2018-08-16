@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,12 +73,12 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
     private class ViewHolderListenerImpl implements ProfileGridAdapter.ViewHolderListener {
 
-        private Fragment fragment;
-        private AtomicBoolean enterTransitionStarted;
+        private Fragment mFragment;
+        private AtomicBoolean mEnterTransitionStarted;
 
         ViewHolderListenerImpl(Fragment fragment) {
-            this.fragment = fragment;
-            this.enterTransitionStarted = new AtomicBoolean();
+            this.mFragment = fragment;
+            this.mEnterTransitionStarted = new AtomicBoolean();
         }
 
         @Override
@@ -86,10 +87,10 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
             if (ProfileActivity.currentPosition != position) {
                 return;
             }
-            if (enterTransitionStarted.getAndSet(true)) {
+            if (mEnterTransitionStarted.getAndSet(true)) {
                 return;
             }
-            fragment.startPostponedEnterTransition();
+            mFragment.startPostponedEnterTransition();
         }
 
 
@@ -100,12 +101,12 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
             // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-            ((TransitionSet) fragment.getExitTransition()).excludeTarget(view, true);
+            ((TransitionSet) mFragment.getExitTransition()).excludeTarget(view, true);
 
             ImageView transitioningView = view.findViewById(R.id.card_image);
 
 
-            fragment.getFragmentManager()
+            mFragment.getFragmentManager()
                     .beginTransaction()
                     .setReorderingAllowed(true) // Optimize for shared element transition
                     .addSharedElement(transitioningView, transitioningView.getTransitionName())
@@ -122,16 +123,16 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
     class ImageViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener {
 
-        private final ImageView image;
-        private final RequestManager requestManager;
-        private final ProfileGridAdapter.ViewHolderListener viewHolderListener;
+        private final ImageView mImage;
+        private final RequestManager mRequestManager;
+        private final ProfileGridAdapter.ViewHolderListener mViewHolderListener;
 
         ImageViewHolder(View itemView, RequestManager requestManager,
                         ProfileGridAdapter.ViewHolderListener viewHolderListener) {
             super(itemView);
-            this.image = itemView.findViewById(R.id.card_image);
-            this.requestManager = requestManager;
-            this.viewHolderListener = viewHolderListener;
+            this.mImage = itemView.findViewById(R.id.card_image);
+            this.mRequestManager = requestManager;
+            this.mViewHolderListener = viewHolderListener;
             itemView.findViewById(R.id.card_view).setOnClickListener(this);
         }
 
@@ -145,35 +146,35 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
             int adapterPosition = getAdapterPosition();
             setImage(adapterPosition);
             // Set the string value of the image resource as the unique transition name for the view.
-            image.setTransitionName(String.valueOf(R.drawable.ic_launcher_background));
+            mImage.setTransitionName(String.valueOf(mListPosts.get(adapterPosition).getImageUrl()));
         }
 
         void setImage(final int adapterPosition) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
-            requestManager
+            mRequestManager
                     .load(mListPosts.get(adapterPosition).getImageUrl())
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,
                                                     Target<Drawable> target, boolean isFirstResource) {
-                            viewHolderListener.onLoadCompleted(image, adapterPosition);
+                            mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
                             return false;
                         }
 
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
                                 target, DataSource dataSource, boolean isFirstResource) {
-                            viewHolderListener.onLoadCompleted(image, adapterPosition);
+                            mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
                             return false;
                         }
                     })
-                    .into(image);
+                    .into(mImage);
         }
 
         @Override
         public void onClick(View view) {
             // Let the listener start the ProfileImagePagerFragment.
-            viewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
+            mViewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
         }
     }
 

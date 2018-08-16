@@ -26,7 +26,7 @@ public class ProfileImagePagerFragment extends Fragment {
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
 
     private ViewPager mViewPager;
-    private ArrayList<Post> listPosts =  new ArrayList<Post>();
+    private ArrayList<Post> mListPosts =  new ArrayList<Post>();
     private ArrayList<? extends Parcelable> list;
 
     public static ProfileImagePagerFragment newInstance(ArrayList<Post> listPosts) {
@@ -48,10 +48,10 @@ public class ProfileImagePagerFragment extends Fragment {
 
         for (Parcelable item : list){
             Post post = (Post) item;
-            listPosts.add(post);
+            mListPosts.add(post);
         }
 
-        mViewPager.setAdapter(new ProfileImagePagerAdapter(this, listPosts));
+        mViewPager.setAdapter(new ProfileImagePagerAdapter(this, mListPosts));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         mViewPager.setCurrentItem(ProfileActivity.currentPosition);

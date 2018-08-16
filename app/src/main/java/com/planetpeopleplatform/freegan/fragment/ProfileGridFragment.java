@@ -102,7 +102,7 @@ public class ProfileGridFragment extends Fragment {
         mCollapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#DD2C00"));
         mCollapsingToolbarLayout.setTitle(mPost.getUserName());
         showLoading();
-        loadPost();
+        loadPosts();
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -194,7 +194,7 @@ public class ProfileGridFragment extends Fragment {
     }
 
 
-    private void loadPost(){
+    private void loadPosts(){
 
         firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPost.getPostUserObjectId())
                 .addValueEventListener(new ValueEventListener() {

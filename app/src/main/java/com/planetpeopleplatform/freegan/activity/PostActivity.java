@@ -181,6 +181,11 @@ public class PostActivity extends AppCompatActivity {
 
     private void postToFirebase() {
 
+        if (mCurrentUser.getLatitude() == null){
+            Toast.makeText(this, "Location needed to make post!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
         final Date dataobj= new Date();
