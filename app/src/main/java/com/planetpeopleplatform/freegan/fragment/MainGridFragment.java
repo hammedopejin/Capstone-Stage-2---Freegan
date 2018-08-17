@@ -176,8 +176,9 @@ public class MainGridFragment extends Fragment {
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(), PostActivity.class);
-                startActivityForResult(intent, RC_POST_ITEM);
+                ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
+                        = new ChoosePictureSourceDialogFragment();
+                choosePictureSourceDialogFragment.show(getFragmentManager(),getString(R.string.choose_fragment_alert_tag));
             }
         });
 

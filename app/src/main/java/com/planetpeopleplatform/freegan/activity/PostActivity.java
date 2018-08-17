@@ -1,10 +1,19 @@
 package com.planetpeopleplatform.freegan.activity;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,15 +42,20 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.fragment.ChoosePictureSourceDialogFragment;
 import com.planetpeopleplatform.freegan.model.User;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static butterknife.internal.Utils.arrayOf;
+import static butterknife.internal.Utils.listOf;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
@@ -71,7 +85,9 @@ public class PostActivity extends AppCompatActivity {
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 0;
     private static final int RC_PHOTO_PICKER = 2;
+    private static final int RC_TAKE_CAMERA_PHOTO_CODE = 100;
 
     private String mCurrentUserUid;
     private User mCurrentUser = null;
@@ -86,8 +102,12 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         ButterKnife.bind(this);
-
-        captureImage();
+        int source = getIntent().getIntExtra(getString(R.string.source_string), 1);
+        if (source == 1){
+            takeCameraPicture();
+        } else {
+            captureImage();
+        }
 
         mCurrentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
@@ -112,11 +132,11 @@ public class PostActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String description = mItemDescriptionEditText.getText().toString();
                 if(description.equals("")){
-                    Toast.makeText(getApplicationContext(),"Item must have description", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.err_description_missing_string, Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(!mImageSelected){
-                    Toast.makeText(getApplicationContext(),"An image must be selected", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.err_image_missing_string, Toast.LENGTH_LONG).show();
                     return;
                 }
                 postToFirebase();
@@ -158,25 +178,39 @@ public class PostActivity extends AppCompatActivity {
 
 
 
-        } else if (requestCode == RC_PHOTO_PICKER){
+        }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
+
+            // Load the image with Glide to prevent OOM error when the image drawables are very large.
+            Glide.with(this)
+                    .load(mSelectedImageUri)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                target, boolean isFirstResource) {
+
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                target, DataSource dataSource, boolean isFirstResource) {
+
+                            return false;
+                        }
+                    })
+                    .into(mItemPhotoFrame);
+
+            mItemPhotoFrame.setBackgroundResource(R.color.transparent);
+            mImageSelected = true;
+
+        } else if (requestCode == RC_PHOTO_PICKER || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
             if (resultCode == RESULT_CANCELED) {
                 finish();
             }
         }
     }
 
-    private String SplitString(String email) {
-        String[] split= email.split("@");
-        return split[0];
-    }
 
-    private void captureImage(){
-
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
-    }
 
 
     private void postToFirebase() {
@@ -267,4 +301,73 @@ public class PostActivity extends AppCompatActivity {
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
+    private String SplitString(String email) {
+        String[] split= email.split("@");
+        return split[0];
+    }
+
+    private void captureImage(){
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/jpeg");
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+    }
+
+    private void takeCameraPicture(){
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
+        }else {
+
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+            startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
+        }
+
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                StrictMode.setVmPolicy(builder.build());
+
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+                startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
+
+            } else {
+                finish();
+            }
+        }
+    }
+
+    private File getOutputMediaFile(){
+        File mediaStorageDir = new File(getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
+
+        if (!mediaStorageDir.exists()){
+            if (!mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        return new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ timeStamp + ".jpg");
+    }
 }

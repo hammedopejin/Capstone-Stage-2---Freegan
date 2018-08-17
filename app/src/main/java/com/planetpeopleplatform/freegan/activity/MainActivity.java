@@ -10,14 +10,16 @@ import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.fragment.ChoosePictureSourceDialogFragment;
 import com.planetpeopleplatform.freegan.fragment.MainGridFragment;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ChoosePictureSourceDialogFragment.OnCompleteListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int RC_POST_ITEM = 1;
     public static int currentPosition;
     public static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
     private String mCurrentUserUid = null;
@@ -85,5 +87,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onComplete(int source) {
+        Intent intent = new Intent(this, PostActivity.class);
+        intent.putExtra(getString(R.string.source_string), source);
+        startActivityForResult(intent, RC_POST_ITEM);
+    }
 }
 

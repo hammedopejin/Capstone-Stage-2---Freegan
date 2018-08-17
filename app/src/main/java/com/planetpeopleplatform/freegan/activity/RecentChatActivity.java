@@ -29,7 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.fragment.MyDeleteDialogFragment;
+import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.ItemTouchHelperAdapter;
 import com.planetpeopleplatform.freegan.utils.MyItemTouchHelperCallback;
@@ -59,7 +59,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERID;
 
-public class RecentChatActivity extends CustomActivity  implements MyDeleteDialogFragment.OnCompleteListener {
+public class RecentChatActivity extends CustomActivity  implements DeleteDialogFragment.OnCompleteListener {
 
     private static final String TAG = RegisterActivity.class.getSimpleName();
 
@@ -102,7 +102,7 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Chats");
+        getSupportActionBar().setTitle(R.string.chats_title);
 
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
@@ -234,13 +234,6 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
         mCurrentUser.put("online", online);
     }
 
-
-    @Override
-    public void onComplete(int position) {
-        mRecentRecyclerView.removeViewAt(position);
-    }
-
-
     class Item extends RecyclerView.ViewHolder{
 
                     public Item(View itemView) {
@@ -345,7 +338,7 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
             String decrypted = rncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position)).get(kLASTMESSAGE),
                     (String) ((HashMap<String, Object>) mRecents.get(position)).get(kCHATROOMID));
 
-            if(decrypted.equals("error decrypting")){
+            if(decrypted.equals(getString(R.string.error_decrypting_string))){
                 decrypted = "";
                 }
                 lbl.setText(decrypted);
@@ -396,9 +389,14 @@ public class RecentChatActivity extends CustomActivity  implements MyDeleteDialo
 
     private void deleteWarning(int position){
 
-        MyDeleteDialogFragment deleteDialog = MyDeleteDialogFragment.newInstance("ATTENTION !!!",
+        DeleteDialogFragment deleteDialog = DeleteDialogFragment.newInstance(getString(R.string.attention_alert_title),
                 ((String) ((HashMap<String, Object>) mRecents.get(position)).get(kRECENTID)), kRECENT, position);
-        deleteDialog.show(getSupportFragmentManager(),"fragment_alert");
+        deleteDialog.show(getSupportFragmentManager(),getString(R.string.delete_fragment_alert_tag));
+    }
+
+    @Override
+    public void onComplete(int position) {
+        mRecentRecyclerView.removeViewAt(position);
     }
 
     @Override

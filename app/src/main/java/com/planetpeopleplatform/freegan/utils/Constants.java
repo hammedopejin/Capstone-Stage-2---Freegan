@@ -83,4 +83,10 @@ public class Constants {
     public static final String kAUDIO = "audio";
     public static final String kLOCATION = "location";
 
+    //Delete Dialog
+    public static final String kTITLE = "title";
+    public static final String kKEY= "key";
+    public static final String kCHILDREF = "childRef";
+    public static final String kPOSITION = "position";
+
 }

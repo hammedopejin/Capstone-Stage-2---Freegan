@@ -98,6 +98,19 @@
     <string name="action_recent_chats">Recent Chats</string>
     <string name="action_report_user">Report User</string>
     <string name="update_button_text">Update</string>
+    <string name="delete_message">Are you sure you want to delete?</string>
+    <string name="chats_title">Chats</string>
+    <string name="choose_fragment_alert_tag">choose_fragment_alert</string>
+    <string name="delete_fragment_alert_tag">delete_fragment_alert</string>
+    <string name="attention_alert_title">ATTENTION !!!</string>
+    <string name="title_string">title</string>
+    <string name="class_cast_exception_string">must implement OnCompleteListener</string>
+    <string name="capital_yes_string">YES</string>
+    <string name="capital_no_string">CANCEL</string>
+    <string name="error_decrypting_string">error decrypting</string>
+    <string name="source_string">source</string>
+    <string name="err_image_missing_string">An image must be selected</string>
+    <string name="err_description_missing_string">Item must have description</string>
 
 
 </resources>

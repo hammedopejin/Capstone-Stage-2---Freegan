@@ -7,13 +7,17 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
+
+import com.planetpeopleplatform.freegan.R;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCHILDREF;
+import static com.planetpeopleplatform.freegan.utils.Constants.kKEY;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
+import static com.planetpeopleplatform.freegan.utils.Constants.kTITLE;
 
-public class MyDeleteDialogFragment extends DialogFragment {
+public class DeleteDialogFragment extends DialogFragment {
 
     OnCompleteListener mListener = null;
 
@@ -28,7 +32,7 @@ public class MyDeleteDialogFragment extends DialogFragment {
         try {
             this.mListener = (OnCompleteListener) activity;
         } catch (ClassCastException exception) {
-            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+            throw new ClassCastException(activity.toString() + getString(R.string.class_cast_exception_string));
         }
 
     }
@@ -37,16 +41,16 @@ public class MyDeleteDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        String title = getArguments().getString("title");
-        final String key = getArguments().getString("key");
-        final String childRef = getArguments().getString("childRef");
-        final int position = getArguments().getInt("position");
+        String title = getArguments().getString(kTITLE);
+        final String key = getArguments().getString(kKEY);
+        final String childRef = getArguments().getString(kCHILDREF);
+        final int position = getArguments().getInt(kPOSITION);
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage("Are you sure you want to delete?");
-        alertDialogBuilder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setMessage(R.string.delete_message);
+        alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 firebase.child(childRef).child(key).removeValue();
@@ -54,7 +58,7 @@ public class MyDeleteDialogFragment extends DialogFragment {
             }
         });
 
-        alertDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setNegativeButton(R.string.capital_no_string, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -65,13 +69,13 @@ public class MyDeleteDialogFragment extends DialogFragment {
     }
 
 
-    public static MyDeleteDialogFragment newInstance(String title, String key, String childRef, int position) {
-        MyDeleteDialogFragment fragment = new MyDeleteDialogFragment();
+    public static DeleteDialogFragment newInstance(String title, String key, String childRef, int position) {
+        DeleteDialogFragment fragment = new DeleteDialogFragment();
         Bundle argument = new Bundle();
-        argument.putString("title", title);
-        argument.putString("key", key);
-        argument.putString("childRef", childRef);
-        argument.putInt("position", position);
+        argument.putString(kTITLE, title);
+        argument.putString(kKEY, key);
+        argument.putString(kCHILDREF, childRef);
+        argument.putInt(kPOSITION, position);
         fragment.setArguments(argument);
         return fragment;
     }
