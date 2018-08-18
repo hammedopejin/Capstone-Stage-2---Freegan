@@ -1,10 +1,8 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
@@ -42,20 +40,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.fragment.ChoosePictureSourceDialogFragment;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static butterknife.internal.Utils.arrayOf;
-import static butterknife.internal.Utils.listOf;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
@@ -216,7 +210,7 @@ public class PostActivity extends AppCompatActivity {
     private void postToFirebase() {
 
         if (mCurrentUser.getLatitude() == null){
-            Toast.makeText(this, "Location needed to make post!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.alert_location_missing_string, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -311,7 +305,7 @@ public class PostActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/jpeg");
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.alert_complete_action_using_string)), RC_PHOTO_PICKER);
     }
 
     private void takeCameraPicture(){

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,23 +12,44 @@
         android:layout_height="match_parent"
         android:scaleType="fitXY"/>
 
-    <EditText
-        android:id="@+id/item_description_edit_text"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="350dp"
-        android:textColor="@color/white"
-        android:hint="@string/enter_item_description"
-        android:inputType="textLongMessage" />
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/item_post_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginLeft="150dp"
-        android:layout_marginStart="150dp" />
+        <EditText
+            android:id="@+id/item_description_edit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="@dimen/general_layout_margin"
+            android:layout_marginLeft="@dimen/general_layout_margin"
+            android:layout_marginRight="@dimen/general_layout_margin"
+            android:layout_marginStart="@dimen/general_layout_margin"
+            android:layout_marginTop="400dp"
+            android:hint="@string/enter_item_description"
+            android:inputType="textLongMessage"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/item_post_button"
+            android:layout_width="@dimen/button_size"
+            android:layout_height="48dp"
+            android:layout_marginEnd="@dimen/general_layout_margin"
+            android:layout_marginLeft="@dimen/general_layout_margin"
+            android:layout_marginRight="@dimen/general_layout_margin"
+            android:layout_marginStart="@dimen/general_layout_margin"
+            android:layout_marginTop="@dimen/general_layout_margin"
+            android:background="@drawable/round_corner_button"
+            android:text="@string/post_string"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/item_description_edit_text" />
+
+    </android.support.constraint.ConstraintLayout>
 
     <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
     <ProgressBar

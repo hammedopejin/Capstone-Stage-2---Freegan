@@ -224,7 +224,8 @@ public class MainGridFragment extends Fragment {
                             != PackageManager.PERMISSION_GRANTED &&
                             ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
                             != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(getContext(), "Permission needed to complete action", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.alert_permission_needed_string, Toast.LENGTH_SHORT).show();
+
                         mAuth.signOut();
                         startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                         return;
@@ -241,7 +242,7 @@ public class MainGridFragment extends Fragment {
                             });
 
                 } else {
-                    Toast.makeText(getContext(), "Permission needed to complete action", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.alert_permission_needed_string, Toast.LENGTH_SHORT).show();
                     mAuth.signOut();
                     startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 }

@@ -37,7 +37,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME
 
 public class Utils {
 
-    public static String startChat(User user1, User user2) {
+    public static String startChat(User user1, User user2, String postId) {
 
         String userId1 = user1.getObjectId();
         String userId2 = user2.getObjectId();
@@ -47,9 +47,9 @@ public class Utils {
         int value = userId1.compareTo(userId2);
 
         if (value < 0) {
-            chatRoomId = userId1 + userId2;
+            chatRoomId = userId1 + userId2 + postId;
         } else {
-            chatRoomId = userId2 + userId1;
+            chatRoomId = userId2 + userId1 + postId;
         }
 
         List<String> members = listOf(userId1, userId2);

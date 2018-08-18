@@ -152,7 +152,7 @@ public class ProfileImageFragment extends Fragment {
                             if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
 
                                 if (mCurrentUser != null) {
-                                    mChatRoomId = Utils.startChat(mCurrentUser, chatMate);
+                                    mChatRoomId = Utils.startChat(mCurrentUser, chatMate, mPost.getPostId());
 
                                     //  Toast.makeText(applicationContext, chatRoomId, Toast.LENGTH_LONG).show()
 

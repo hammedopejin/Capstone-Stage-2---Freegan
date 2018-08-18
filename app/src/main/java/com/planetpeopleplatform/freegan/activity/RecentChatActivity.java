@@ -75,6 +75,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     private final int CHAT_ACTIVITY = 777;
 
     private String mCurrentUserUid;
+    private ArrayList mChatRoomIDs = new ArrayList<String>();
 
     private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
 
@@ -150,6 +151,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         isRunning = false;
         mRecents.clear();
         mUserList.clear();
+        mChatRoomIDs.clear();
         detachDatabaseReadListener();
     }
 
@@ -169,6 +171,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                     try{
                         mRecents.clear();
                         mUserList.clear();
+                        mChatRoomIDs.clear();
 
                         Collection<Object> sortedArray =
                                 ((HashMap<String, Object>) dataSnapshot.getValue()).values();
@@ -182,6 +185,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                             if(( (currentRecent.get(kTYPE)).equals(kPRIVATE))) {
 
                                 String withUserId = (String) currentRecent.get(kWITHUSERUSERID);
+                                mChatRoomIDs.add(currentRecent.get(kCHATROOMID));
 
 
                                 firebase.child(kUSER).child(withUserId)
@@ -355,13 +359,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                         @Override
                         public void onClick(View view) { Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
 
-                        User user2 = (User) uList.get(position);
-
-                        String chatRoomId = Utils.startChat(mCurrentUser, user2);
-
                         intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
-                        intent.putExtra(kCHATROOMID, chatRoomId);
-
+                        intent.putExtra(kCHATROOMID, (String) mChatRoomIDs.get(position));
 
                         startActivityForResult(intent, CHAT_ACTIVITY);
                         }

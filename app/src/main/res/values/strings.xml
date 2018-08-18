@@ -111,6 +111,10 @@
     <string name="source_string">source</string>
     <string name="err_image_missing_string">An image must be selected</string>
     <string name="err_description_missing_string">Item must have description</string>
+    <string name="alert_complete_action_using_string">Complete action using</string>
+    <string name="alert_location_missing_string">Location needed to make post!</string>
+    <string name="alert_permission_needed_string">Permission needed to complete action</string>
+    <string name="post_string">Post</string>
 
 
 </resources>

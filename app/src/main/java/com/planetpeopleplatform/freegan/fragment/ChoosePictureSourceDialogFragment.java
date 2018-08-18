@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
+import com.planetpeopleplatform.freegan.R;
+
 
 public class ChoosePictureSourceDialogFragment extends DialogFragment {
 
@@ -24,7 +26,7 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
         try {
             this.mListener = (ChoosePictureSourceDialogFragment.OnCompleteListener) activity;
         } catch (ClassCastException exception) {
-            throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+            throw new ClassCastException(activity.toString() + getString(R.string.class_cast_exception_string));
         }
 
     }
