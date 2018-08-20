@@ -1,15 +1,17 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,6 +34,9 @@ public class UpdateEmailActivity extends AppCompatActivity {
     private String mCurrentUserUid = null;
     private String mCurrentUserEmail = null;
 
+    @BindView(R.id.fragment_container)
+    CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.back_arrow)
     ImageButton mBackArrow;
 
@@ -47,12 +52,14 @@ public class UpdateEmailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_email); ButterKnife.bind(this);
+        setContentView(R.layout.activity_update_email);
+        ButterKnife.bind(this);
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         mCurrentUserUid = mUser.getUid();
         mCurrentUserEmail = getIntent().getStringExtra(kEMAIL);
+        mEmailEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
         mEmailEditText.setText(mCurrentUserEmail);
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
@@ -94,11 +101,13 @@ public class UpdateEmailActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
                                         mLoadingIndicator.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(getApplicationContext(), "Email successfully updated!!!", Toast.LENGTH_SHORT).show();
+                                        Snackbar.make(mCoordinatorLayout,
+                                                R.string.alert_email_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
                                         finish();
                                     }else {
                                         mLoadingIndicator.setVisibility(View.INVISIBLE);
-                                        Toast.makeText(getApplicationContext(), "Email failed to update!!!", Toast.LENGTH_SHORT).show();
+                                        Snackbar.make(mCoordinatorLayout,
+                                                R.string.err_email_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
                                         finish();
                                     }
                                 }
@@ -106,7 +115,8 @@ public class UpdateEmailActivity extends AppCompatActivity {
                 } else {
                     Log.d(TAG, "Error email not updated");
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "Email failed to update!!!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_email_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
                     finish();
                 }
             }

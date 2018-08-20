@@ -38,15 +38,15 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setMessage("Complete action using");
-        alertDialogBuilder.setPositiveButton("Camera", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setMessage(R.string.alert_complete_action_using_string);
+        alertDialogBuilder.setPositiveButton(R.string.camera_string, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mListener.onComplete(1);
             }
         });
 
-        alertDialogBuilder.setNegativeButton("Galerry", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setNegativeButton(R.string.gallery_string, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mListener.onComplete(2);

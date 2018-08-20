@@ -5,12 +5,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -187,9 +188,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        if (checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        if (checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                                 != PackageManager.PERMISSION_GRANTED) {
-                            requestPermissions(
+                           requestPermissions(
                                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSIONS_REQUEST_FINE_LOCATION);
                         }else {
@@ -209,19 +210,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
-            Place place = PlacePicker.getPlace(getContext(), data);
-            if (place == null) {
-                Log.i(TAG, "No place selected");
-                return;
-            }
-            updateUserLocation(place);
-        }
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -231,11 +219,25 @@ public class SettingsFragment extends PreferenceFragmentCompat
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     addNewLocation();
                 } else {
-                    Toast.makeText(getContext(), R.string.alert_permission_needed_string, Toast.LENGTH_SHORT).show();
-
+                    CoordinatorLayout coordinatorLayout = getActivity().findViewById(R.id.fragment_container);
+                    Snackbar.make(coordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+            Place place = PlacePicker.getPlace(getContext(), data);
+            if (place == null) {
+                Log.i(TAG, "No place selected");
+                return;
+            }
+            updateUserLocation(place);
         }
     }
 
@@ -267,16 +269,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
         firebase.child(kUSER).child(mCurrentUserUid).updateChildren(newLocation).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                CoordinatorLayout coordinatorLayout = getActivity().findViewById(R.id.fragment_container);
                 if (task.isSuccessful()) {
                     Log.d(TAG, "Location updated");
-                    Toast.makeText(getContext(), "Location successfully updated!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(coordinatorLayout,
+                            R.string.alert_location_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
                 } else {
                     Log.d(TAG, "Error location not updated");
-                    Toast.makeText(getContext(), "Location failed to update!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(coordinatorLayout,
+                            R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
 
 }

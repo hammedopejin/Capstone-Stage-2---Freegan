@@ -8,6 +8,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
@@ -21,7 +23,6 @@ import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -39,7 +40,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.activity.PostActivity;
 import com.planetpeopleplatform.freegan.adapter.MainGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
@@ -83,6 +83,9 @@ public class MainGridFragment extends Fragment {
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
 
     SearchView mSearchView;
+
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
 
     @BindView(R.id.main_content_swipe_refresh_layout)
     SwipeRefreshLayout mSwipeContainer;
@@ -224,7 +227,9 @@ public class MainGridFragment extends Fragment {
                             != PackageManager.PERMISSION_GRANTED &&
                             ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
                             != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(getContext(), R.string.alert_permission_needed_string, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(mCoordinatorLayout,
+                                R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
+                        showDataView();
 
                         mAuth.signOut();
                         startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
@@ -242,7 +247,8 @@ public class MainGridFragment extends Fragment {
                             });
 
                 } else {
-                    Toast.makeText(getContext(), R.string.alert_permission_needed_string, Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
                     mAuth.signOut();
                     startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                 }
@@ -437,10 +443,10 @@ public class MainGridFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "Location updated");
-                    Toast.makeText(getContext(), "Location successfully updated!", Toast.LENGTH_SHORT).show();
+                    showDataView();
+
                 } else {
                     Log.d(TAG, "Error location not updated");
-                    Toast.makeText(getContext(), "Location failed to update!", Toast.LENGTH_SHORT).show();
                 }
             }
         });

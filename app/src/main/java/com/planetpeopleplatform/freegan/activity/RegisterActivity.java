@@ -2,13 +2,14 @@ package com.planetpeopleplatform.freegan.activity;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,6 +28,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     String mUserName = "";
 
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.register_data)
     android.support.constraint.ConstraintLayout mRegisterData;
     @BindView(R.id.pb_loading_indicator)
@@ -75,7 +78,8 @@ public class RegisterActivity extends AppCompatActivity {
                 }else
                 {
                     Log.d("TAG", "createUserWithEmail: Failed");
-                    Toast.makeText(getApplicationContext(),"Registration failed",Toast.LENGTH_LONG).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_registration_failed_string, Snackbar.LENGTH_SHORT).show();
                     showDataView();
                 }
             }
@@ -119,12 +123,14 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void registerButtonTapped(View view) {
         if (mUserNameEditText.getText() == null || mEmailEditText.getText() == null || mPasswordEditText.getText() == null){
-            Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_all_text_field_must_be_entered_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
         if (!(mUserNameEditText.getText().toString().length() > 0) || !(mEmailEditText.getText().toString().length() > 0)
                 || !(mPasswordEditText.getText().toString().length() > 0)){
-            Toast.makeText(getApplicationContext(),"All text fields must be entered properly!",Toast.LENGTH_LONG).show();
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_all_text_field_must_be_entered_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
         showLoading();

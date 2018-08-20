@@ -1,6 +1,8 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -23,9 +24,10 @@ import butterknife.ButterKnife;
 public class UpdatePasswordActivity extends AppCompatActivity {
 
     private static final String TAG = UpdatePasswordActivity.class.getSimpleName();
-    private FirebaseAuth mAuth;
     private FirebaseUser mUser;
-    private String mCurrentUserUid = null;
+
+    @BindView(R.id.fragment_container)
+    CoordinatorLayout mCoordinatorLayout;
 
     @BindView(R.id.back_arrow)
     ImageButton mBackArrow;
@@ -48,9 +50,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_update_password);
         ButterKnife.bind(this);
 
-        mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
-        mCurrentUserUid = mUser.getUid();
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,7 +70,8 @@ public class UpdatePasswordActivity extends AppCompatActivity {
                 }
                 if (!(newPassword.equals(newPassword2))){
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "Paswword mismatch!!!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_password_must_match_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -90,12 +91,14 @@ public class UpdatePasswordActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "Password updated");
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "Password successfully updated!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_password_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
                     finish();
                 } else {
                     Log.d(TAG, "Error password not updated");
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "Password failed to update!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_password_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
                     finish();
                 }
             }

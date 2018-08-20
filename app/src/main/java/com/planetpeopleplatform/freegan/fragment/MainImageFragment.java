@@ -141,8 +141,6 @@ public class MainImageFragment extends Fragment {
                                 if (mCurrentUser != null) {
                                     mChatRoomId = Utils.startChat(mCurrentUser, chatMate, mPost.getPostId());
 
-                                    //  Toast.makeText(applicationContext, chatRoomId, Toast.LENGTH_LONG).show()
-
                                     intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                                     intent.putExtra(kCHATROOMID, mChatRoomId);
 

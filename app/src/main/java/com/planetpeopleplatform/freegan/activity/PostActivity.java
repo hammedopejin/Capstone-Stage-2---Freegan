@@ -10,17 +10,19 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -66,6 +68,9 @@ import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 public class PostActivity extends AppCompatActivity {
 
     private static final String TAG = PostActivity.class.getSimpleName();
+
+    @BindView(R.id.coordinator_layout)
+    CoordinatorLayout mCoordinatorLayout;
 
     @BindView(R.id.item_photo_frame)
     ImageView mItemPhotoFrame;
@@ -126,11 +131,13 @@ public class PostActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String description = mItemDescriptionEditText.getText().toString();
                 if(description.equals("")){
-                    Toast.makeText(getApplicationContext(), R.string.err_description_missing_string, Toast.LENGTH_LONG).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_description_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 if(!mImageSelected){
-                    Toast.makeText(getApplicationContext(), R.string.err_image_missing_string, Toast.LENGTH_LONG).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_image_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 postToFirebase();
@@ -210,7 +217,8 @@ public class PostActivity extends AppCompatActivity {
     private void postToFirebase() {
 
         if (mCurrentUser.getLatitude() == null){
-            Toast.makeText(this, R.string.alert_location_missing_string, Toast.LENGTH_SHORT).show();
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_location_missing_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
 
@@ -266,31 +274,32 @@ public class PostActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(String key, DatabaseError error) {
                             if (error != null) {
-                                Toast.makeText(getApplicationContext(),"There was an error saving the location to GeoFire: " + error,
-                                        Toast.LENGTH_SHORT).show();
+                                Snackbar.make(mCoordinatorLayout,
+                                        R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
                                 Log.d(TAG, "There was an error saving the location to GeoFire: " + error);
                             } else {
-                                Toast.makeText(getApplicationContext(),"Location saved on server successfully!",
-                                        Toast.LENGTH_SHORT).show();
                                 Log.d(TAG, "Location saved on server successfully!");
                             }
                         }
                     });
-
-                    Toast.makeText(getApplicationContext(), "Post uploaded successfully!!!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_post_upload_successful, Snackbar.LENGTH_SHORT).show();
                     finish();
                 } else {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
 
+        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
     }
 
     private void showLoading() {
         /* Then, hide the data */
         mItemDescriptionEditText.setVisibility(View.INVISIBLE);
+        mItemPostButton.setVisibility(View.INVISIBLE);
         /* Finally, show the loading indicator */
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }

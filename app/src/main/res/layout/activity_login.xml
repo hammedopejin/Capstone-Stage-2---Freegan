@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinator_layout"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -94,4 +95,4 @@
         android:layout_gravity="center"
         android:visibility="invisible" />
 
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -11,6 +11,8 @@ import android.preference.PreferenceActivity;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -70,6 +71,9 @@ public class SettingsActivity extends AppCompatActivity
     private String mCurrentUserUid;
     private FirebaseAuth mAuth;
 
+    @BindView(R.id.fragment_container)
+    CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
@@ -117,6 +121,7 @@ public class SettingsActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_PICKER && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
+
             postPictureToFirebase();
 
         } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
@@ -127,6 +132,8 @@ public class SettingsActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+        permissions, grantResults);
         switch (requestCode) {
             case CAMERA_PERMISSION_REQUEST_CODE : {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -141,7 +148,8 @@ public class SettingsActivity extends AppCompatActivity
                     startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
 
                 } else {
-
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -188,11 +196,13 @@ public class SettingsActivity extends AppCompatActivity
                     mPostDownloadURL = downloadUri.toString();
                     firebase.child("users").child(mCurrentUser.getObjectId()).child(kUSERIMAGEURL).setValue(mPostDownloadURL);
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "Successfully uploaded Photo!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_successfully_uploaded_photo_string, Snackbar.LENGTH_SHORT).show();
 
                 } else {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    Toast.makeText(getApplicationContext(), "upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_upload_failed_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
