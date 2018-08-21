@@ -14,6 +14,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -341,12 +342,13 @@ public class PostActivity extends AppCompatActivity {
                     new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
         }else {
 
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             destFile = getOutputMediaFile();
-            mSelectedImageUri = Uri.fromFile(destFile);
+            mSelectedImageUri = FileProvider.getUriForFile(
+                    this,
+                    "com.planetpeopleplatform.freegan.provider",
+                    destFile);
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
@@ -365,12 +367,14 @@ public class PostActivity extends AppCompatActivity {
                     ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                StrictMode.setVmPolicy(builder.build());
-
                 Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 destFile = getOutputMediaFile();
-                mSelectedImageUri = Uri.fromFile(destFile);
+
+                mSelectedImageUri = FileProvider.getUriForFile(
+                        this,
+                        "com.planetpeopleplatform.freegan.provider",
+                        destFile);
+
                 intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
                 startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
 
@@ -396,4 +400,5 @@ public class PostActivity extends AppCompatActivity {
         return new File(mediaStorageDir.getPath() + File.separator +
                 "IMG_"+ timeStamp + ".jpg");
     }
+
 }

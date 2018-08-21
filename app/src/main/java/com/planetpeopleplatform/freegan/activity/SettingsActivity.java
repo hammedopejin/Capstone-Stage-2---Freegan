@@ -15,6 +15,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -75,6 +76,7 @@ public class SettingsActivity extends AppCompatActivity
     private User mCurrentUser;
     private String mCurrentUserUid;
     private FirebaseAuth mAuth;
+    private File destFile;
 
     @BindView(R.id.fragment_container)
     CoordinatorLayout mCoordinatorLayout;
@@ -158,11 +160,14 @@ public class SettingsActivity extends AppCompatActivity
                         ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                    StrictMode.setVmPolicy(builder.build());
-
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
+
+                    destFile = getOutputMediaFile();
+                    mSelectedImageUri = FileProvider.getUriForFile(
+                            this,
+                            "com.planetpeopleplatform.freegan.provider",
+                            destFile);
+
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
                     startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
 
@@ -246,11 +251,13 @@ public class SettingsActivity extends AppCompatActivity
                     new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
         }else {
 
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
-
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
+
+            destFile = getOutputMediaFile();
+            mSelectedImageUri = FileProvider.getUriForFile(
+                    this,
+                    "com.planetpeopleplatform.freegan.provider",
+                    destFile);
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }

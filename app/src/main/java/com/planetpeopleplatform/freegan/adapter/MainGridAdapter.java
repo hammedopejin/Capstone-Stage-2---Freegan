@@ -160,6 +160,7 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             mRequestManager
                     .load(mListPosts.get(adapterPosition).getImageUrl())
+                    //.error(R.drawable.person_icon)
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,

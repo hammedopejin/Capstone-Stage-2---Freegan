@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.format.DateUtils;
 import android.view.MenuItem;
@@ -105,6 +106,12 @@ public class ChatActivity extends CustomActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_chat);
             ButterKnife.bind(this);
+
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(R.string.chats_title);
+
             mLoadingIndicator.setVisibility(View.VISIBLE);
 
             mCurrentUserUID = getIntent().getStringExtra(kCURRENTUSERID);
@@ -147,7 +154,6 @@ public class ChatActivity extends CustomActivity {
         @Override
         public void onResume() {
             super.onResume();
-            //loadConversationList();
             attachDatabaseReadListener();
             Utils.clearRecentCounter(chatRoomId);
             isRunning = true;
