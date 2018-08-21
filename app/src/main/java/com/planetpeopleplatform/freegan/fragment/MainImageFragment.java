@@ -34,6 +34,7 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
@@ -194,6 +195,8 @@ public class MainImageFragment extends Fragment {
 
                     Glide.with(fragment)
                             .load(user.getUserImgUrl())
+                            .apply(centerInsideTransform()
+                                    .placeholder(R.drawable.person_icon))
                             .listener(new RequestListener<Drawable>() {
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>

@@ -47,8 +47,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
     public static final String TAG = SettingsFragment.class.getSimpleName();
 
     private FirebaseAuth mAuth;
-    private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
-    private static final int PLACE_PICKER_REQUEST = 1;
+    private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 3;
+    private static final int PLACE_PICKER_REQUEST_CODE = 300;
     private User mCurrentUser;
     private String mCurrentUserUid;
 
@@ -212,6 +212,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+                permissions, grantResults);
+
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION : {
                 // If request is cancelled, the result arrays are empty.
@@ -231,7 +234,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
+        if(requestCode == PLACE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(getContext(), data);
             if (place == null) {
                 Log.i(TAG, "No place selected");
@@ -247,7 +250,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             // when a place is selected or with the user cancels.
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
             Intent i = builder.build(getActivity());
-            startActivityForResult(i, PLACE_PICKER_REQUEST);
+            startActivityForResult(i, PLACE_PICKER_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
             Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
         } catch (GooglePlayServicesNotAvailableException e) {

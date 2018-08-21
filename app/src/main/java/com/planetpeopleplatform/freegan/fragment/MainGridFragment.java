@@ -106,13 +106,14 @@ public class MainGridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
 
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+
         if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
         } else {
 
-            mAuth = FirebaseAuth.getInstance();
-            mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
             firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
                 @Override

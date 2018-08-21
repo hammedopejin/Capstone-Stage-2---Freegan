@@ -26,7 +26,7 @@
             android:layout_marginLeft="@dimen/general_layout_margin"
             android:layout_marginRight="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
-            android:layout_marginTop="400dp"
+            android:layout_marginTop="@dimen/post_activity_edit_text_margin_top"
             android:hint="@string/enter_item_description"
             android:inputType="textLongMessage"
             android:textColor="@color/white"

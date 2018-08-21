@@ -42,6 +42,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
@@ -62,9 +65,11 @@ import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 public class SettingsActivity extends AppCompatActivity
         implements ChoosePictureSourceDialogFragment.OnCompleteListener {
 
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 0;
-    private static final int RC_PHOTO_PICKER = 2;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
     private static final int RC_TAKE_CAMERA_PHOTO_CODE = 100;
+    private static final int RC_PHOTO_GALLERY_PICKER_CODE = 200;
+
     private String mPostDownloadURL;
     private Uri mSelectedImageUri = null;
     private User mCurrentUser;
@@ -90,19 +95,25 @@ public class SettingsActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
-        firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+        if (savedInstanceState != null) {
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+            mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
+        } else {
+
+            firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
 
     }
 
@@ -119,9 +130,8 @@ public class SettingsActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_PHOTO_PICKER && data!=null && resultCode == RESULT_OK) {
+        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
-
             postPictureToFirebase();
 
         } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
@@ -130,14 +140,23 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        outState.putString(kIMAGEURL, String.valueOf(mSelectedImageUri));
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
-        permissions, grantResults);
+                permissions, grantResults);
+
         switch (requestCode) {
             case CAMERA_PERMISSION_REQUEST_CODE : {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 &&
+                        ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                     StrictMode.setVmPolicy(builder.build());
@@ -161,7 +180,7 @@ public class SettingsActivity extends AppCompatActivity
         if (source == 1){
             takeCameraPicture();
         } else {
-            captureImage();
+            captureGalleryImage();
         }
     }
 
@@ -208,13 +227,16 @@ public class SettingsActivity extends AppCompatActivity
         });
     }
 
-    private void captureImage(){
+    private void captureGalleryImage(){
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/jpeg");
-        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.alert_complete_action_using_string)), RC_PHOTO_PICKER);
+            Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
+            intentGalley.setType("image/jpeg");
+            intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            startActivityForResult(Intent.createChooser(intentGalley,
+                    getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE );
+
     }
+
     private void takeCameraPicture(){
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
@@ -227,10 +249,10 @@ public class SettingsActivity extends AppCompatActivity
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
 
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
-            startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
+            intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+            startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
     }
 

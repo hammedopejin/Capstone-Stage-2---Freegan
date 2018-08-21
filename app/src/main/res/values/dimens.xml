@@ -47,5 +47,6 @@
 
     <dimen name="progressbar_size">42dp</dimen>
     <dimen name="button_size">48dp</dimen>
+    <dimen name="post_activity_edit_text_margin_top">400dp</dimen>
 
 </resources>

@@ -53,6 +53,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
@@ -84,9 +85,10 @@ public class PostActivity extends AppCompatActivity {
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 0;
-    private static final int RC_PHOTO_PICKER = 2;
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
     private static final int RC_TAKE_CAMERA_PHOTO_CODE = 100;
+    private static final int RC_PHOTO_GALLERY_PICKER_CODE = 200;
 
     private String mCurrentUserUid;
     private User mCurrentUser = null;
@@ -94,6 +96,7 @@ public class PostActivity extends AppCompatActivity {
     private String mPostDownloadURL;
     private Uri mSelectedImageUri = null;
     private GeoFire mGeoFire;
+    private File destFile;
 
 
     @Override
@@ -105,25 +108,30 @@ public class PostActivity extends AppCompatActivity {
         if (source == 1){
             takeCameraPicture();
         } else {
-            captureImage();
+            captureGalleryImage();
         }
 
         mCurrentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
 
-        firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+        if (savedInstanceState != null) {
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+            mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
+        } else {
+            firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
 
 
         mItemPostButton.setOnClickListener(new View.OnClickListener() {
@@ -146,11 +154,17 @@ public class PostActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        outState.putString(kIMAGEURL, String.valueOf(mSelectedImageUri));
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_PHOTO_PICKER && data!=null && resultCode == RESULT_OK) {
+        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
 
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
@@ -180,7 +194,6 @@ public class PostActivity extends AppCompatActivity {
 
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
-
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
                     .load(mSelectedImageUri)
@@ -204,7 +217,7 @@ public class PostActivity extends AppCompatActivity {
             mItemPhotoFrame.setBackgroundResource(R.color.transparent);
             mImageSelected = true;
 
-        } else if (requestCode == RC_PHOTO_PICKER || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
+        } else if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
             if (resultCode == RESULT_CANCELED) {
                 finish();
             }
@@ -309,12 +322,14 @@ public class PostActivity extends AppCompatActivity {
         return split[0];
     }
 
-    private void captureImage(){
+    private void captureGalleryImage(){
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/jpeg");
-        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.alert_complete_action_using_string)), RC_PHOTO_PICKER);
+            Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
+            intentGalley.setType("image/jpeg");
+            intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            startActivityForResult(Intent.createChooser(intentGalley,
+                    getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE );
+
     }
 
     private void takeCameraPicture(){
@@ -329,10 +344,11 @@ public class PostActivity extends AppCompatActivity {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
 
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
-            startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
+            Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            destFile = getOutputMediaFile();
+            mSelectedImageUri = Uri.fromFile(destFile);
+            intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+            startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
 
 
@@ -341,19 +357,26 @@ public class PostActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+                permissions, grantResults);
+
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                 StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                 StrictMode.setVmPolicy(builder.build());
 
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                mSelectedImageUri = Uri.fromFile(getOutputMediaFile());
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
-                startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
+                Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                destFile = getOutputMediaFile();
+                mSelectedImageUri = Uri.fromFile(destFile);
+                intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+                startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
 
             } else {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
                 finish();
             }
         }

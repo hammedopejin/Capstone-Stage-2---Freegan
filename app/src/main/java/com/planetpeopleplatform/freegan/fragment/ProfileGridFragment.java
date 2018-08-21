@@ -37,6 +37,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
@@ -96,7 +97,9 @@ public class ProfileGridFragment extends Fragment {
         prepareTransitions();
         postponeEnterTransition();
 
-        Glide.with(this).load(mPost.getProfileImgUrl()).into(mProfileImageView);
+        Glide.with(this).load(mPost.getProfileImgUrl()).apply(centerInsideTransform()
+                .placeholder(R.drawable.person_icon)).into(mProfileImageView);
+
         mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
         mCollapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#DD2C00"));
         mCollapsingToolbarLayout.setTitle(mPost.getUserName());

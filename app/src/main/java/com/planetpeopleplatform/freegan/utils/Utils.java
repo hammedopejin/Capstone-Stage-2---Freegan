@@ -1,6 +1,15 @@
 package com.planetpeopleplatform.freegan.utils;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -10,6 +19,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.User;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +53,10 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class Utils {
+
+    private static final String SCHEME_FILE = "file";
+    private static final String SCHEME_CONTENT = "content";
+    private static final String TAG = Utils.class.getSimpleName();
 
     public static String startChat(User user1, User user2, String postId) {
 
@@ -221,6 +242,148 @@ public class Utils {
 
         firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).child(kCOUNTER).setValue(0);
 
+    }
+
+    public static File decodeFile(File f) {
+        Bitmap b = null;
+
+        //Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(f);
+            BitmapFactory.decodeStream(fis, null, o);
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int IMAGE_MAX_SIZE = 1024;
+        int scale = 1;
+        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
+            scale = (int) Math.pow(2, (int) Math.ceil(Math.log(IMAGE_MAX_SIZE /
+                    (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        }
+
+        //Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        try {
+            fis = new FileInputStream(f);
+            b = BitmapFactory.decodeStream(fis, null, o2);
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(f);
+            b.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return f;
+    }
+
+    /**
+     * This is useful when an image is available in sdcard physically.
+     *
+     * @param uriPhoto
+     * @return
+     */
+    public static String getPathFromUri(Uri uriPhoto, Context context) {
+        if (uriPhoto == null)
+            return null;
+
+        if (SCHEME_FILE.equals(uriPhoto.getScheme())) {
+            return uriPhoto.getPath();
+        } else if (SCHEME_CONTENT.equals(uriPhoto.getScheme())) {
+            final String[] filePathColumn = {MediaStore.MediaColumns.DATA,
+                    MediaStore.MediaColumns.DISPLAY_NAME};
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(uriPhoto, filePathColumn, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    final int columnIndex = (uriPhoto.toString()
+                            .startsWith("content://com.google.android.gallery3d")) ? cursor
+                            .getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                            : cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
+
+                    if (columnIndex != -1) {
+                        String filePath = cursor.getString(columnIndex);
+                        if (!TextUtils.isEmpty(filePath)) {
+                            return filePath;
+                        }
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                // Nothing we can do
+                Log.d(TAG, "IllegalArgumentException");
+                e.printStackTrace();
+            } catch (SecurityException ignored) {
+                Log.d(TAG, "SecurityException");
+                // Nothing we can do
+                ignored.printStackTrace();
+            } finally {
+                if (cursor != null)
+                    cursor.close();
+            }
+        }
+        return null;
+    }
+
+    public static String getPathFromGooglePhotosUri(Uri uriPhoto, Context context) {
+        if (uriPhoto == null)
+            return null;
+
+        FileInputStream input = null;
+        FileOutputStream output = null;
+        try {
+            ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uriPhoto, "r");
+            FileDescriptor fd = pfd.getFileDescriptor();
+            input = new FileInputStream(fd);
+
+            String tempFilename = getTempFilename(context);
+            output = new FileOutputStream(tempFilename);
+
+            int read;
+            byte[] bytes = new byte[4096];
+            while ((read = input.read(bytes)) != -1) {
+                output.write(bytes, 0, read);
+            }
+            return tempFilename;
+        } catch (IOException ignored) {
+            // Nothing we can do
+        } finally {
+            closeSilently(input);
+            closeSilently(output);
+        }
+        return null;
+    }
+
+    public static void closeSilently(Closeable c) {
+        if (c == null)
+            return;
+        try {
+            c.close();
+        } catch (Throwable t) {
+            // Do nothing
+        }
+    }
+
+    private static String getTempFilename(Context context) throws IOException {
+        File outputDir = context.getCacheDir();
+        File outputFile = File.createTempFile("image", "tmp", outputDir);
+        return outputFile.getAbsolutePath();
     }
 
 }
