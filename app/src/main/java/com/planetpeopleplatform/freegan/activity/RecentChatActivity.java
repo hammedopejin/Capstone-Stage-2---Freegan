@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -49,7 +50,10 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCOUNTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLASTMESSAGE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPRIVATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENTID;
@@ -58,6 +62,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class RecentChatActivity extends CustomActivity  implements DeleteDialogFragment.OnCompleteListener {
 
@@ -76,7 +81,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
     private String mCurrentUserUid;
     private ArrayList mChatRoomIDs = new ArrayList<String>();
-
+    private ArrayList mPostIDs = new ArrayList<String>();
+    private ArrayList mWithUserNames = new ArrayList<String>();
     private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
 
     /**
@@ -126,7 +132,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         mRecentsDatabaseReference = firebase.child(kRECENT);
 
-        mAdapater = new PostAdapater(this, mUserList);
+        mAdapater = new PostAdapater(this, mUserList, mPostIDs);
 
         MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapater);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
@@ -151,7 +157,9 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         isRunning = false;
         mRecents.clear();
         mUserList.clear();
+        mPostIDs.clear();
         mChatRoomIDs.clear();
+        mWithUserNames.clear();
         detachDatabaseReadListener();
     }
 
@@ -171,7 +179,9 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                     try{
                         mRecents.clear();
                         mUserList.clear();
+                        mPostIDs.clear();
                         mChatRoomIDs.clear();
+                        mWithUserNames.clear();
 
                         Collection<Object> sortedArray =
                                 ((HashMap<String, Object>) dataSnapshot.getValue()).values();
@@ -185,6 +195,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                             if(( (currentRecent.get(kTYPE)).equals(kPRIVATE))) {
 
                                 String withUserId = (String) currentRecent.get(kWITHUSERUSERID);
+                                mWithUserNames.add(currentRecent.get(kWITHUSERUSERNAME));
                                 mChatRoomIDs.add(currentRecent.get(kCHATROOMID));
 
 
@@ -198,6 +209,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
                                                     mUserList.add(fUser);
                                                     mRecents.add(currentRecent);
+                                                    mPostIDs.add(currentRecent.get(kPOSTID));
                                                     mAdapater.notifyDataSetChanged();
                                                     mLoadingIndicator.setVisibility(View.INVISIBLE);
 
@@ -244,18 +256,18 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                         super(itemView);
                     }
 
-                    private void bindData(User user){
+                    private void bindData(User user, String postId){
 
 
                             TextView lbl = itemView.findViewById(R.id.tv_recent_name);
                             lbl.setMaxLines(1);
                             lbl.setText(user.getUserName());
 
-                            lbl.setCompoundDrawablesWithIntrinsicBounds((user.getBoolean("online")) ?
-                                                R.drawable.ic_online
-                                             : R.drawable.ic_offline,0,0,0);
+//                            lbl.setCompoundDrawablesWithIntrinsicBounds((user.getBoolean("online")) ?
+//                                                R.drawable.ic_online
+//                                             : R.drawable.ic_offline,0,0,0);
 
-                            firebase.child("users").child(user.getObjectId())
+                            firebase.child(kUSER).child(user.getObjectId())
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -294,6 +306,44 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                         }
                                     });
 
+                        firebase.child(kPOST).child(postId)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        try{
+
+                                            HashMap<String, Object> td = (HashMap<String, Object>) dataSnapshot.getValue();
+
+                                            for(Object key : td.keySet()){
+                                                if(key.equals(kIMAGEURL)){
+                                                    String postImgUrl = (String) td.get(key);
+                                                    Glide.with(getApplicationContext())
+                                                            .load(postImgUrl)
+                                                            .listener(new RequestListener<Drawable>() {
+                                                                @Override
+                                                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                                                        target, boolean isFirstResource) {
+                                                                    return false;
+                                                                }
+
+                                                                @Override
+                                                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                                                        target, DataSource dataSource, boolean isFirstResource) {
+                                                                    return false;
+                                                                }
+                                                            })
+                                                            .into((ImageView) itemView.findViewById(R.id.img_recent_post_item));
+                                                }
+                                            }
+
+                                        }catch(Exception exception){}
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
 
 
                     }
@@ -307,10 +357,12 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         View myView = null;
         Context context;
         ArrayList<User> uList;
+        ArrayList<String> uPostIds;
 
-        public PostAdapater(Context c, ArrayList userList) {
+        public PostAdapater(Context c, ArrayList userList, ArrayList postIds) {
             context = c;
             uList = userList;
+            uPostIds = postIds;
         }
 
         @NonNull
@@ -323,7 +375,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position){
 
-            ((Item) holder).bindData(uList.get(position));
+            ((Item) holder).bindData(uList.get(position), uPostIds.get(position));
             holder.itemView.setTag(position);
 
             TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
@@ -361,6 +413,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
                         intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                         intent.putExtra(kCHATROOMID, (String) mChatRoomIDs.get(position));
+                        intent.putExtra(kWITHUSERUSERNAME, (String) mWithUserNames.get(position));
 
                         startActivityForResult(intent, CHAT_ACTIVITY);
                         }
@@ -375,7 +428,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         @Override
         public int getItemCount(){
-            return uList.size();
+            return uPostIds.size();
         }
 
         @Override

@@ -176,7 +176,22 @@ public class SettingsActivity extends AppCompatActivity
                             R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
+            break;
+            case READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
 
+                    Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
+                    intentGalley.setType("image/jpeg");
+                    intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                    startActivityForResult(Intent.createChooser(intentGalley,
+                            getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
+                } else {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
+                }
+            }
+            break;
         }
     }
 
@@ -234,18 +249,26 @@ public class SettingsActivity extends AppCompatActivity
 
     private void captureGalleryImage(){
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE }, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        } else {
+
             Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
             intentGalley.setType("image/jpeg");
             intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             startActivityForResult(Intent.createChooser(intentGalley,
-                    getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE );
+                    getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
+        }
 
     }
 
     private void takeCameraPicture(){
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED ) {
             ActivityCompat.requestPermissions(this,
                     new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);

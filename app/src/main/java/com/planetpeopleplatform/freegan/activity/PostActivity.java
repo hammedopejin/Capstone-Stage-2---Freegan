@@ -325,11 +325,18 @@ public class PostActivity extends AppCompatActivity {
 
     private void captureGalleryImage(){
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE }, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+        } else {
+
             Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
             intentGalley.setType("image/jpeg");
             intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
             startActivityForResult(Intent.createChooser(intentGalley,
-                    getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE );
+                    getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
+        }
 
     }
 
@@ -361,28 +368,46 @@ public class PostActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
                 permissions, grantResults);
+        switch (requestCode) {
+            case CAMERA_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 &&
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    destFile = getOutputMediaFile();
 
-                Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                destFile = getOutputMediaFile();
+                    mSelectedImageUri = FileProvider.getUriForFile(
+                            this,
+                            "com.planetpeopleplatform.freegan.provider",
+                            destFile);
 
-                mSelectedImageUri = FileProvider.getUriForFile(
-                        this,
-                        "com.planetpeopleplatform.freegan.provider",
-                        destFile);
+                    intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+                    startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
 
-                intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
-                startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
-
-            } else {
+                } else {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
-                finish();
+                    finish();
+                }
             }
+            break;
+            case READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+
+                    Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
+                    intentGalley.setType("image/jpeg");
+                    intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                    startActivityForResult(Intent.createChooser(intentGalley,
+                            getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
+                } else {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            break;
         }
     }
 

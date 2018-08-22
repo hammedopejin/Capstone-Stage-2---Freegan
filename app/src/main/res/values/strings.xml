@@ -137,6 +137,7 @@
     <string name="camera_string">Camera</string>
     <string name="gallery_string">Gallery</string>
     <string name="alert_location_successfully_updated_string">Location successfully updated</string>
+    <string name="post_image">Post image</string>
 
 
 </resources>

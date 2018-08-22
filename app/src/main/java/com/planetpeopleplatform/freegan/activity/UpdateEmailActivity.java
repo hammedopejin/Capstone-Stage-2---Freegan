@@ -103,12 +103,10 @@ public class UpdateEmailActivity extends AppCompatActivity {
                                         mLoadingIndicator.setVisibility(View.INVISIBLE);
                                         Snackbar.make(mCoordinatorLayout,
                                                 R.string.alert_email_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
-                                        finish();
                                     }else {
                                         mLoadingIndicator.setVisibility(View.INVISIBLE);
                                         Snackbar.make(mCoordinatorLayout,
                                                 R.string.err_email_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
-                                        finish();
                                     }
                                 }
                             });
@@ -117,8 +115,12 @@ public class UpdateEmailActivity extends AppCompatActivity {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_email_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
-                    finish();
                 }
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                finish();
             }
         });
     }

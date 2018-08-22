@@ -41,6 +41,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class MainImageFragment extends Fragment {
 
@@ -144,6 +145,7 @@ public class MainImageFragment extends Fragment {
 
                                     intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                                     intent.putExtra(kCHATROOMID, mChatRoomId);
+                                    intent.putExtra(kWITHUSERUSERNAME, chatMate.getUserName());
 
                                     startActivity(intent);
                                 }

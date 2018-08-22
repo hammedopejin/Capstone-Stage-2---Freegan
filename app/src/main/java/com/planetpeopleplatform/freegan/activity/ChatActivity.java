@@ -60,6 +60,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kTEXT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTYPE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kVIDEO;
+import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class ChatActivity extends CustomActivity {
 
@@ -110,12 +111,13 @@ public class ChatActivity extends CustomActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.chats_title);
 
             mLoadingIndicator.setVisibility(View.VISIBLE);
 
             mCurrentUserUID = getIntent().getStringExtra(kCURRENTUSERID);
             chatRoomId = getIntent().getStringExtra(kCHATROOMID);
+            String chatMate = getIntent().getStringExtra(kWITHUSERUSERNAME);
+            getSupportActionBar().setTitle(chatMate);
            // getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#51b79f")));
             //getSupportActionBar().setTitle(chatMate);
 
@@ -125,7 +127,6 @@ public class ChatActivity extends CustomActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
-
                         mCurrentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
                     }
                 }

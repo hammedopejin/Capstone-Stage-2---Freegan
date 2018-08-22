@@ -6,8 +6,10 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -30,16 +32,21 @@ public class RegisterActivity extends AppCompatActivity {
 
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.register_data)
     android.support.constraint.ConstraintLayout mRegisterData;
+
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
+
     @BindView(R.id.email_edit_text)
-    TextView mEmailEditText;
+    EditText mEmailEditText;
+
     @BindView(R.id.password_edit_ext)
-    TextView mPasswordEditText;
+    EditText mPasswordEditText;
+
     @BindView(R.id.user_name_edit_text)
-    TextView mUserNameEditText;
+    EditText mUserNameEditText;
 
     private int RC_REGISTER = 0;
 
@@ -49,6 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
 
+        mUserNameEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(18)});
+        mEmailEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
         mAuth= FirebaseAuth.getInstance();
     }
 

@@ -6,8 +6,10 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,14 +29,18 @@ public class LoginActivity extends AppCompatActivity {
 
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.login_data)
     android.support.constraint.ConstraintLayout mLoginData;
+
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
+
     @BindView(R.id.email_edit_text)
-    TextView mEmailEditText;
+    EditText mEmailEditText;
+
     @BindView(R.id.password_edit_text)
-    TextView mPasswordEditText;
+    EditText mPasswordEditText;
 
     private int RC_SIGN_IN = 1;
 
@@ -44,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
+        mEmailEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
         mAuth= FirebaseAuth.getInstance();
     }
 

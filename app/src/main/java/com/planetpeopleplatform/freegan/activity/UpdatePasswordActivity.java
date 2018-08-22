@@ -93,14 +93,17 @@ public class UpdatePasswordActivity extends AppCompatActivity {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Snackbar.make(mCoordinatorLayout,
                             R.string.alert_password_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
-                    finish();
                 } else {
                     Log.d(TAG, "Error password not updated");
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_password_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
-                    finish();
                 }
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                finish();
             }
         });
     }

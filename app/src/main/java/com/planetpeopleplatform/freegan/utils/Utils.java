@@ -43,6 +43,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kLASTMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMEMBERS;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPRIVATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENTID;
@@ -75,8 +76,8 @@ public class Utils {
 
         List<String> members = listOf(userId1, userId2);
 
-        createRecent( userId1,  chatRoomId,  members,  userId2,  user2.getUserName(),  kPRIVATE);
-        createRecent( userId2,  chatRoomId,  members,  userId1,  user1.getUserName(),  kPRIVATE);
+        createRecent( userId1,  chatRoomId,  members,  userId2,  user2.getUserName(), postId,  kPRIVATE);
+        createRecent( userId2,  chatRoomId,  members,  userId1,  user1.getUserName(), postId,  kPRIVATE);
 
 
         return chatRoomId;
@@ -89,7 +90,8 @@ public class Utils {
     }
 
     public static void createRecent(final String userId, final String chatRoomId, final List<String> members,
-                                    final String withUserUserId, final String withUserUsername, final String type) {
+                                    final String withUserUserId, final String withUserUsername,
+                                    final String postId, final String type) {
 
         firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo(chatRoomId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -121,7 +123,7 @@ public class Utils {
                 }
                 if (create && !(userId.equals(withUserUserId))) {
 
-                    createRecentItem(userId, chatRoomId, members, withUserUserId, withUserUsername, type);
+                    createRecentItem(userId, chatRoomId, members, withUserUserId, withUserUsername, postId, type);
                 }
             }
 
@@ -134,7 +136,7 @@ public class Utils {
     }
 
     public static void createRecentItem(String userId, String chatRoomId, List<String> members, String withUserUserId,
-                                String withUserUsername, String type) {
+                                String withUserUsername, String postId, String type) {
 
         DatabaseReference reference = firebase.child(kRECENT).push();
 
@@ -152,6 +154,7 @@ public class Utils {
         recent.put(kLASTMESSAGE, "");
         recent.put(kCOUNTER, 0);
         recent.put(kDATE, date);
+        recent.put(kPOSTID, postId);
         recent.put(kTYPE, type);
 
         reference.setValue(recent);

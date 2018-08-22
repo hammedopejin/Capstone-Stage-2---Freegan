@@ -37,7 +37,7 @@ public class UpdateUserNameActivity extends AppCompatActivity {
     ImageButton mBackArrow;
 
     @BindView(R.id.user_name_edit_text)
-    EditText mUsernameEditText;
+    EditText mUserNameEditText;
 
     @BindView(R.id.update_button)
     Button mUpdateButton;
@@ -56,8 +56,8 @@ public class UpdateUserNameActivity extends AppCompatActivity {
         mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
         mCurrentUserName = getIntent().getStringExtra(kUSERNAME);
-        mUsernameEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});
-        mUsernameEditText.setText(mCurrentUserName);
+        mUserNameEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(18)});
+        mUserNameEditText.setText(mCurrentUserName);
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +70,7 @@ public class UpdateUserNameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mLoadingIndicator.setVisibility(View.VISIBLE);
-                String newUserName = mUsernameEditText.getText().toString();
+                String newUserName = mUserNameEditText.getText().toString();
                 if (!(newUserName.length() > 0)){
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     return;
@@ -83,13 +83,16 @@ public class UpdateUserNameActivity extends AppCompatActivity {
                             mLoadingIndicator.setVisibility(View.INVISIBLE);
                             Snackbar.make(mCoordinatorLayout,
                                     R.string.alert_username_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
-                            finish();
                         }else {
                             mLoadingIndicator.setVisibility(View.INVISIBLE);
                             Snackbar.make(mCoordinatorLayout,
                                     R.string.err_username_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
-                            finish();
                         }
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        finish();
                     }
                 });
             }
