@@ -27,7 +27,7 @@
         android:dividerHeight="1dp"
         tools:listitem="@layout/recent_item"/>
 
-    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
+    <!-- A progress bar that will be shown to users to indicate that recent chat data is loading -->
     <ProgressBar
         android:id="@+id/pb_loading_indicator"
         android:layout_width="@dimen/progressbar_size"

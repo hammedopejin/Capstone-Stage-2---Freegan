@@ -26,7 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
     <ProgressBar
         android:id="@+id/pb_loading_indicator"
         android:layout_width="@dimen/progressbar_size"

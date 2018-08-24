@@ -19,7 +19,7 @@ public class ProfileActivity extends AppCompatActivity {
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
 
-    public Post mPost = null;
+    private Post mPost = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

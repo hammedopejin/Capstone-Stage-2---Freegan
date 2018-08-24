@@ -96,7 +96,7 @@
         app:layoutManager="GridLayoutManager"
         app:spanCount="@integer/grid_span_count"/>
 
-    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
+    <!-- A progress bar that will be shown to users to indicate that profile data is loading -->
     <ProgressBar
         android:id="@+id/pb_loading_indicator"
         android:layout_width="@dimen/progressbar_size"

@@ -3,11 +3,12 @@
     <!-- chat pad -->
     <dimen name="pad_2dp">2dp</dimen>
     <dimen name="pad_5dp">5dp</dimen>
+    <dimen name="pad_8dp">8dp</dimen>
     <dimen name="pad_10dp">10dp</dimen>
     <dimen name="pad_15dp">15dp</dimen>
     <dimen name="pad_20dp">20dp</dimen>
     <dimen name="pad_30dp">30dp</dimen>
-    <dimen name="pad_chat_item">45dp</dimen>
+    <dimen name="pad_chat_item">48dp</dimen>
     <dimen name="pad_chat_item1">10dp</dimen>
 
     <!-- chat text -->

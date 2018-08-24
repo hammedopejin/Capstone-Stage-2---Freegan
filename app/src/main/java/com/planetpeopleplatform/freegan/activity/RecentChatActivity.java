@@ -31,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
+import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.ItemTouchHelperAdapter;
 import com.planetpeopleplatform.freegan.utils.MyItemTouchHelperCallback;
@@ -71,23 +72,25 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     private ValueEventListener mValueEventListener;
     private DatabaseReference mRecentsDatabaseReference;
 
+    private Post mPost = null;
+
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
     @BindView(R.id.recent_recyclerview)
     RecyclerView mRecentRecyclerView;
 
-    private final int CHAT_ACTIVITY = 777;
+    private final int MESSAGE_ACTIVITY = 777;
 
     private String mCurrentUserUid;
+    private String mWithUserId;
+    private String mPostId;
     private ArrayList mChatRoomIDs = new ArrayList<String>();
-    private ArrayList mPostIDs = new ArrayList<String>();
-    private ArrayList mWithUserNames = new ArrayList<String>();
     private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
 
-    /**
-     * The Recent chat list.
-     */
+    private ArrayList mPostList = new ArrayList<Post>();
+
+    //Chat order participants
     private ArrayList mUserList = new ArrayList<User>();
 
 
@@ -131,15 +134,6 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         });
 
         mRecentsDatabaseReference = firebase.child(kRECENT);
-
-        mAdapater = new PostAdapater(this, mUserList, mPostIDs);
-
-        MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapater);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(mRecentRecyclerView);
-        mRecentRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecentRecyclerView.hasFixedSize();
-        mRecentRecyclerView.setAdapter(mAdapater);
     }
 
 
@@ -157,9 +151,9 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         isRunning = false;
         mRecents.clear();
         mUserList.clear();
-        mPostIDs.clear();
         mChatRoomIDs.clear();
-        mWithUserNames.clear();
+        mPostList.clear();
+
         detachDatabaseReadListener();
     }
 
@@ -179,9 +173,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                     try{
                         mRecents.clear();
                         mUserList.clear();
-                        mPostIDs.clear();
                         mChatRoomIDs.clear();
-                        mWithUserNames.clear();
+                        mPostList.clear();
 
                         Collection<Object> sortedArray =
                                 ((HashMap<String, Object>) dataSnapshot.getValue()).values();
@@ -194,24 +187,49 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
                             if(( (currentRecent.get(kTYPE)).equals(kPRIVATE))) {
 
-                                String withUserId = (String) currentRecent.get(kWITHUSERUSERID);
-                                mWithUserNames.add(currentRecent.get(kWITHUSERUSERNAME));
+                                mWithUserId = (String) currentRecent.get(kWITHUSERUSERID);
+                                mPostId = (String) currentRecent.get(kPOSTID);
+                                mRecents.add(currentRecent);
+
                                 mChatRoomIDs.add(currentRecent.get(kCHATROOMID));
 
-
-                                firebase.child(kUSER).child(withUserId)
+                                firebase.child(kUSER).child(mWithUserId)
                                         .addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 if(dataSnapshot.exists()){
 
-                                                    User fUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                                                    User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
 
-                                                    mUserList.add(fUser);
-                                                    mRecents.add(currentRecent);
-                                                    mPostIDs.add(currentRecent.get(kPOSTID));
-                                                    mAdapater.notifyDataSetChanged();
-                                                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                                                    mUserList.add(chatMate);
+
+                                                    firebase.child(kPOST).child(mPostId)
+                                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                @Override
+                                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                                                    if(dataSnapshot.exists()) {
+
+                                                                        mPost = new Post ((HashMap<String, Object>) dataSnapshot.getValue());
+                                                                        mPostList.add(mPost);
+
+                                                                        mAdapater = new PostAdapater(getApplicationContext(), mUserList, mPostList);
+                                                                        MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapater);
+                                                                        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                                                                        touchHelper.attachToRecyclerView(mRecentRecyclerView);
+                                                                        mRecentRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                                                                        mRecentRecyclerView.hasFixedSize();
+                                                                        mRecentRecyclerView.setAdapter(mAdapater);
+
+                                                                        mLoadingIndicator.setVisibility(View.INVISIBLE);
+                                                                    }
+                                                                }
+
+                                                                @Override
+                                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                                }
+                                                            });
 
                                                 }
                                             }
@@ -256,96 +274,47 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                         super(itemView);
                     }
 
-                    private void bindData(User user, String postId){
+                    private void bindData(User user, Post post){
 
 
-                            TextView lbl = itemView.findViewById(R.id.tv_recent_name);
-                            lbl.setMaxLines(1);
-                            lbl.setText(user.getUserName());
+                        TextView lbl = itemView.findViewById(R.id.tv_recent_name);
+                        lbl.setMaxLines(1);
+                        lbl.setText(user.getUserName());
 
-//                            lbl.setCompoundDrawablesWithIntrinsicBounds((user.getBoolean("online")) ?
-//                                                R.drawable.ic_online
-//                                             : R.drawable.ic_offline,0,0,0);
 
-                            firebase.child(kUSER).child(user.getObjectId())
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            try{
-
-                                                HashMap<String, Object> td = (HashMap<String, Object>) dataSnapshot.getValue();
-
-                                                for(Object key : td.keySet()){
-                                                    if(key.equals(kUSERIMAGEURL)){
-                                                        String userPicUrl = (String) td.get(key);
-                                                        Glide.with(getApplicationContext())
-                                                                .load(userPicUrl)
-                                                                .listener(new RequestListener<Drawable>() {
-                                                                    @Override
-                                                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                                                            target, boolean isFirstResource) {
-                                                                        return false;
-                                                                    }
-
-                                                                    @Override
-                                                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                                                            target, DataSource dataSource, boolean isFirstResource) {
-                                                                        return false;
-                                                                    }
-                                                                })
-                                                                .into((de.hdodenhof.circleimageview.CircleImageView) itemView.findViewById(R.id.img_recent_user));
-                                                    }
-                                                }
-
-                                            }catch(Exception exception){}
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                        firebase.child(kPOST).child(postId)
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                        Glide.with(getApplicationContext())
+                                .load(user.getUserImgUrl())
+                                .listener(new RequestListener<Drawable>() {
                                     @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        try{
-
-                                            HashMap<String, Object> td = (HashMap<String, Object>) dataSnapshot.getValue();
-
-                                            for(Object key : td.keySet()){
-                                                if(key.equals(kIMAGEURL)){
-                                                    String postImgUrl = (String) td.get(key);
-                                                    Glide.with(getApplicationContext())
-                                                            .load(postImgUrl)
-                                                            .listener(new RequestListener<Drawable>() {
-                                                                @Override
-                                                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                                                        target, boolean isFirstResource) {
-                                                                    return false;
-                                                                }
-
-                                                                @Override
-                                                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                                                        target, DataSource dataSource, boolean isFirstResource) {
-                                                                    return false;
-                                                                }
-                                                            })
-                                                            .into((ImageView) itemView.findViewById(R.id.img_recent_post_item));
-                                                }
-                                            }
-
-                                        }catch(Exception exception){}
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                            target, boolean isFirstResource) {
+                                        return false;
                                     }
 
                                     @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                            target, DataSource dataSource, boolean isFirstResource) {
+                                        return false;
                                     }
-                                });
+                                })
+                                .into((de.hdodenhof.circleimageview.CircleImageView) itemView.findViewById(R.id.img_recent_user));
 
+                        Glide.with(getApplicationContext())
+                                .load(post.getImageUrl())
+                                .listener(new RequestListener<Drawable>() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                            target, boolean isFirstResource) {
+                                        return false;
+                                    }
 
+                                    @Override
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                            target, DataSource dataSource, boolean isFirstResource) {
+                                        return false;
+                                    }
+                                })
+                                .into((ImageView) itemView.findViewById(R.id.img_recent_post_item));
                     }
     }
 
@@ -353,29 +322,29 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     class PostAdapater extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             implements ItemTouchHelperAdapter{
 
-
         View myView = null;
-        Context context;
+        Context mContext;
         ArrayList<User> uList;
-        ArrayList<String> uPostIds;
+        ArrayList<Post> uPosts;
 
-        public PostAdapater(Context c, ArrayList userList, ArrayList postIds) {
-            context = c;
+        public PostAdapater(Context context, ArrayList userList, ArrayList posts) {
+            mContext = context;
             uList = userList;
-            uPostIds = postIds;
+            uPosts = posts;
+
         }
 
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            myView = LayoutInflater.from(context).inflate(R.layout.recent_item, parent, false);
+            myView = LayoutInflater.from(mContext).inflate(R.layout.recent_item, parent, false);
             return new Item(myView);
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position){
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position){
 
-            ((Item) holder).bindData(uList.get(position), uPostIds.get(position));
+            ((Item) holder).bindData((User) uList.get(position), (Post) uPosts.get(position));
             holder.itemView.setTag(position);
 
             TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
@@ -409,13 +378,14 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view) { Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                        public void onClick(View view) { Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
 
                         intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                         intent.putExtra(kCHATROOMID, (String) mChatRoomIDs.get(position));
-                        intent.putExtra(kWITHUSERUSERNAME, (String) mWithUserNames.get(position));
+                        intent.putExtra(kPOST, (Post) mPostList.get(position));
+                        intent.putExtra(kUSER, (User) mUserList.get(position));
 
-                        startActivityForResult(intent, CHAT_ACTIVITY);
+                        startActivityForResult(intent, MESSAGE_ACTIVITY);
                         }
             });
         }
@@ -428,14 +398,14 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         @Override
         public int getItemCount(){
-            return uPostIds.size();
+            return uPosts.size();
         }
 
         @Override
         public void onItemDismiss(int position){
             deleteWarning(position);
             mAdapater.notifyDataSetChanged();
-            }
+        }
     }
 
 
@@ -454,6 +424,9 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
+        if (requestCode == MESSAGE_ACTIVITY){
+            mAdapater.notifyDataSetChanged();
+        }
     }
 
     @Override

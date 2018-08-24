@@ -100,8 +100,6 @@
     <string name="update_button_text">Update</string>
 
 
-
-
     <string name="delete_message">Are you sure you want to delete?</string>
     <string name="chats_title">Chats</string>
     <string name="choose_fragment_alert_tag">choose_fragment_alert</string>
@@ -138,6 +136,7 @@
     <string name="gallery_string">Gallery</string>
     <string name="alert_location_successfully_updated_string">Location successfully updated</string>
     <string name="post_image">Post image</string>
+    <string name="enter_message_here">Enter message here...</string>
 
 
 </resources>

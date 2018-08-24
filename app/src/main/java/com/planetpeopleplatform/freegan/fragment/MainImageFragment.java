@@ -23,7 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.activity.ChatActivity;
+import com.planetpeopleplatform.freegan.activity.MessageActivity;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
@@ -129,7 +129,7 @@ public class MainImageFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                final Intent intent = new Intent(getActivity(), ChatActivity.class);
+                final Intent intent = new Intent(getActivity(), MessageActivity.class);
                 mChatMateId = mPost.getPostUserObjectId();
 
                 firebase.child(kUSER).child(mChatMateId).addValueEventListener(new ValueEventListener() {
@@ -145,7 +145,8 @@ public class MainImageFragment extends Fragment {
 
                                     intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                                     intent.putExtra(kCHATROOMID, mChatRoomId);
-                                    intent.putExtra(kWITHUSERUSERNAME, chatMate.getUserName());
+                                    intent.putExtra(kPOST, mPost);
+                                    intent.putExtra(kUSER, chatMate);
 
                                     startActivity(intent);
                                 }

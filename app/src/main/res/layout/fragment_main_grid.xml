@@ -51,7 +51,7 @@
         android:elevation="@dimen/fab_elevation"
         android:layout_marginEnd="@dimen/fab_margin" />
 
-    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
+    <!-- A progress bar that will be shown to users to indicate that post data is loading -->
     <ProgressBar
         android:id="@+id/pb_loading_indicator"
         android:layout_width="@dimen/progressbar_size"
