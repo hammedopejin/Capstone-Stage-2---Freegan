@@ -58,11 +58,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadTweets();
+        loadFreegans();
     }
 
 
-    private void loadTweets(){
+    private void loadFreegans(){
 
         if (mAuth == null){
             finish();
@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    loadTweets();
+                    loadFreegans();
                 }else
                 {
                     Log.d("TAG", "loginToFireBase: Failed");

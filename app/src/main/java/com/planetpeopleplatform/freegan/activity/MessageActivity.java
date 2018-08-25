@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -94,6 +97,9 @@ public class MessageActivity extends CustomActivity {
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
 
+    @BindView(R.id.button_chat_box_send)
+    Button mSendButton;
+
     @BindView(R.id.post_Image)
     ImageView mPostImage;
 
@@ -149,7 +155,27 @@ public class MessageActivity extends CustomActivity {
 
         mChatMessageEdittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 
-        setTouchNClick(R.id.button_chatbox_send);
+        // Enable Send button when there's text to send
+        mChatMessageEdittext.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.toString().trim().length() > 0) {
+                    mSendButton.setEnabled(true);
+                } else {
+                    mSendButton.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        setTouchNClick(R.id.button_chat_box_send);
 
 
     }
@@ -180,7 +206,7 @@ public class MessageActivity extends CustomActivity {
     @Override
     public void onClick(View v) {
         super.onClick(v);
-        if (v.getId() == R.id.button_chatbox_send) {
+        if (v.getId() == R.id.button_chat_box_send) {
             sendMessage();
         }
     }
