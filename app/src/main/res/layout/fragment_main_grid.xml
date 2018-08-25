@@ -41,15 +41,15 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_item_button_view"
-        android:contentDescription="Give Button"
-        android:layout_gravity="bottom|end"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
         android:layout_width="@dimen/fab_layout_width"
         android:layout_height="@dimen/fab_layout_height"
-        android:src="@drawable/common_google_signin_btn_icon_light"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:contentDescription="@string/give_button"
         android:elevation="@dimen/fab_elevation"
-        android:layout_marginEnd="@dimen/fab_margin" />
+         />
 
     <!-- A progress bar that will be shown to users to indicate that post data is loading -->
     <ProgressBar

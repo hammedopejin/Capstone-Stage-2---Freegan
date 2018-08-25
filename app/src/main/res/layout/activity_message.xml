@@ -90,14 +90,15 @@
 
         <Button
             android:id="@+id/button_chat_box_send"
-            android:background="@drawable/ic_send"
             style="@style/btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_gravity="bottom"
+            android:background="@drawable/ic_send"
+            android:clickable="true"
             android:focusable="true"
-            android:clickable="true" />
+            android:gravity="center"
+            android:visibility="gone" />
 
 
     </LinearLayout>

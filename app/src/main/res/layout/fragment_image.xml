@@ -65,13 +65,14 @@
     <android.support.design.widget.FloatingActionButton
         android:text="Contact"
         android:id="@+id/contact_button_view"
-        android:contentDescription="Contact Button"
+        android:contentDescription="@string/contact_giver_button"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_width="@dimen/fab_layout_width"
         android:layout_height="@dimen/fab_layout_height"
         android:elevation="@dimen/fab_elevation"
+        android:src="@android:drawable/sym_action_chat"
         android:layout_marginEnd="@dimen/fab_margin"/>
 
 </FrameLayout>

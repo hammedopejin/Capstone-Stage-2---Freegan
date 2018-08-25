@@ -164,9 +164,10 @@ public class MessageActivity extends CustomActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (charSequence.toString().trim().length() > 0) {
-                    mSendButton.setEnabled(true);
+                    mSendButton.setBackground(getResources().getDrawable(R.drawable.ic_send));
+                    mSendButton.setVisibility(View.VISIBLE);
                 } else {
-                    mSendButton.setEnabled(false);
+                    mSendButton.setVisibility(View.GONE);
                 }
             }
 
