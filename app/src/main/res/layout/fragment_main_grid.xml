@@ -47,6 +47,7 @@
         android:layout_marginBottom="@dimen/fab_margin"
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginRight="@dimen/fab_margin"
+        android:src="@drawable/freegan_logo_transparent"
         android:contentDescription="@string/give_button"
         android:elevation="@dimen/fab_elevation"
          />

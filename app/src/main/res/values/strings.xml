@@ -139,6 +139,7 @@
     <string name="enter_message_here">Enter message here...</string>
     <string name="contact_giver_button">Button when pressed help start chat with post owner</string>
     <string name="give_button">Button when clicked help start the process of posting new item</string>
+    <string name="app_logo">app logo</string>
 
 
 </resources>
