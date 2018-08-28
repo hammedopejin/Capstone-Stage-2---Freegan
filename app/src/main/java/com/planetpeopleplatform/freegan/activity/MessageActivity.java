@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,12 +26,14 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.adapter.MessageAdapter;
 import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.EndlessRecyclerViewScrollListener;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.text.SimpleDateFormat;
@@ -85,6 +88,8 @@ public class MessageActivity extends CustomActivity {
     /** Flag to hold if the activity is running or not.  */
     private Boolean isRunning = false;
 
+    // Store a member variable for the listener
+    private EndlessRecyclerViewScrollListener mScrollListener;
 
     /** The current user object. */
     /**
@@ -92,6 +97,10 @@ public class MessageActivity extends CustomActivity {
      */
     private User mCurrentUser = null;
     private String mCurrentUserUID = null;
+    private LinearLayoutManager linearLayoutManager = null;
+
+    private Query mDataBaseQuery;
+    private String mLastSeenKey;
 
 
     @BindView(R.id.pb_loading_indicator)
@@ -132,6 +141,9 @@ public class MessageActivity extends CustomActivity {
         Glide.with(this).load(mPost.getImageUrl()).into(mPostImage);
 
         mMessagesDatabaseReference = firebase.child(kMESSAGE).child(chatRoomId);
+        mDataBaseQuery = mMessagesDatabaseReference.limitToFirst(20);
+
+        linearLayoutManager = new LinearLayoutManager(MessageActivity.this);
 
         firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
             @Override
@@ -139,10 +151,9 @@ public class MessageActivity extends CustomActivity {
                 if (dataSnapshot.exists()) {
                     mCurrentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
                     mMessageAdapter = new MessageAdapter(MessageActivity.this, mMessageList, mChatMate);
-                    LinearLayoutManager linearLayout = new LinearLayoutManager(MessageActivity.this);
-                    linearLayout.setStackFromEnd(true);
-                    linearLayout.setSmoothScrollbarEnabled(true);
-                    mMessageRecycler.setLayoutManager(linearLayout);
+                    linearLayoutManager.setStackFromEnd(true);
+                    linearLayoutManager.setSmoothScrollbarEnabled(true);
+                    mMessageRecycler.setLayoutManager(linearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
                 }
             }
@@ -152,6 +163,18 @@ public class MessageActivity extends CustomActivity {
 
             }
         });
+
+        // Retain an instance so that you can call `resetState()` for fresh searches
+        mScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                loadNextDataFromApi(page);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        mMessageRecycler.addOnScrollListener(mScrollListener);
 
         mChatMessageEdittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 
@@ -221,6 +244,59 @@ public class MessageActivity extends CustomActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void loadNextDataFromApi(int offset) {
+
+        String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
+        final List<String> legitTypes = new ArrayList<>(Arrays.asList(array));
+
+        mDataBaseQuery = mMessagesDatabaseReference.orderByKey().startAt(mLastSeenKey).limitToFirst(21);
+
+        mDataBaseQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                if (dataSnapshot.exists()){
+
+                    mLastSeenKey = dataSnapshot.getKey();
+                    HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
+
+                    if (item.get(kTYPE) != null) {
+
+                        if (legitTypes.contains(item.get(kTYPE))) {
+
+                            RNCryptorNative rncryptor  =  new RNCryptorNative();
+                            String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                            Message message = new Message(decrypted, (String) item.get(kDATE),
+                                    (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                    (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
+                                    (String) item.get(kTYPE));
+                            mMessageList.add(message);
+
+                            // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
+                            //    lastMsgDate = message.getDate()
+                            //}
+
+                            if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
+                                Utils.updateChatStatus(item, chatRoomId);
+                            }
+                        }
+
+                    }
+
+                    mMessageAdapter.notifyDataSetChanged();
+                    mMessageRecycler.smoothScrollToPosition(mMessageList.size());
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+        mMessageList.remove(mMessageList.size() -1);
+        mMessageAdapter.notifyDataSetChanged();
+    }
 
     /**
      * Call this method to Send message to opponent. It does nothing if the text
@@ -259,6 +335,7 @@ public class MessageActivity extends CustomActivity {
 
                     if (dataSnapshot.exists()){
 
+                        mLastSeenKey = dataSnapshot.getKey();
 
                         HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
 
@@ -285,7 +362,7 @@ public class MessageActivity extends CustomActivity {
 
                         }
                         mMessageAdapter.notifyDataSetChanged();
-                        mMessageRecycler.smoothScrollToPosition(mMessageList.size());
+                        //mMessageRecycler.smoothScrollToPosition(mMessageList.size());
                         mLoadingIndicator.setVisibility(View.INVISIBLE);
                     }
                 }
@@ -295,7 +372,8 @@ public class MessageActivity extends CustomActivity {
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
                 public void onCancelled(DatabaseError databaseError) {}
             };
-            mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
+            mDataBaseQuery.addChildEventListener(mChildEventListener);
+            //mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
