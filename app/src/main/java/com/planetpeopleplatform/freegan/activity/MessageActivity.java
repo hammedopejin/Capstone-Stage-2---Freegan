@@ -3,6 +3,7 @@ package com.planetpeopleplatform.freegan.activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -151,8 +152,9 @@ public class MessageActivity extends CustomActivity {
                 if (dataSnapshot.exists()) {
                     mCurrentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
                     mMessageAdapter = new MessageAdapter(MessageActivity.this, mMessageList, mChatMate);
-                    linearLayoutManager.setStackFromEnd(true);
+
                     linearLayoutManager.setSmoothScrollbarEnabled(true);
+                    linearLayoutManager.setReverseLayout(true);
                     mMessageRecycler.setLayoutManager(linearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
                 }
@@ -168,8 +170,6 @@ public class MessageActivity extends CustomActivity {
         mScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
                 loadNextDataFromApi(page);
             }
         };
@@ -284,7 +284,6 @@ public class MessageActivity extends CustomActivity {
                     }
 
                     mMessageAdapter.notifyDataSetChanged();
-                    mMessageRecycler.smoothScrollToPosition(mMessageList.size());
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                 }
             }
@@ -315,8 +314,11 @@ public class MessageActivity extends CustomActivity {
         String encrypted = new String((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), chatRoomId)));
         mChatMessageEdittext.setText(null);
         DatabaseReference reference = chatRef.child(chatRoomId).push();
+
+
+
         String messageId = reference.getKey();
-        Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUID,
+        final Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUID,
                 mCurrentUser.getUserName(),  Message.STATUS_DELIVERED, kTEXT);
 
         reference.setValue(cryptMessage);
@@ -362,7 +364,7 @@ public class MessageActivity extends CustomActivity {
 
                         }
                         mMessageAdapter.notifyDataSetChanged();
-                        //mMessageRecycler.smoothScrollToPosition(mMessageList.size());
+                        mMessageRecycler.smoothScrollToPosition(0);
                         mLoadingIndicator.setVisibility(View.INVISIBLE);
                     }
                 }
