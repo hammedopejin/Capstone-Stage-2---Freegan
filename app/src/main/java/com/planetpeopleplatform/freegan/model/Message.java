@@ -1,6 +1,9 @@
 package com.planetpeopleplatform.freegan.model;
 
-public class Message {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Message implements Parcelable {
 
     public final static String STATUS_READ = "Read";
     public final static String STATUS_DELIVERED = "Delivered";
@@ -29,6 +32,28 @@ public class Message {
         this.type = type;
     }
 
+
+    protected Message(Parcel in) {
+        message = in.readString();
+        senderId = in.readString();
+        messageId = in.readString();
+        senderName = in.readString();
+        date = in.readString();
+        status = in.readString();
+        type = in.readString();
+    }
+
+    public static final Creator<Message> CREATOR = new Creator<Message>() {
+        @Override
+        public Message createFromParcel(Parcel in) {
+            return new Message(in);
+        }
+
+        @Override
+        public Message[] newArray(int size) {
+            return new Message[size];
+        }
+    };
 
     public String getMessage() {
         return message;
@@ -84,5 +109,21 @@ public class Message {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(message);
+        parcel.writeString(senderId);
+        parcel.writeString(messageId);
+        parcel.writeString(senderName);
+        parcel.writeString(date);
+        parcel.writeString(status);
+        parcel.writeString(type);
     }
 }
