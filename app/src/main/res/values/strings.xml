@@ -102,8 +102,8 @@
 
     <string name="delete_message">Are you sure you want to delete?</string>
     <string name="chats_title">Chats</string>
-    <string name="choose_fragment_alert_tag">choose_fragment_alert</string>
-    <string name="delete_fragment_alert_tag">delete_fragment_alert</string>
+    <string name="choose_fragment_alert_tag">Choose fragment alert</string>
+    <string name="delete_fragment_alert_tag">Delete fragment alert</string>
     <string name="attention_alert_title">ATTENTION !!!</string>
     <string name="title_string">title</string>
     <string name="class_cast_exception_string">must implement OnCompleteListener</string>
@@ -140,6 +140,9 @@
     <string name="contact_giver_button">Button when pressed help start chat with post owner</string>
     <string name="give_button">Button when clicked help start the process of posting new item</string>
     <string name="app_logo">app logo</string>
+    <string name="action_edit_post">Edit post</string>
+    <string name="action_share_post">Share post</string>
+    <string name="action_delete_post">Delete post</string>
 
 
 </resources>

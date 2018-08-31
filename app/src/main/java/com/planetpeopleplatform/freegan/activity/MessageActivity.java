@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.FirebaseError;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -139,6 +140,7 @@ public class MessageActivity extends CustomActivity {
 
         mMessagesDatabaseReference = firebase.child(kMESSAGE).child(chatRoomId);
         mDataBaseQuery = mMessagesDatabaseReference.limitToLast(30);
+        mDataBaseQuery.keepSynced(true);
 
         linearLayoutManager = new LinearLayoutManager(MessageActivity.this);
 
@@ -249,7 +251,8 @@ public class MessageActivity extends CustomActivity {
         mMessageRecycler.setLayoutFrozen(true);
         mMessageList.clear();
 
-        mDataBaseQuery = mMessagesDatabaseReference.orderByKey().limitToLast(30 + offset).endAt((String) mLastSeenKey.get(mLastSeenKey.size() - 1));
+        mDataBaseQuery = mMessagesDatabaseReference.orderByKey().limitToLast(60 + offset).endAt((String) mLastSeenKey.get(mLastSeenKey.size() - 1));
+        mDataBaseQuery.keepSynced(true);
         mLoadingIndicator.setVisibility(View.VISIBLE);
         mDataBaseQuery.addChildEventListener(new ChildEventListener() {
             @Override
@@ -365,9 +368,21 @@ public class MessageActivity extends CustomActivity {
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
                 public void onChildRemoved(DataSnapshot dataSnapshot) {}
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-                public void onCancelled(DatabaseError databaseError) {}
+                public void onCancelled(DatabaseError databaseError) {
+                }
             };
             mDataBaseQuery.addChildEventListener(mChildEventListener);
+            mDataBaseQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
     }
 

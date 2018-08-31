@@ -69,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/transparent"
                     android:layout_gravity="end"
-                    android:src="@android:drawable/ic_menu_manage"
+                    app:srcCompat="@drawable/ic_settings_white_24dp"
                     android:paddingEnd="@dimen/general_padding"
                     android:paddingStart="@dimen/general_padding"/>
 

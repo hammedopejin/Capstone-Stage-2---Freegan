@@ -8,10 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -58,7 +60,7 @@ public class ProfileImageFragment extends Fragment {
     ImageButton mBackArrow;
 
     @BindView(R.id.poster_image_button)
-    de.hdodenhof.circleimageview.CircleImageView mShareImageButton;
+    de.hdodenhof.circleimageview.CircleImageView mOptionImageButton;
 
     @BindView(R.id.contact_button_view)
     android.support.design.widget.FloatingActionButton mContactButtonView;
@@ -78,7 +80,8 @@ public class ProfileImageFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
         ButterKnife.bind(this, view);
 
-        mShareImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
+//        mOptionImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
+        mOptionImageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_settings_white_24dp));
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -123,11 +126,10 @@ public class ProfileImageFragment extends Fragment {
             mContactButtonView.setVisibility(View.GONE);
         }
         getCurrentUser(mCurrentUserUid);
-        mShareImageButton.setOnClickListener(new View.OnClickListener() {
+        mOptionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent shareIntent = createShareForecastIntent();
-                startActivity(shareIntent);
+                showUserSettingsPopup(view);
             }
         });
 
@@ -149,7 +151,7 @@ public class ProfileImageFragment extends Fragment {
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
+                        if (dataSnapshot.exists()) {
                             User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
                             if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
 
@@ -184,7 +186,7 @@ public class ProfileImageFragment extends Fragment {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
                 }
             }
@@ -197,6 +199,35 @@ public class ProfileImageFragment extends Fragment {
         return mCurrentUser;
     }
 
+    private void showUserSettingsPopup(View view) {
+        PopupMenu popup = new PopupMenu(getContext(), view);
+        popup.inflate(R.menu.popup_post_settings);
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.action_edit_post:
+
+                        return true;
+
+                    case R.id.action_share_post:
+                        Intent shareIntent = createShareForecastIntent();
+                        startActivity(shareIntent);
+                        return true;
+
+                    case R.id.action_delete_post:
+                        deleteWarning(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+        popup.show();
+    }
+
     private Intent createShareForecastIntent() {
         Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
                 .setType("text/plain")
@@ -204,6 +235,14 @@ public class ProfileImageFragment extends Fragment {
                 .getIntent();
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         return shareIntent;
+    }
+
+    private void deleteWarning(int position) {
+
+        DeleteDialogFragment deleteDialog = DeleteDialogFragment.newInstance(getString(R.string.attention_alert_title),
+                mPost.getPostId(), kPOST, position);
+        deleteDialog.show(getActivity().getSupportFragmentManager(), getString(R.string.delete_fragment_alert_tag));
+
     }
 
 }

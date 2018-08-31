@@ -54,6 +54,8 @@ public class DeleteDialogFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 firebase.child(childRef).child(key).removeValue();
+                //Todo
+                //Delete Image Url of deleted post, in the case of post deletion...
                 mListener.onComplete(position);
             }
         });

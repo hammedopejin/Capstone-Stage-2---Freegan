@@ -8,13 +8,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements DeleteDialogFragment.OnCompleteListener{
 
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
@@ -68,5 +69,10 @@ public class ProfileActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onComplete(int position) {
+        getSupportFragmentManager().popBackStack();
     }
 }

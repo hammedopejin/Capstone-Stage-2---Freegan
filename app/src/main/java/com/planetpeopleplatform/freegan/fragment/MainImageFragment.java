@@ -46,6 +46,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME
 public class MainImageFragment extends Fragment {
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
+    private static final int RC_PROFILE_ACTIVITY = 777;
     private String mChatMateId;
     private Post mPost = null;
     private String mChatRoomId = null;
@@ -167,7 +168,7 @@ public class MainImageFragment extends Fragment {
             public void onClick(View view) {
                 Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
                 profileIntent.putExtra(kPOST, mPost);
-                startActivity(profileIntent);
+                startActivityForResult(profileIntent, RC_PROFILE_ACTIVITY);
             }
         });
 
@@ -180,6 +181,14 @@ public class MainImageFragment extends Fragment {
         getCurrentUser(mCurrentUserUid);
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_PROFILE_ACTIVITY) {
+
+        }
     }
 
     @Override
