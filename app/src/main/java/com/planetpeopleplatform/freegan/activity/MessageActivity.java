@@ -61,7 +61,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kTEXT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTYPE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kVIDEO;
-import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class MessageActivity extends CustomActivity {
 
@@ -245,6 +244,7 @@ public class MessageActivity extends CustomActivity {
 
         String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
         final List<String> legitTypes = new ArrayList<>(Arrays.asList(array));
+
         mRecyclerViewState = mMessageRecycler.getLayoutManager().onSaveInstanceState();
         mMessageRecycler.setLayoutFrozen(true);
         mMessageList.clear();

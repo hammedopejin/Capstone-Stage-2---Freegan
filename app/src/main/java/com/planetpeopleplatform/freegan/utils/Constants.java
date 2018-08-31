@@ -8,8 +8,15 @@ import com.google.firebase.storage.StorageReference;
 public class Constants {
 
     //Firebase Reference
-    public static FirebaseDatabase database = FirebaseDatabase.getInstance();
-    public static DatabaseReference firebase = database.getReference();
+    public static FirebaseDatabase database;
+    public static FirebaseDatabase getDatabase() {
+        if (database == null) {
+            database = FirebaseDatabase.getInstance();
+            database.setPersistenceEnabled(true);
+        }
+        return database;
+    }
+    public static DatabaseReference firebase = getDatabase().getReference();
 
     public static FirebaseStorage storage = FirebaseStorage.getInstance();
     public static StorageReference storageRef = storage.getReferenceFromUrl("gs://freegan-eabd2.appspot.com");
