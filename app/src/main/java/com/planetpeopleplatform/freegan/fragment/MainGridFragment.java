@@ -277,10 +277,10 @@ public class MainGridFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (mGeoQuery != null) {
             mGeoQuery.removeAllListeners();
         }
+        super.onDestroy();
     }
 
     /**

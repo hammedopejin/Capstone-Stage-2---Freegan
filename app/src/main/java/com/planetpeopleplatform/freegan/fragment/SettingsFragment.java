@@ -134,6 +134,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             public boolean onPreferenceClick(Preference preference) {
                 mAuth.signOut();
                 startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                getActivity().finish();
                 return true;
             }
         });

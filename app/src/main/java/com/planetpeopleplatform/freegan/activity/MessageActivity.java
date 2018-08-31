@@ -1,25 +1,21 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
@@ -76,6 +72,7 @@ public class MessageActivity extends CustomActivity {
     Boolean initialLoadComplete = false;
     private Post mPost = null;
     private User mChatMate = null;
+    private Parcelable mRecyclerViewState;
 
     /** The Conversation list.  */
     private ArrayList mMessageList = new ArrayList<Message>();
@@ -101,7 +98,7 @@ public class MessageActivity extends CustomActivity {
     private LinearLayoutManager linearLayoutManager = null;
 
     private Query mDataBaseQuery;
-    private String mLastSeenKey;
+    private ArrayList mLastSeenKey = new ArrayList<String>();
 
 
     @BindView(R.id.pb_loading_indicator)
@@ -142,7 +139,7 @@ public class MessageActivity extends CustomActivity {
         Glide.with(this).load(mPost.getImageUrl()).into(mPostImage);
 
         mMessagesDatabaseReference = firebase.child(kMESSAGE).child(chatRoomId);
-        mDataBaseQuery = mMessagesDatabaseReference.limitToFirst(20);
+        mDataBaseQuery = mMessagesDatabaseReference.limitToLast(30);
 
         linearLayoutManager = new LinearLayoutManager(MessageActivity.this);
 
@@ -170,7 +167,7 @@ public class MessageActivity extends CustomActivity {
         mScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadNextDataFromApi(page);
+                loadNextDataFromApi(totalItemsCount);
             }
         };
         // Adds the scroll listener to RecyclerView
@@ -248,16 +245,19 @@ public class MessageActivity extends CustomActivity {
 
         String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
         final List<String> legitTypes = new ArrayList<>(Arrays.asList(array));
+        mRecyclerViewState = mMessageRecycler.getLayoutManager().onSaveInstanceState();
+        mMessageRecycler.setLayoutFrozen(true);
+        mMessageList.clear();
 
-        mDataBaseQuery = mMessagesDatabaseReference.orderByKey().startAt(mLastSeenKey).limitToFirst(21);
-
+        mDataBaseQuery = mMessagesDatabaseReference.orderByKey().limitToLast(30 + offset).endAt((String) mLastSeenKey.get(mLastSeenKey.size() - 1));
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         mDataBaseQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 if (dataSnapshot.exists()){
 
-                    mLastSeenKey = dataSnapshot.getKey();
+                    mLastSeenKey.add(dataSnapshot.getKey());
                     HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
 
                     if (item.get(kTYPE) != null) {
@@ -270,20 +270,14 @@ public class MessageActivity extends CustomActivity {
                                     (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
                                     (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                     (String) item.get(kTYPE));
-                            mMessageList.add(message);
+                            mMessageList.add(0, message);
 
-                            // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
-                            //    lastMsgDate = message.getDate()
-                            //}
-
-                            if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
-                                Utils.updateChatStatus(item, chatRoomId);
-                            }
                         }
 
                     }
-
+                    mMessageRecycler.setLayoutFrozen(false);
                     mMessageAdapter.notifyDataSetChanged();
+                    mMessageRecycler.getLayoutManager().onRestoreInstanceState(mRecyclerViewState);
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                 }
             }
@@ -293,7 +287,6 @@ public class MessageActivity extends CustomActivity {
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
             public void onCancelled(DatabaseError databaseError) {}
         });
-        mMessageList.remove(mMessageList.size() -1);
         mMessageAdapter.notifyDataSetChanged();
     }
 
@@ -337,7 +330,7 @@ public class MessageActivity extends CustomActivity {
 
                     if (dataSnapshot.exists()){
 
-                        mLastSeenKey = dataSnapshot.getKey();
+                        mLastSeenKey.add(dataSnapshot.getKey());
 
                         HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
 
@@ -351,7 +344,7 @@ public class MessageActivity extends CustomActivity {
                                         (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
                                         (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                         (String) item.get(kTYPE));
-                                mMessageList.add(message);
+                                mMessageList.add(0, message);
 
                                 // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
                                 //    lastMsgDate = message.getDate()
@@ -375,7 +368,6 @@ public class MessageActivity extends CustomActivity {
                 public void onCancelled(DatabaseError databaseError) {}
             };
             mDataBaseQuery.addChildEventListener(mChildEventListener);
-            //mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
