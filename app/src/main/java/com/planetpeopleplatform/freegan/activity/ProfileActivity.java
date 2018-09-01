@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
@@ -14,6 +15,7 @@ import com.planetpeopleplatform.freegan.model.Post;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
 public class ProfileActivity extends AppCompatActivity implements DeleteDialogFragment.OnCompleteListener{
 
@@ -73,6 +75,8 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
     @Override
     public void onComplete(int position) {
+        StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl());
+        toDelete.delete();
         getSupportFragmentManager().popBackStack();
     }
 }

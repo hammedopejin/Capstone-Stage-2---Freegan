@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 
+import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
@@ -16,6 +17,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCHILDREF;
 import static com.planetpeopleplatform.freegan.utils.Constants.kKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTITLE;
+import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
 public class DeleteDialogFragment extends DialogFragment {
 
@@ -54,8 +56,6 @@ public class DeleteDialogFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 firebase.child(childRef).child(key).removeValue();
-                //Todo
-                //Delete Image Url of deleted post, in the case of post deletion...
                 mListener.onComplete(position);
             }
         });
