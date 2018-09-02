@@ -16,6 +16,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHILDREF;
 import static com.planetpeopleplatform.freegan.utils.Constants.kKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTITLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
@@ -48,26 +50,49 @@ public class DeleteDialogFragment extends DialogFragment {
         final String childRef = getArguments().getString(kCHILDREF);
         final int position = getArguments().getInt(kPOSITION);
 
+        if(childRef.equals(kPOST)) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(title);
+            alertDialogBuilder.setMessage(R.string.delete_message);
+            alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    firebase.child(childRef).child(key).removeValue();
+                    firebase.child(kPOSTLOCATION).child(key).removeValue();
+                    mListener.onComplete(position);
+                }
+            });
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setTitle(title);
-        alertDialogBuilder.setMessage(R.string.delete_message);
-        alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                firebase.child(childRef).child(key).removeValue();
-                mListener.onComplete(position);
-            }
-        });
+            alertDialogBuilder.setNegativeButton(R.string.capital_no_string, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
 
-        alertDialogBuilder.setNegativeButton(R.string.capital_no_string, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
+            return alertDialogBuilder.create();
 
-        return alertDialogBuilder.create();
+        } else {AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+            alertDialogBuilder.setTitle(title);
+            alertDialogBuilder.setMessage(R.string.delete_message);
+            alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    firebase.child(childRef).child(key).removeValue();
+                    mListener.onComplete(position);
+                }
+            });
+
+            alertDialogBuilder.setNegativeButton(R.string.capital_no_string, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+
+            return alertDialogBuilder.create();
+        }
+
     }
 
 
