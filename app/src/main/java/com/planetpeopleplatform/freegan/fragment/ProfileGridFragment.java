@@ -8,8 +8,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -101,8 +103,9 @@ public class ProfileGridFragment extends Fragment {
                 .placeholder(R.drawable.person_icon)).into(mProfileImageView);
 
         mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
-        mCollapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#DD2C00"));
         mCollapsingToolbarLayout.setTitle(mPost.getUserName());
+        mCollapsingToolbarLayout.setExpandedTitleGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        mCollapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.collapsing_tool_bar_layout_textview);
         showLoading();
         loadPosts();
         mBackArrow.setOnClickListener(new View.OnClickListener() {

@@ -26,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.activity.EditPostActivity;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
@@ -200,15 +201,20 @@ public class ProfileImageFragment extends Fragment {
     }
 
     private void showUserSettingsPopup(View view) {
+
         PopupMenu popup = new PopupMenu(getContext(), view);
-        popup.inflate(R.menu.popup_post_settings);
+        if (mCurrentUserUid.equals(mPost.getPostUserObjectId())) {
+            popup.inflate(R.menu.popup_post_settings);
+        } else {
+            popup.inflate(R.menu.popup_post_visitor_settings);
+        }
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.action_edit_post:
-
+                        Intent editPostActivityIntent = new Intent(getContext(), EditPostActivity.class);
                         return true;
 
                     case R.id.action_share_post:
@@ -226,6 +232,8 @@ public class ProfileImageFragment extends Fragment {
             }
         });
         popup.show();
+
+
     }
 
     private Intent createShareForecastIntent() {

@@ -8,6 +8,7 @@
     <dimen name="pad_15dp">15dp</dimen>
     <dimen name="pad_20dp">20dp</dimen>
     <dimen name="pad_30dp">30dp</dimen>
+    <dimen name="pad_40dp">40dp</dimen>
     <dimen name="pad_chat_item">48dp</dimen>
     <dimen name="pad_chat_item1">10dp</dimen>
 
@@ -52,5 +53,6 @@
     <dimen name="post_activity_edit_text_margin_top">400dp</dimen>
     <dimen name="card_view_image_size">200dp</dimen>
     <dimen name="recent_message_user_img_size">40dp</dimen>
+
 
 </resources>

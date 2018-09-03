@@ -229,7 +229,7 @@ public class MainGridFragment extends Fragment {
                     if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                             != PackageManager.PERMISSION_GRANTED &&
                             ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
+                                    != PackageManager.PERMISSION_GRANTED) {
                         Snackbar.make(mCoordinatorLayout,
                                 R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
                         showDataView();
@@ -386,15 +386,15 @@ public class MainGridFragment extends Fragment {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     try {
-                            HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
-                            mListPosts.add(new Post(post));
+                        HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
+                        mListPosts.add(new Post(post));
 
-                            mMainGridAdapter.notifyDataSetChanged();
-                            showDataView();
-                            if (mSwipeContainer.isRefreshing()) {
+                        mMainGridAdapter.notifyDataSetChanged();
+                        showDataView();
+                        if (mSwipeContainer.isRefreshing()) {
                             mSwipeContainer.setRefreshing(false);
-                            }
-                        } catch (Exception e) {
+                        }
+                    } catch (Exception e) {
                         Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                     }
                 }

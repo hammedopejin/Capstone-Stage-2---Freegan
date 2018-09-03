@@ -70,5 +70,15 @@
         <item name="android:textSize">@dimen/txt_16sp</item>
     </style>
 
+    <!-- Used for CollapsingToolbarLayout title text -->
+    <style name="collapsing_tool_bar_layout_textview" parent="android:Widget.Holo.Light.EditText">
+        <item name="android:background">@color/white</item>
+        <item name="android:inputType">textEmailAddress</item>
+        <item name="android:paddingBottom">@dimen/pad_10dp</item>
+        <item name="android:paddingTop">@dimen/pad_10dp</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/txt_20sp</item>
+    </style>
+
 
 </resources>

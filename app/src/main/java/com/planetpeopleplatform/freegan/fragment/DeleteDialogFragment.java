@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 
-import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
@@ -19,7 +18,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTITLE;
-import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
 public class DeleteDialogFragment extends DialogFragment {
 

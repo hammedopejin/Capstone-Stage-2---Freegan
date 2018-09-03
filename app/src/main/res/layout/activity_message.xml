@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent">
@@ -22,7 +22,7 @@
             android:layout_gravity="end"
             android:clickable="true"
             android:padding="@dimen/pad_8dp"
-            android:src="@drawable/person_icon"
+            app:srcCompat="@drawable/ic_account_circle_black_24dp"
             android:focusable="true" />
     </android.support.v7.widget.Toolbar>
 

@@ -95,9 +95,6 @@
 
     <!-- Key name for terms of service -->
     <string name="pref_terms_of_service_key" translatable="false">terms of service</string>
-    <string name="action_recent_chats">Recent Chats</string>
-    <string name="action_report_user">Report User</string>
-    <string name="update_button_text">Update</string>
 
 
     <string name="delete_message">Are you sure you want to delete?</string>
@@ -139,10 +136,17 @@
     <string name="enter_message_here">Enter message here...</string>
     <string name="contact_giver_button">Button when pressed help start chat with post owner</string>
     <string name="give_button">Button when clicked help start the process of posting new item</string>
-    <string name="app_logo">app logo</string>
+    <string name="app_logo">App logo</string>
+
+
     <string name="action_edit_post">Edit post</string>
     <string name="action_share_post">Share post</string>
     <string name="action_delete_post">Delete post</string>
+    <string name="user_display_picture">User profile display picture</string>
+    <string name="action_block_user">Block User</string>
+    <string name="action_recent_chats">Recent chats</string>
+    <string name="action_report_user">Report User</string>
+    <string name="update_button_text">Update</string>
 
 
 </resources>
