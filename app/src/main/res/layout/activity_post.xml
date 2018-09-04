@@ -36,8 +36,8 @@
 
         <Button
             android:id="@+id/item_post_button"
-            android:layout_width="@dimen/button_size"
-            android:layout_height="48dp"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="@dimen/button_height"
             android:layout_marginEnd="@dimen/general_layout_margin"
             android:layout_marginLeft="@dimen/general_layout_margin"
             android:layout_marginRight="@dimen/general_layout_margin"

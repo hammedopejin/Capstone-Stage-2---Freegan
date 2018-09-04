@@ -88,7 +88,7 @@ public class ProfileImageFragment extends Fragment {
 
         Bundle arguments = getArguments();
         mPost = arguments.getParcelable(KEY_POST_RES);
-        String postImage = mPost.getImageUrl();
+        String postImage = mPost.getImageUrl().get(0);
         String postDescription = mPost.getDescription();
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
@@ -215,6 +215,9 @@ public class ProfileImageFragment extends Fragment {
                 switch (menuItem.getItemId()) {
                     case R.id.action_edit_post:
                         Intent editPostActivityIntent = new Intent(getContext(), EditPostActivity.class);
+                        Bundle argument = new Bundle();
+                        argument.putParcelable(kPOST, mPost);
+                        editPostActivityIntent.putExtra("bundle", argument);
                         return true;
 
                     case R.id.action_share_post:
@@ -224,6 +227,12 @@ public class ProfileImageFragment extends Fragment {
 
                     case R.id.action_delete_post:
                         deleteWarning(0);
+                        return true;
+
+                    case R.id.action_report_user:
+                        return true;
+
+                    case R.id.action_block_user:
                         return true;
 
                     default:

@@ -47,6 +47,7 @@ import com.planetpeopleplatform.freegan.model.User;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -66,6 +67,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPROFILEIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
+import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
 
 public class PostActivity extends AppCompatActivity {
 
@@ -94,7 +96,7 @@ public class PostActivity extends AppCompatActivity {
     private String mCurrentUserUid;
     private User mCurrentUser = null;
     private boolean mImageSelected;
-    private String mPostDownloadURL;
+    private ArrayList<String> mPostDownloadURL = new ArrayList<>();
     private Uri mSelectedImageUri = null;
     private GeoFire mGeoFire;
     private File destFile;
@@ -134,7 +136,7 @@ public class PostActivity extends AppCompatActivity {
             });
         }
 
-
+        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
         mItemPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -261,7 +263,7 @@ public class PostActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    mPostDownloadURL = downloadUri.toString();
+                    mPostDownloadURL.add(downloadUri.toString());
 
                     DatabaseReference reference = firebase.child(kPOST).push();
                     String postId = reference.getKey();
@@ -306,8 +308,6 @@ public class PostActivity extends AppCompatActivity {
                 }
             }
         });
-
-        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
     }
 
     private void showLoading() {
@@ -318,10 +318,6 @@ public class PostActivity extends AppCompatActivity {
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    private String SplitString(String email) {
-        String[] split= email.split("@");
-        return split[0];
-    }
 
     private void captureGalleryImage(){
 
@@ -337,7 +333,6 @@ public class PostActivity extends AppCompatActivity {
             startActivityForResult(Intent.createChooser(intentGalley,
                     getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
         }
-
     }
 
     private void takeCameraPicture(){
@@ -359,9 +354,6 @@ public class PostActivity extends AppCompatActivity {
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
-
-
-
     }
 
     @Override

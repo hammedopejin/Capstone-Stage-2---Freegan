@@ -75,8 +75,11 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
     @Override
     public void onComplete(int position) {
-        StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl());
-        toDelete.delete();
+        int imageCount = mPost.getImageUrl().size();
+        for (int i = 0; i < imageCount; i++) {
+            StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(i));
+            toDelete.delete();
+        }
         getSupportFragmentManager().popBackStack();
     }
 }

@@ -388,4 +388,9 @@ public class Utils {
         return outputFile.getAbsolutePath();
     }
 
+    public static String SplitString(String email) {
+        String[] split= email.split("@");
+        return split[0];
+    }
+
 }

@@ -145,13 +145,13 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
             int adapterPosition = getAdapterPosition();
             setImage(adapterPosition);
             // Set the string value of the image resource as the unique transition name for the view.
-            mImage.setTransitionName(String.valueOf(mListPosts.get(adapterPosition).getImageUrl()));
+            mImage.setTransitionName(((mListPosts.get(adapterPosition).getImageUrl())).get(0));
         }
 
         void setImage(final int adapterPosition) {
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             mRequestManager
-                    .load(mListPosts.get(adapterPosition).getImageUrl())
+                    .load(mListPosts.get(adapterPosition).getImageUrl().get(0))
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,

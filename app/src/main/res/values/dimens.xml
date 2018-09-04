@@ -50,6 +50,8 @@
 
     <dimen name="progressbar_size">42dp</dimen>
     <dimen name="button_size">48dp</dimen>
+    <dimen name="button_height">@dimen/button_size</dimen>
+    <dimen name="button_width">200dp</dimen>
     <dimen name="post_activity_edit_text_margin_top">400dp</dimen>
     <dimen name="card_view_image_size">200dp</dimen>
     <dimen name="recent_message_user_img_size">40dp</dimen>

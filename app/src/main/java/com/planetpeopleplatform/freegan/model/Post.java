@@ -4,6 +4,7 @@ package com.planetpeopleplatform.freegan.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
@@ -15,10 +16,10 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPROFILEIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 
 
-public class Post implements Parcelable {
+public class Post implements Parcelable{
 
     private String description;
-    private String imageUrl;
+    private ArrayList<String> imageUrl = new ArrayList<>();
     private String userName;
     private String postUserObjectId;
     private String profileImgUrl;
@@ -31,7 +32,7 @@ public class Post implements Parcelable {
     public Post(HashMap<String, Object> postData) {
         this.postUserObjectId = (String) postData.get(kPOSTUSEROBJECTID);
         this.description = (String) postData.get(kDESCRIPTION);
-        this.imageUrl = (String) postData.get(kIMAGEURL);
+        this.imageUrl = (ArrayList<String>) postData.get(kIMAGEURL);
         this.profileImgUrl = (String) postData.get(kPROFILEIMAGEURL);
         this.userName = (String) postData.get(kUSERNAME);
         this.postDate = (String) postData.get(kPOSTDATE);
@@ -39,7 +40,7 @@ public class Post implements Parcelable {
     }
 
     public Post (String postId, String postUserObjectId,
-                 String description, String imageUrl, String profileImgUrl, String userName, String postDate) {
+                 String description, ArrayList<String> imageUrl, String profileImgUrl, String userName, String postDate) {
         this.postId = postId;
         this.postUserObjectId = postUserObjectId;
         this.description = description;
@@ -49,14 +50,15 @@ public class Post implements Parcelable {
         this.postDate = postDate;
     }
 
+
     protected Post(Parcel in) {
-        postId = in.readString();
         description = in.readString();
-        imageUrl = in.readString();
+        imageUrl = in.createStringArrayList();
         userName = in.readString();
         postUserObjectId = in.readString();
         profileImgUrl = in.readString();
         postDate = in.readString();
+        postId = in.readString();
     }
 
     public static final Creator<Post> CREATOR = new Creator<Post>() {
@@ -90,10 +92,10 @@ public class Post implements Parcelable {
         this.description = description;
     }
 
-    public String getImageUrl () {
+    public ArrayList<String> getImageUrl () {
         return this.imageUrl;
     }
-    public void setImageUrl (String imageUrl){
+    public void setImageUrl (ArrayList<String> imageUrl){
         this.imageUrl = imageUrl;
     }
 
@@ -125,12 +127,12 @@ public class Post implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(postId);
         parcel.writeString(description);
-        parcel.writeString(imageUrl);
+        parcel.writeStringList(imageUrl);
         parcel.writeString(userName);
         parcel.writeString(postUserObjectId);
         parcel.writeString(profileImgUrl);
         parcel.writeString(postDate);
+        parcel.writeString(postId);
     }
 }

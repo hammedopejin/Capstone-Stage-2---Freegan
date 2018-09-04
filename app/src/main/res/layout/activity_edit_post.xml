@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinator_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,47 +34,57 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/item_photo_frame2"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:src="@color/cardview_dark_background"
             android:layout_marginLeft="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame1"
+            android:contentDescription="TODO" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/item_photo_frame4"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:src="@color/cardview_dark_background"
             android:layout_marginEnd="32dp"
             android:layout_marginRight="32dp"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame3"
+            android:contentDescription="TODO" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/item_photo_frame1"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginLeft="32dp"
             android:layout_marginStart="32dp"
+            android:layout_marginTop="84dp"
+            android:src="@color/cardview_dark_background"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="71dp" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="TODO" />
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/item_photo_frame3"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginEnd="32dp"
             android:layout_marginRight="32dp"
+            android:layout_marginTop="84dp"
+            android:src="@color/cardview_dark_background"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="71dp" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="TODO" />
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/item_description_edit_text"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
@@ -83,23 +95,33 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView4" />
+            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame2" />
 
         <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/item_post_button"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="@dimen/button_height"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
-            android:text="Button"
+            android:text="@string/save_changes_string"
+            android:textColor="@color/white"
+            android:background="@drawable/round_corner_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editText" />
+            app:layout_constraintTop_toBottomOf="@+id/item_description_edit_text" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
+    <ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        android:layout_width="@dimen/progressbar_size"
+        android:layout_height="@dimen/progressbar_size"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
 
 
 </android.support.design.widget.CoordinatorLayout>

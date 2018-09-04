@@ -184,7 +184,7 @@ public class MainGridFragment extends Fragment {
             public void onClick(View view) {
                 ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
                         = new ChoosePictureSourceDialogFragment();
-                choosePictureSourceDialogFragment.show(getFragmentManager(),getString(R.string.choose_fragment_alert_tag));
+                choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
             }
         });
 
@@ -378,7 +378,7 @@ public class MainGridFragment extends Fragment {
     }
 
     private void loadPosts(){
-
+        showDataView();
         mListPosts.clear();
         for (String postId : mPostIds) {
 
@@ -390,7 +390,7 @@ public class MainGridFragment extends Fragment {
                         mListPosts.add(new Post(post));
 
                         mMainGridAdapter.notifyDataSetChanged();
-                        showDataView();
+
                         if (mSwipeContainer.isRefreshing()) {
                             mSwipeContainer.setRefreshing(false);
                         }

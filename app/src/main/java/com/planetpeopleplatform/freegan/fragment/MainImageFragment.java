@@ -85,7 +85,7 @@ public class MainImageFragment extends Fragment {
 
         Bundle arguments = getArguments();
         mPost = arguments.getParcelable(KEY_POST_RES);
-        String postImage = mPost.getImageUrl();
+        String postImage = mPost.getImageUrl().get(0);
         String postDescription = mPost.getDescription();
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
