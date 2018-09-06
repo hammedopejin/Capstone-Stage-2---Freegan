@@ -38,7 +38,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
@@ -217,7 +219,9 @@ public class ProfileImageFragment extends Fragment {
                         Intent editPostActivityIntent = new Intent(getContext(), EditPostActivity.class);
                         Bundle argument = new Bundle();
                         argument.putParcelable(kPOST, mPost);
-                        editPostActivityIntent.putExtra("bundle", argument);
+                        argument.putParcelable(kCURRENTUSER, mCurrentUser);
+                        editPostActivityIntent.putExtra(kBUNDLE, argument);
+                        startActivity(editPostActivityIntent);
                         return true;
 
                     case R.id.action_share_post:

@@ -95,5 +95,9 @@ public class Constants {
     public static final String kKEY= "key";
     public static final String kCHILDREF = "childRef";
     public static final String kPOSITION = "position";
+    public static final String kFLAG = "flag";
+
+    //Intent
+    public static final String kBUNDLE = "bundle";
 
 }

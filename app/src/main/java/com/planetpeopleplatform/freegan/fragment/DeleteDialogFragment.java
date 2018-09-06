@@ -48,6 +48,7 @@ public class DeleteDialogFragment extends DialogFragment {
         final String childRef = getArguments().getString(kCHILDREF);
         final int position = getArguments().getInt(kPOSITION);
 
+        //For Post and post location delete
         if(childRef.equals(kPOST)) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(title);
@@ -70,7 +71,8 @@ public class DeleteDialogFragment extends DialogFragment {
 
             return alertDialogBuilder.create();
 
-        } else {AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        } else { //For Recent chat delete
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
             alertDialogBuilder.setTitle(title);
             alertDialogBuilder.setMessage(R.string.delete_message);
             alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {

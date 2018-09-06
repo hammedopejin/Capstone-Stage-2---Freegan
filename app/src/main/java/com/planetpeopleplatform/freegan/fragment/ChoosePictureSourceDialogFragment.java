@@ -10,8 +10,22 @@ import android.support.v4.app.DialogFragment;
 
 import com.planetpeopleplatform.freegan.R;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCHILDREF;
+import static com.planetpeopleplatform.freegan.utils.Constants.kFLAG;
+import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
+import static com.planetpeopleplatform.freegan.utils.Constants.kKEY;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
+
 
 public class ChoosePictureSourceDialogFragment extends DialogFragment {
+
+    private static final int FLAG_DELETE = 1000;
+
+    private String mPosition;
+    private String mKey;
+    private String mChildRef;
+    private int mFlag;
 
     ChoosePictureSourceDialogFragment.OnCompleteListener mListener = null;
 
@@ -35,6 +49,13 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
+        if(!(getArguments() == null)) {
+            mPosition = getArguments().getString(kPOSITION);
+            mKey = getArguments().getString(kKEY);
+            mChildRef = getArguments().getString(kCHILDREF);
+            mFlag = getArguments().getInt(kFLAG);
+        }
+
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -53,6 +74,27 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
             }
         });
 
+        if (mFlag == FLAG_DELETE){
+            alertDialogBuilder.setNeutralButton(R.string.delete_string, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    firebase.child(mChildRef).child(mKey).child(kIMAGEURL).child(mPosition).removeValue();
+                    mListener.onComplete(3);
+                }
+            });
+        }
+
         return alertDialogBuilder.create();
+    }
+
+    public static ChoosePictureSourceDialogFragment newInstance (String position, String key, String childRef, int flag) {
+        ChoosePictureSourceDialogFragment fragment = new ChoosePictureSourceDialogFragment();
+        Bundle argument = new Bundle();
+        argument.putString(kPOSITION, position);
+        argument.putString(kKEY, key);
+        argument.putString(kCHILDREF, childRef);
+        argument.putInt(kFLAG, flag);
+        fragment.setArguments(argument);
+        return fragment;
     }
 }

@@ -16,7 +16,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,10 +53,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTDATE;
+import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
 
@@ -66,18 +72,19 @@ public class EditPostActivity extends AppCompatActivity
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
     private static final int RC_TAKE_CAMERA_PHOTO_CODE = 100;
     private static final int RC_PHOTO_GALLERY_PICKER_CODE = 200;
+    private static final int FLAG_DELETE = 1000;
+    private static final int FLAG_NEW_PIC = 2000;
 
-    private boolean mImageSelected;
+    private boolean mNewImageSelected = false;
     private User mCurrentUser;
     private String mCurrentUserUid;
     private FirebaseAuth mAuth;
 
     private String mPostDownloadURL;
-    private ArrayList mPostDownloadURLs = new ArrayList<String>();
+    private ArrayList mPostDownloadURLs = new ArrayList<String>(4);
     private Uri mSelectedImageUri = null;
-    private ArrayList mSelectedImageUris = new ArrayList<Uri>();
     private File destFile;
-    private int mCounter;
+    private int mCurrentIndex;
 
     private Post mPost;
 
@@ -113,8 +120,27 @@ public class EditPostActivity extends AppCompatActivity
         setContentView(R.layout.activity_edit_post);
         ButterKnife.bind(this);
 
-        Bundle argument = getIntent().getBundleExtra("bundle");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.edit_post_title);
+
+        Bundle argument = getIntent().getBundleExtra(kBUNDLE);
+        mCurrentUser = argument.getParcelable(kCURRENTUSER);
         mPost = argument.getParcelable(kPOST);
+        mItemDescriptionEditText.setText(mPost.getDescription());
+
+        Glide.with(this).load(mPost.getImageUrl().get(0)).into(mItemPhotoFrame1);
+        mPostDownloadURLs.add(0, mPost.getImageUrl().get(0));
+        if(mPost.getImageUrl().size() > 1) {
+            Glide.with(this).load(mPost.getImageUrl().get(1)).into(mItemPhotoFrame2);
+        }
+        if(mPost.getImageUrl().size() > 2) {
+            Glide.with(this).load(mPost.getImageUrl().get(2)).into(mItemPhotoFrame3);
+        }
+        if(mPost.getImageUrl().size() > 3) {
+            Glide.with(this).load(mPost.getImageUrl().get(3)).into(mItemPhotoFrame4);
+        }
 
 
         mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
@@ -123,11 +149,18 @@ public class EditPostActivity extends AppCompatActivity
         mItemPhotoFrame1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mTempImg = mItemPhotoFrame1;
+                mCurrentIndex = 0;
                 if (mItemPhotoFrame1.getDrawable() == null){
-                    mTempImg = mItemPhotoFrame1;
-                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                            = new ChoosePictureSourceDialogFragment();
-                    choosePictureSourceDialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                    mNewImageSelected = true;
+                    editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
+                } else {
+                    if (mPost.getImageUrl().size() > 1) {
+                        mNewImageSelected = false;
+                        editPostPicture(String.valueOf(0), FLAG_DELETE);
+                    } else {
+                        Snackbar.make(mCoordinatorLayout, R.string.alert_at_least_one_image_needed_string, Snackbar.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -135,13 +168,14 @@ public class EditPostActivity extends AppCompatActivity
         mItemPhotoFrame2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mItemPhotoFrame1.getDrawable() == null){
-                    mTempImg = mItemPhotoFrame2;
-                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                            = new ChoosePictureSourceDialogFragment();
-                    choosePictureSourceDialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                mTempImg = mItemPhotoFrame2;
+                mCurrentIndex = 1;
+                if (mItemPhotoFrame2.getDrawable() == null){
+                    mNewImageSelected = true;
+                    editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
-
+                    mNewImageSelected = false;
+                    editPostPicture(String.valueOf(1), FLAG_DELETE );
                 }
             }
         });
@@ -149,13 +183,14 @@ public class EditPostActivity extends AppCompatActivity
         mItemPhotoFrame3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mItemPhotoFrame1.getDrawable() == null){
-                    mTempImg = mItemPhotoFrame3;
-                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                            = new ChoosePictureSourceDialogFragment();
-                    choosePictureSourceDialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                mTempImg = mItemPhotoFrame3;
+                mCurrentIndex = 2;
+                if (mItemPhotoFrame3.getDrawable() == null){
+                    mNewImageSelected = true;
+                    editPostPicture(String.valueOf(2),  FLAG_NEW_PIC);
                 } else {
-
+                    mNewImageSelected = false;
+                    editPostPicture(String.valueOf(2), FLAG_DELETE );
                 }
             }
         });
@@ -163,13 +198,14 @@ public class EditPostActivity extends AppCompatActivity
         mItemPhotoFrame4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mItemPhotoFrame1.getDrawable() == null){
-                    mTempImg = mItemPhotoFrame4;
-                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                            = new ChoosePictureSourceDialogFragment();
-                    choosePictureSourceDialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                mTempImg = mItemPhotoFrame4;
+                mCurrentIndex = 3;
+                if (mItemPhotoFrame4.getDrawable() == null){
+                    mNewImageSelected = true;
+                    editPostPicture(String.valueOf(3), FLAG_NEW_PIC);
                 } else {
-
+                    mNewImageSelected = false;
+                    editPostPicture(String.valueOf(3), FLAG_DELETE );
                 }
             }
         });
@@ -183,12 +219,7 @@ public class EditPostActivity extends AppCompatActivity
                             R.string.err_description_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-//                if(!mImageSelected){
-//                    Snackbar.make(mCoordinatorLayout,
-//                            R.string.err_image_missing_string, Snackbar.LENGTH_SHORT).show();
-//                    return;
-//                }
-                postToFirebase();
+                postIt();
             }
         });
 
@@ -199,7 +230,6 @@ public class EditPostActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
-            mSelectedImageUris.add(mSelectedImageUri);
 
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
@@ -223,12 +253,11 @@ public class EditPostActivity extends AppCompatActivity
 
 
             mTempImg.setBackgroundResource(R.color.transparent);
-            mImageSelected = true;
+            postToFirebase();
 
 
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
-            mSelectedImageUris.add(mSelectedImageUri);
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
                     .load(mSelectedImageUri)
@@ -250,7 +279,7 @@ public class EditPostActivity extends AppCompatActivity
                     .into(mTempImg);
 
             mTempImg.setBackgroundResource(R.color.transparent);
-            mImageSelected = true;
+            postToFirebase();
 
         } else if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
             if (resultCode == RESULT_CANCELED) {
@@ -309,15 +338,6 @@ public class EditPostActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onComplete(int source) {
-        if (source == 1){
-            takeCameraPicture();
-        } else {
-            captureGalleryImage();
-        }
-    }
-
 
 
     private File getOutputMediaFile(){
@@ -373,23 +393,17 @@ public class EditPostActivity extends AppCompatActivity
     }
 
     private void postToFirebase() {
-
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
 
-        for (int i = 0; i < mSelectedImageUris.size(); i++) {
-            mCounter = i;
             final Date dataobj= new Date();
 
             String imagePath = SplitString(mCurrentUser.getEmail()) + "."+ df.format(dataobj)+ ".jpg";
 
             final StorageReference imageRef = storageRef.child("post_pics/"+imagePath );
 
-            //showLoading();
-
-
-
             // Upload file to Firebase Storage
-            imageRef.putFile((Uri) mSelectedImageUris.get(i)).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful()) {
@@ -406,8 +420,9 @@ public class EditPostActivity extends AppCompatActivity
                         mPostDownloadURL = downloadUri.toString();
                         mPostDownloadURLs.add(mPostDownloadURL);
 
-                        if (mCounter == (mSelectedImageUris.size() - 1)){
-                            postIt();
+                        if (!mNewImageSelected) {
+                            StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
+                            toDelete.delete();
                         }
 
                     } else {
@@ -417,32 +432,62 @@ public class EditPostActivity extends AppCompatActivity
                     }
                 }
             });
-        }
 
 
     }
     private void postIt(){
 
         SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-        DatabaseReference reference = firebase.child(kPOST).push();
+        DatabaseReference reference = firebase.child(kPOST).child(mPost.getPostId());
         HashMap<String, Object> post = new HashMap<String, Object>();
 
         post.put(kDESCRIPTION, mItemDescriptionEditText.getText().toString() );
         post.put(kIMAGEURL, mPostDownloadURLs);
         post.put(kPOSTDATE, sfd.format(new Date()));
 
-        reference.setValue(post);
+        reference.updateChildren(post);
 
         mItemDescriptionEditText.getText().clear();
         mItemDescriptionEditText.clearFocus();
-
-        mImageSelected = false;
 
         mLoadingIndicator.setVisibility(View.INVISIBLE);
 
         Snackbar.make(mCoordinatorLayout,
                 R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
         finish();
+    }
+
+    private void editPostPicture(String position, int flag) {
+
+        ChoosePictureSourceDialogFragment dialogFragment = ChoosePictureSourceDialogFragment.newInstance(position,
+                mPost.getPostId(), kPOST, flag);
+        dialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+
+    }
+
+    @Override
+    public void onComplete(int source) {
+        if (source == 1){
+            takeCameraPicture();
+        } else if (source == 2){
+            captureGalleryImage();
+        } else if (source == 3){
+            StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
+            toDelete.delete();
+            mTempImg.setImageDrawable(getResources().getDrawable(R.color.cardview_dark_background));
+        }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

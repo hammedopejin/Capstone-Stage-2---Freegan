@@ -165,6 +165,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     }
 
     private void attachDatabaseReadListener() {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
         if (mValueEventListener == null) {
             mValueEventListener = new ValueEventListener() {
                 @Override
@@ -221,7 +222,6 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                                                         mRecentRecyclerView.hasFixedSize();
                                                                         mRecentRecyclerView.setAdapter(mAdapater);
 
-                                                                        mLoadingIndicator.setVisibility(View.INVISIBLE);
                                                                     }
                                                                 }
 
