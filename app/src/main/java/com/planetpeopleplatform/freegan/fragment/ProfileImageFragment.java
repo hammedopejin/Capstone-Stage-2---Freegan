@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -37,16 +38,20 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.app.Activity.RESULT_OK;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
 
 public class ProfileImageFragment extends Fragment {
+
+    private static final int EDIT_POST_REQUEST_CODE = 123;
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private String mChatMateId;
@@ -202,6 +207,16 @@ public class ProfileImageFragment extends Fragment {
         return mCurrentUser;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == EDIT_POST_REQUEST_CODE && resultCode ==RESULT_OK){
+            getActivity().onBackPressed();
+            getActivity().getSupportFragmentManager().popBackStack();
+        }
+    }
+
     private void showUserSettingsPopup(View view) {
 
         PopupMenu popup = new PopupMenu(getContext(), view);
@@ -221,7 +236,7 @@ public class ProfileImageFragment extends Fragment {
                         argument.putParcelable(kPOST, mPost);
                         argument.putParcelable(kCURRENTUSER, mCurrentUser);
                         editPostActivityIntent.putExtra(kBUNDLE, argument);
-                        startActivity(editPostActivityIntent);
+                        startActivityForResult(editPostActivityIntent, EDIT_POST_REQUEST_CODE);
                         return true;
 
                     case R.id.action_share_post:
@@ -265,5 +280,4 @@ public class ProfileImageFragment extends Fragment {
         deleteDialog.show(getActivity().getSupportFragmentManager(), getString(R.string.delete_fragment_alert_tag));
 
     }
-
 }

@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.password_edit_text)
     EditText mPasswordEditText;
 
-    private int RC_SIGN_IN = 1;
+    private static final int RC_SIGN_IN = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

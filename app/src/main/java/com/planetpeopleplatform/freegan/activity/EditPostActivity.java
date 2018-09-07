@@ -62,6 +62,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
+import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 
 public class EditPostActivity extends AppCompatActivity
         implements ChoosePictureSourceDialogFragment.OnCompleteListener {
@@ -134,12 +135,15 @@ public class EditPostActivity extends AppCompatActivity
         mPostDownloadURLs.add(0, mPost.getImageUrl().get(0));
         if(mPost.getImageUrl().size() > 1) {
             Glide.with(this).load(mPost.getImageUrl().get(1)).into(mItemPhotoFrame2);
+            mPostDownloadURLs.add(1, mPost.getImageUrl().get(1));
         }
         if(mPost.getImageUrl().size() > 2) {
             Glide.with(this).load(mPost.getImageUrl().get(2)).into(mItemPhotoFrame3);
+            mPostDownloadURLs.add(2, mPost.getImageUrl().get(2));
         }
         if(mPost.getImageUrl().size() > 3) {
             Glide.with(this).load(mPost.getImageUrl().get(3)).into(mItemPhotoFrame4);
+            mPostDownloadURLs.add(3, mPost.getImageUrl().get(3));
         }
 
 
@@ -151,7 +155,7 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame1;
                 mCurrentIndex = 0;
-                if (mItemPhotoFrame1.getDrawable() == null){
+                if (mTempImg.getDrawable() == null){
                     mNewImageSelected = true;
                     editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
@@ -170,7 +174,7 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame2;
                 mCurrentIndex = 1;
-                if (mItemPhotoFrame2.getDrawable() == null){
+                if (mTempImg.getDrawable() == null){
                     mNewImageSelected = true;
                     editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
@@ -185,7 +189,7 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame3;
                 mCurrentIndex = 2;
-                if (mItemPhotoFrame3.getDrawable() == null){
+                if (mTempImg.getDrawable() == null){
                     mNewImageSelected = true;
                     editPostPicture(String.valueOf(2),  FLAG_NEW_PIC);
                 } else {
@@ -200,7 +204,7 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame4;
                 mCurrentIndex = 3;
-                if (mItemPhotoFrame4.getDrawable() == null){
+                if (mTempImg.getDrawable() == null){
                     mNewImageSelected = true;
                     editPostPicture(String.valueOf(3), FLAG_NEW_PIC);
                 } else {
@@ -304,7 +308,7 @@ public class EditPostActivity extends AppCompatActivity
 
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    destFile = getOutputMediaFile();
+                    destFile = getOutputMediaFile(this);
                     mSelectedImageUri = FileProvider.getUriForFile(
                             this,
                             "com.planetpeopleplatform.freegan.provider",
@@ -337,24 +341,6 @@ public class EditPostActivity extends AppCompatActivity
         }
     }
 
-
-
-
-    private File getOutputMediaFile(){
-        File mediaStorageDir = new File(getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
-    }
-
     private void takeCameraPicture(){
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
@@ -366,7 +352,7 @@ public class EditPostActivity extends AppCompatActivity
 
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            destFile = getOutputMediaFile();
+            destFile = getOutputMediaFile(this);
             mSelectedImageUri = FileProvider.getUriForFile(
                     this,
                     "com.planetpeopleplatform.freegan.provider",
@@ -418,9 +404,10 @@ public class EditPostActivity extends AppCompatActivity
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
                         mPostDownloadURL = downloadUri.toString();
-                        mPostDownloadURLs.add(mPostDownloadURL);
+                        mPostDownloadURLs.add(mCurrentIndex, mPostDownloadURL);
 
                         if (!mNewImageSelected) {
+                            firebase.child(kPOST).child(mPost.getPostId()).child(kIMAGEURL).child(String.valueOf(mCurrentIndex)).removeValue();
                             StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
                             toDelete.delete();
                         }
@@ -432,9 +419,8 @@ public class EditPostActivity extends AppCompatActivity
                     }
                 }
             });
-
-
     }
+
     private void postIt(){
 
         SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
@@ -454,6 +440,7 @@ public class EditPostActivity extends AppCompatActivity
 
         Snackbar.make(mCoordinatorLayout,
                 R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
+
         finish();
     }
 
@@ -474,7 +461,8 @@ public class EditPostActivity extends AppCompatActivity
         } else if (source == 3){
             StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
             toDelete.delete();
-            mTempImg.setImageDrawable(getResources().getDrawable(R.color.cardview_dark_background));
+            mTempImg.setBackground(getResources().getDrawable(R.color.cardview_dark_background));
+            mTempImg.setImageDrawable(null);
         }
     }
 

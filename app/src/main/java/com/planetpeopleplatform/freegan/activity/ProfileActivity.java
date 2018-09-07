@@ -1,19 +1,28 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 
+import java.util.HashMap;
+
+import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
@@ -75,11 +84,11 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
     @Override
     public void onComplete(int position) {
-        int imageCount = mPost.getImageUrl().size();
-        for (int i = 0; i < imageCount; i++) {
-            StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(i));
-            toDelete.delete();
-        }
         getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

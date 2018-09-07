@@ -9,7 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.model.Post;
+
+import java.util.HashMap;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHILDREF;
@@ -18,6 +25,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTITLE;
+import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
 public class DeleteDialogFragment extends DialogFragment {
 
@@ -56,9 +64,26 @@ public class DeleteDialogFragment extends DialogFragment {
             alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    firebase.child(childRef).child(key).removeValue();
-                    firebase.child(kPOSTLOCATION).child(key).removeValue();
-                    mListener.onComplete(position);
+                    firebase.child(kPOST).child(key).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                Post post = new Post((HashMap<String, Object>) dataSnapshot.getValue());
+                                for (int i = 0; i < post.getImageUrl().size(); i++) {
+                                    StorageReference toDelete = storage.getReferenceFromUrl(post.getImageUrl().get(i));
+                                    toDelete.delete();
+                                }
+                                firebase.child(kPOST).child(key).removeValue();
+                                firebase.child(kPOSTLOCATION).child(key).removeValue();
+                                mListener.onComplete(position);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
                 }
             });
 

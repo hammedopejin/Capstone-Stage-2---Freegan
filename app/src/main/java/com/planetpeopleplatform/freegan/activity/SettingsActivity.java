@@ -50,6 +50,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
+import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
+import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 
 
 /**
@@ -162,7 +164,7 @@ public class SettingsActivity extends AppCompatActivity
 
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    destFile = getOutputMediaFile();
+                    destFile = getOutputMediaFile(this);
                     mSelectedImageUri = FileProvider.getUriForFile(
                             this,
                             "com.planetpeopleplatform.freegan.provider",
@@ -276,7 +278,7 @@ public class SettingsActivity extends AppCompatActivity
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-            destFile = getOutputMediaFile();
+            destFile = getOutputMediaFile(this);
             mSelectedImageUri = FileProvider.getUriForFile(
                     this,
                     "com.planetpeopleplatform.freegan.provider",
@@ -284,24 +286,5 @@ public class SettingsActivity extends AppCompatActivity
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
-    }
-
-    private File getOutputMediaFile(){
-        File mediaStorageDir = new File(getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
-    }
-    private String SplitString(String email) {
-        String[] split= email.split("@");
-        return split[0];
     }
 }

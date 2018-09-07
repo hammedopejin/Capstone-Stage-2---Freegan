@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.User;
 
@@ -391,6 +393,21 @@ public class Utils {
     public static String SplitString(String email) {
         String[] split= email.split("@");
         return split[0];
+    }
+
+    public static File getOutputMediaFile(Context context){
+        File mediaStorageDir = new File(context.getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
+
+        if (!mediaStorageDir.exists()){
+            if (!mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        return new File(mediaStorageDir.getPath() + File.separator +
+                "IMG_"+ timeStamp + ".jpg");
     }
 
 }

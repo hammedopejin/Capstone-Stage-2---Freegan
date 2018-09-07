@@ -1,5 +1,6 @@
 package com.planetpeopleplatform.freegan.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
@@ -101,5 +103,10 @@ public class ProfileImagePagerFragment extends Fragment {
                         sharedElements.put(names.get(0), view.findViewById(R.id.image));
                     }
                 });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

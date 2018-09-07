@@ -48,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
     @BindView(R.id.user_name_edit_text)
     EditText mUserNameEditText;
 
-    private int RC_REGISTER = 0;
+    private static final int RC_REGISTER = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

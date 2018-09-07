@@ -68,6 +68,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.storageRef;
 import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
+import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 
 public class PostActivity extends AppCompatActivity {
 
@@ -346,7 +347,7 @@ public class PostActivity extends AppCompatActivity {
 
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            destFile = getOutputMediaFile();
+            destFile = getOutputMediaFile(this);
             mSelectedImageUri = FileProvider.getUriForFile(
                     this,
                     "com.planetpeopleplatform.freegan.provider",
@@ -367,7 +368,7 @@ public class PostActivity extends AppCompatActivity {
                         ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    destFile = getOutputMediaFile();
+                    destFile = getOutputMediaFile(this);
 
                     mSelectedImageUri = FileProvider.getUriForFile(
                             this,
@@ -401,21 +402,6 @@ public class PostActivity extends AppCompatActivity {
             }
             break;
         }
-    }
-
-    private File getOutputMediaFile(){
-        File mediaStorageDir = new File(getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
     }
 
 }
