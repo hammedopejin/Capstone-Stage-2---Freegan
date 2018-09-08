@@ -1,6 +1,5 @@
 package com.planetpeopleplatform.freegan.fragment;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,67 +8,33 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.activity.MessageActivity;
-import com.planetpeopleplatform.freegan.activity.ProfileActivity;
-import com.planetpeopleplatform.freegan.model.Post;
-import com.planetpeopleplatform.freegan.model.User;
-import com.planetpeopleplatform.freegan.utils.Utils;
 
-import java.util.HashMap;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
-import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
-import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
-import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kWITHUSERUSERNAME;
+import java.util.ArrayList;
 
 public class MainImageFragment extends Fragment {
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
-    private static final int RC_PROFILE_ACTIVITY = 777;
-    private String mChatMateId;
-    private Post mPost = null;
-    private String mChatRoomId = null;
-    private User mCurrentUser = null;
-    public String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
+    private static final String KEY_POST_IMAGE_POSITION = "com.planetpeopleplatform.freegan.key.postImagePosition";
 
-    @BindView(R.id.text_view)
-    TextView mTextView;
+    private ArrayList<String> mImageUrls = null;
+    private int mPosition;
 
-    @BindView(R.id.back_arrow)
-    ImageButton mBackArrow;
 
-    @BindView(R.id.poster_image_button)
-    de.hdodenhof.circleimageview.CircleImageView mPosterImageButton;
 
-    @BindView(R.id.contact_button_view)
-    android.support.design.widget.FloatingActionButton mContactButtonView;
 
-    public static MainImageFragment newInstance(Post post) {
+    public static MainImageFragment newInstance(ArrayList<String> imageUrls, int position) {
         MainImageFragment fragment = new MainImageFragment();
         Bundle argument = new Bundle();
-        argument.putParcelable(KEY_POST_RES, post);
+        argument.putStringArrayList(KEY_POST_RES, imageUrls);
+        argument.putInt(KEY_POST_IMAGE_POSITION, position);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -79,14 +44,13 @@ public class MainImageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
-        ButterKnife.bind(this, view);
 
-        mAuth= FirebaseAuth.getInstance();
 
         Bundle arguments = getArguments();
-        mPost = arguments.getParcelable(KEY_POST_RES);
-        String postImage = mPost.getImageUrl().get(0);
-        String postDescription = mPost.getDescription();
+        mImageUrls = arguments.getStringArrayList(KEY_POST_RES);
+        mPosition = arguments.getInt(KEY_POST_IMAGE_POSITION, 0);
+        String postImage = mImageUrls.get(mPosition);
+
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
@@ -118,140 +82,7 @@ public class MainImageFragment extends Fragment {
                 })
                 .into((ImageView) view.findViewById(R.id.image));
 
-
-        mBackArrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getActivity().onBackPressed();
-            }
-        });
-
-        mContactButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                final Intent intent = new Intent(getActivity(), MessageActivity.class);
-                mChatMateId = mPost.getPostUserObjectId();
-
-                firebase.child(kUSER).child(mChatMateId).addValueEventListener(new ValueEventListener() {
-
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
-                            User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
-                            if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
-
-                                if (mCurrentUser != null) {
-                                    mChatRoomId = Utils.startChat(mCurrentUser, chatMate, mPost.getPostId());
-
-                                    intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
-                                    intent.putExtra(kCHATROOMID, mChatRoomId);
-                                    intent.putExtra(kPOST, mPost);
-                                    intent.putExtra(kUSER, chatMate);
-
-                                    startActivity(intent);
-                                }
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-        });
-
-        mPosterImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent profileIntent = new Intent(getActivity(), ProfileActivity.class);
-                profileIntent.putExtra(kPOST, mPost);
-                startActivityForResult(profileIntent, RC_PROFILE_ACTIVITY);
-            }
-        });
-
-        mTextView.setText(postDescription);
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
-        loadUserProfilePicture(view, this, mPost.getPostUserObjectId());
-        if (mPost.getPostUserObjectId().equals(mCurrentUserUid)) {
-            mContactButtonView.setVisibility(View.GONE);
-        }
-        getCurrentUser(mCurrentUserUid);
-
         return view;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_PROFILE_ACTIVITY) {
-
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
-        mToolbarContainer.setVisibility(View.GONE);
-    }
-
-    private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
-        firebase.child(kUSER).child(posterId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    User user = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-
-                    Glide.with(fragment)
-                            .load(user.getUserImgUrl())
-                            .apply(centerInsideTransform()
-                                    .placeholder(R.drawable.person_icon))
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                        target, boolean isFirstResource) {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                        target, DataSource dataSource, boolean isFirstResource) {
-                                    return false;
-                                }
-                            })
-                            .into(mPosterImageButton);
-
-
-                }catch (Exception ex){}
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-
-    private User getCurrentUser(String currentUserUid) {
-        firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        return mCurrentUser;
     }
 
 }

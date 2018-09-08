@@ -17,11 +17,14 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
 import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.HashMap;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
@@ -31,14 +34,13 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
 
-    private Post mPost = null;
+    private User mCurrentUser = null;
+    private String mPosterId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-        mPost = getIntent().getParcelableExtra(kPOST);
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
@@ -46,12 +48,9 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
             return;
         }
 
+        mPosterId = getIntent().getStringExtra(kPOSTERID);
+        getCurrentUser(mPosterId);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager
-                .beginTransaction()
-                .add(R.id.fragment_container, ProfileGridFragment.newInstance(mPost), ProfileGridFragment.class.getSimpleName())
-                .commit();
 
     }
 
@@ -90,5 +89,28 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private User getCurrentUser(String currentUserUid) {
+        firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager
+                            .beginTransaction()
+                            .add(R.id.fragment_container, ProfileGridFragment.newInstance(mCurrentUser), ProfileGridFragment.class.getSimpleName())
+                            .commit();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        return mCurrentUser;
     }
 }

@@ -3,7 +3,8 @@ package com.planetpeopleplatform.freegan.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import com.planetpeopleplatform.freegan.fragment.MainImageFragment;
+
+import com.planetpeopleplatform.freegan.fragment.MainChildImagePagerFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 
 import java.util.ArrayList;
@@ -27,6 +28,6 @@ public class MainImagePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return MainImageFragment.newInstance(listPosts.get(position));
+        return MainChildImagePagerFragment.newInstance(listPosts.get(position));
     }
 }

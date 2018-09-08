@@ -31,6 +31,7 @@ import com.planetpeopleplatform.freegan.activity.ProfileActivity;
 import com.planetpeopleplatform.freegan.activity.SettingsActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class ProfileGridFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
-    public Post mPost = null;
+    public User mCurrentUser = null;
 
     private static final String KEY_POSTER_UID = "com.planetpeopleplatform.freegan.key.posterUid";
 
@@ -76,10 +77,10 @@ public class ProfileGridFragment extends Fragment {
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
 
-    public static ProfileGridFragment newInstance(Post post) {
+    public static ProfileGridFragment newInstance(User user) {
         ProfileGridFragment fragment = new ProfileGridFragment();
         Bundle argument = new Bundle();
-        argument.putParcelable(KEY_POSTER_UID, post);
+        argument.putParcelable(KEY_POSTER_UID, user);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -92,7 +93,7 @@ public class ProfileGridFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         Bundle arguments = getArguments();
-        mPost = arguments.getParcelable(KEY_POSTER_UID);
+        mCurrentUser = arguments.getParcelable(KEY_POSTER_UID);
 
         mFragment = this;
         mAuth= FirebaseAuth.getInstance();
@@ -100,11 +101,11 @@ public class ProfileGridFragment extends Fragment {
         prepareTransitions();
         postponeEnterTransition();
 
-        Glide.with(this).load(mPost.getProfileImgUrl()).apply(centerInsideTransform()
+        Glide.with(this).load(mCurrentUser.getUserImgUrl()).apply(centerInsideTransform()
                 .placeholder(R.drawable.person_icon)).into(mProfileImageView);
 
         mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
-        mCollapsingToolbarLayout.setTitle(mPost.getUserName());
+        mCollapsingToolbarLayout.setTitle(mCurrentUser.getUserName());
         mCollapsingToolbarLayout.setExpandedTitleGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         mCollapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.collapsing_tool_bar_layout_textview);
         showLoading();
@@ -119,7 +120,7 @@ public class ProfileGridFragment extends Fragment {
         mSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPost.getPostUserObjectId().equals(mCurrentUserUid)){
+                if (mCurrentUser.getObjectId().equals(mCurrentUserUid)){
                     Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
                     startActivity(settingsIntent);
                 }else {
@@ -201,8 +202,8 @@ public class ProfileGridFragment extends Fragment {
 
 
     private void loadPosts(){
-
-        firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPost.getPostUserObjectId())
+        showDataView();
+        firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mCurrentUser.getObjectId())
                 .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -217,7 +218,7 @@ public class ProfileGridFragment extends Fragment {
                     }
 
                     mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts));
-                    showDataView();
+
                 }catch (Exception e){
                     Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                 }

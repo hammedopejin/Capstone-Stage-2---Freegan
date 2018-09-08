@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.planetpeopleplatform.freegan.utils.VerticalViewPager
+        android:id="@+id/nestedViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent" />
+
+    <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
+        android:layout_marginRight="@dimen/list_toolbar_side_margin"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/transparent"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <ImageButton
+            android:id="@+id/back_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/back_arrow"
+            android:background="@color/transparent"/>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/poster_image_button"
+            android:layout_width="?actionBarSize"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:clickable="true"
+            android:paddingBottom="@dimen/circle_image_padding"
+            android:paddingLeft="@dimen/circle_image_padding"
+            android:paddingRight="@dimen/circle_image_padding"
+            android:paddingStart="@dimen/circle_image_padding"
+            android:paddingTop="@dimen/circle_image_padding"
+            app:srcCompat="@drawable/ic_account_circle_black_24dp"
+            android:focusable="true" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Subhead"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/text_padding"
+        android:textSize="@dimen/detail_title_text_size"
+        android:paddingLeft="@dimen/text_padding"
+        android:paddingTop="@dimen/text_padding"
+        android:paddingRight="@dimen/text_padding"
+        android:paddingBottom="@dimen/text_padding"
+        android:maxLines="2"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:text="Contact"
+        android:id="@+id/contact_button_view"
+        android:contentDescription="@string/contact_giver_button"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_width="@dimen/fab_layout_width"
+        android:layout_height="@dimen/fab_layout_height"
+        android:elevation="@dimen/fab_elevation"
+        android:src="@android:drawable/sym_action_chat"
+        android:layout_marginEnd="@dimen/fab_margin"/>
+
+
+</FrameLayout>

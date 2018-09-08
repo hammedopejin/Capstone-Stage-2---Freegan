@@ -99,5 +99,6 @@ public class Constants {
 
     //Intent
     public static final String kBUNDLE = "bundle";
+    public static final String kPOSTERID = "posterId";
 
 }

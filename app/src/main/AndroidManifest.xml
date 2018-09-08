@@ -47,6 +47,7 @@
         <activity android:name=".activity.UpdateEmailActivity" />
         <activity android:name=".activity.UpdatePasswordActivity" />
         <activity android:name=".activity.MessageActivity" />
+        <activity android:name=".activity.EditPostActivity" />
 
         <provider
             android:name=".data.FreeganProvider"
@@ -65,7 +66,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".activity.EditPostActivity"></activity>
     </application>
 
 </manifest>
