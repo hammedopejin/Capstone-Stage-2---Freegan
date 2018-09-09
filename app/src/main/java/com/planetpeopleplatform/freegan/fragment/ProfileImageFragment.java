@@ -27,7 +27,6 @@ public class ProfileImageFragment extends Fragment {
     private ArrayList<String> mImageUrl = null;
     private int mPosition;
 
-
     public static ProfileImageFragment newInstance(ArrayList<String> imageUrl, int position) {
         ProfileImageFragment fragment = new ProfileImageFragment();
         Bundle argument = new Bundle();
@@ -42,7 +41,6 @@ public class ProfileImageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_image, container, false);
-
 
         Bundle arguments = getArguments();
         mImageUrl = arguments.getStringArrayList(KEY_POST_RES);
@@ -63,7 +61,7 @@ public class ProfileImageFragment extends Fragment {
                         // The postponeEnterTransition is called on the parent ProfileImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going in case of a failure.
-                        getParentFragment().startPostponedEnterTransition();
+                        getParentFragment().getParentFragment().startPostponedEnterTransition();
                         return false;
                     }
 
@@ -73,16 +71,12 @@ public class ProfileImageFragment extends Fragment {
                         // The postponeEnterTransition is called on the parent ProfileImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going when the image is ready.
-                        getParentFragment().startPostponedEnterTransition();
+                        getParentFragment().getParentFragment().startPostponedEnterTransition();
                         return false;
                     }
                 })
                 .into((ImageView) view.findViewById(R.id.image));
 
-
-
         return view;
     }
-
-
 }

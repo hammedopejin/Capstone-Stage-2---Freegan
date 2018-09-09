@@ -3,7 +3,6 @@ package com.planetpeopleplatform.freegan.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.planetpeopleplatform.freegan.fragment.ProfileImageFragment;
 import com.planetpeopleplatform.freegan.fragment.ProflieChildImagePagerFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 

@@ -52,7 +52,7 @@ public class ProflieChildImagePagerFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     @BindView(R.id.nestedViewPager)
-    fr.castorflex.android.verticalviewpager.VerticalViewPager nestedViewPager;
+    fr.castorflex.android.verticalviewpager.VerticalViewPager mNestedViewPager;
 
     @BindView(R.id.text_view)
     TextView mTextView;
@@ -93,10 +93,7 @@ public class ProflieChildImagePagerFragment extends Fragment {
         //        mOptionImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
         mOptionImageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_settings_white_24dp));
 
-        nestedViewPager.setAdapter(new ProfileChildViewPagerAdaper(getFragmentManager(), mPost));
-
-
-
+        mNestedViewPager.setAdapter(new ProfileChildViewPagerAdaper(this, mPost));
 
         mTextView.setText(postDescription);
         mCurrentUserUid = mAuth.getCurrentUser().getUid();

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import com.bumptech.glide.request.target.Target;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.Post;
 
-import java.util.ArrayList;
 
 public class MainImageFragment extends Fragment {
 
@@ -28,9 +26,6 @@ public class MainImageFragment extends Fragment {
 
     private Post mPost = null;
     private int mPosition;
-
-
-
 
     public static MainImageFragment newInstance(Post post, int position) {
         MainImageFragment fragment = new MainImageFragment();
@@ -53,8 +48,6 @@ public class MainImageFragment extends Fragment {
         mPosition = arguments.getInt(KEY_POST_IMAGE_POSITION, 0);
         String postImage = mPost.getImageUrl().get(mPosition);
 
-
-
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
         view.findViewById(R.id.image).setTransitionName(String.valueOf(postImage));
@@ -69,7 +62,7 @@ public class MainImageFragment extends Fragment {
                         // The postponeEnterTransition is called on the parent MainImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going in case of a failure.
-                        getParentFragment().startPostponedEnterTransition();
+                        getParentFragment().getParentFragment().startPostponedEnterTransition();
                         return false;
                     }
 
@@ -79,13 +72,11 @@ public class MainImageFragment extends Fragment {
                         // The postponeEnterTransition is called on the parent MainImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going when the image is ready.
-                        getParentFragment().startPostponedEnterTransition();
+                        getParentFragment().getParentFragment().startPostponedEnterTransition();
                         return false;
                     }
                 })
                 .into((ImageView) view.findViewById(R.id.image));
-
         return view;
     }
-
 }

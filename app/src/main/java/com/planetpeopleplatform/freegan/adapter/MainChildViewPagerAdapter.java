@@ -1,19 +1,18 @@
 package com.planetpeopleplatform.freegan.adapter;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.util.Log;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.planetpeopleplatform.freegan.fragment.MainImageFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 
 
-public class MainChildViewPagerAdapter extends FragmentPagerAdapter {
+public class MainChildViewPagerAdapter extends FragmentStatePagerAdapter {
 
     Post mPost;
 
-    public MainChildViewPagerAdapter(Fragment fm, Post post) {
-        super(fm.getChildFragmentManager());
+    public MainChildViewPagerAdapter(Fragment fragment, Post post) {
+        super(fragment.getChildFragmentManager());
         this.mPost = post;
     }
 

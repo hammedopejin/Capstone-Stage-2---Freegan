@@ -76,14 +76,14 @@ public class MainImagePagerFragment extends Fragment {
             }
         });
 
-        prepareSharedElementTransition();
-
         // Avoid a postponeEnterTransition on orientation change, and postpone only of first creation.
         if (savedInstanceState == null) {
             postponeEnterTransition();
         }
 
-        return mViewPager;
+        prepareSharedElementTransition();
+
+        return rootView;
     }
 
     /**

@@ -2,7 +2,6 @@ package com.planetpeopleplatform.freegan.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
@@ -12,7 +11,6 @@ import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
@@ -23,13 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ProfileImagePagerFragment extends Fragment {
 
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
-
-    private ViewPager mViewPager;
     private ArrayList<Post> mListPosts =  new ArrayList<Post>();
-    private ArrayList<? extends Parcelable> list;
+    private ProfileImagePagerAdapter mProfileImagePagerAdapter;
+    @BindView(R.id.view_pager)
+    ViewPager mViewPager;
 
     public static ProfileImagePagerFragment newInstance(ArrayList<Post> listPosts) {
         ProfileImagePagerFragment fragment = new ProfileImagePagerFragment();
@@ -43,17 +44,15 @@ public class ProfileImagePagerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewPager = (ViewPager) inflater.inflate(R.layout.fragment_pager, container, false);
+        View rootView  = inflater.inflate(R.layout.fragment_pager, container, false);
+        ButterKnife.bind(this, rootView);
 
         Bundle arguments = getArguments();
-        list = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
+        mListPosts = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
 
-        for (Parcelable item : list){
-            Post post = (Post) item;
-            mListPosts.add(post);
-        }
+        mProfileImagePagerAdapter = new ProfileImagePagerAdapter(this, mListPosts);
+        mViewPager.setAdapter(mProfileImagePagerAdapter);
 
-        mViewPager.setAdapter(new ProfileImagePagerAdapter(this, mListPosts));
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
         mViewPager.setCurrentItem(ProfileActivity.currentPosition);
@@ -61,6 +60,16 @@ public class ProfileImagePagerFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 ProfileActivity.currentPosition = position;
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                ProfileActivity.currentPosition = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
             }
         });
 
@@ -71,7 +80,7 @@ public class ProfileImagePagerFragment extends Fragment {
             postponeEnterTransition();
         }
 
-        return mViewPager;
+        return rootView;
     }
 
     /**

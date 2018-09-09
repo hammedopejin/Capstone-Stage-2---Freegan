@@ -12,8 +12,8 @@ public class ProfileChildViewPagerAdaper extends FragmentPagerAdapter {
 
     Post mPost;
 
-    public ProfileChildViewPagerAdaper(FragmentManager fm, Post post) {
-        super(fm);
+    public ProfileChildViewPagerAdaper(Fragment fragment, Post post) {
+        super(fragment.getChildFragmentManager());
         this.mPost = post;
     }
 
