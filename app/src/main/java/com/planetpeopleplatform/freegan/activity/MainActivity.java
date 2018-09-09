@@ -40,18 +40,18 @@ public class MainActivity extends AppCompatActivity implements ChoosePictureSour
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
             // Return here to prevent adding additional GridFragments when changing orientation.
             return;
-        } else {
-
-            mAuth = FirebaseAuth.getInstance();
-            mCurrentUserUid = mAuth.getCurrentUser().getUid();
-
-
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager
-                    .beginTransaction()
-                    .add(R.id.fragment_container, new MainGridFragment(), MainGridFragment.class.getSimpleName())
-                    .commit();
         }
+
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, new MainGridFragment(), MainGridFragment.class.getSimpleName())
+                .commit();
+
 
     }
 

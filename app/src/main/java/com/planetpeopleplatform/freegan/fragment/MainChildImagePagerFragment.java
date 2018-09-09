@@ -3,7 +3,6 @@ package com.planetpeopleplatform.freegan.fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,7 +29,6 @@ import com.planetpeopleplatform.freegan.adapter.MainChildViewPagerAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
-import com.planetpeopleplatform.freegan.utils.VerticalViewPager;
 
 import java.util.HashMap;
 
@@ -55,10 +53,11 @@ public class MainChildImagePagerFragment extends Fragment {
     public String mCurrentUserUid = null;
     private FirebaseAuth mAuth;
     private Post mPost = null;
+    private MainChildViewPagerAdapter mMainChildViewPagerAdapter;
 
 
     @BindView(R.id.nestedViewPager)
-    VerticalViewPager nestedViewPager;
+    fr.castorflex.android.verticalviewpager.VerticalViewPager nestedViewPager;
 
     @BindView(R.id.text_view)
     TextView mTextView;
@@ -96,9 +95,8 @@ public class MainChildImagePagerFragment extends Fragment {
         mPost = arguments.getParcelable(KEY_POST_RES);
         String postDescription = mPost.getDescription();
 
-        nestedViewPager.setAdapter(new MainChildViewPagerAdapter(this, mPost));
-
-
+        mMainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
+        nestedViewPager.setAdapter(mMainChildViewPagerAdapter);
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,8 +214,6 @@ public class MainChildImagePagerFragment extends Fragment {
         });
 
     }
-
-
 
     private User getCurrentUser(String currentUserUid) {
         firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {

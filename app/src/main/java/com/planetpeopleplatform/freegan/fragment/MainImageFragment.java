@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.model.Post;
 
 import java.util.ArrayList;
 
@@ -24,16 +26,16 @@ public class MainImageFragment extends Fragment {
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final String KEY_POST_IMAGE_POSITION = "com.planetpeopleplatform.freegan.key.postImagePosition";
 
-    private ArrayList<String> mImageUrls = null;
+    private Post mPost = null;
     private int mPosition;
 
 
 
 
-    public static MainImageFragment newInstance(ArrayList<String> imageUrls, int position) {
+    public static MainImageFragment newInstance(Post post, int position) {
         MainImageFragment fragment = new MainImageFragment();
         Bundle argument = new Bundle();
-        argument.putStringArrayList(KEY_POST_RES, imageUrls);
+        argument.putParcelable(KEY_POST_RES, post);
         argument.putInt(KEY_POST_IMAGE_POSITION, position);
         fragment.setArguments(argument);
         return fragment;
@@ -47,9 +49,10 @@ public class MainImageFragment extends Fragment {
 
 
         Bundle arguments = getArguments();
-        mImageUrls = arguments.getStringArrayList(KEY_POST_RES);
+        mPost = arguments.getParcelable(KEY_POST_RES);
         mPosition = arguments.getInt(KEY_POST_IMAGE_POSITION, 0);
-        String postImage = mImageUrls.get(mPosition);
+        String postImage = mPost.getImageUrl().get(mPosition);
+
 
 
         // Just like we do when binding views at the grid, we set the transition name to be the string

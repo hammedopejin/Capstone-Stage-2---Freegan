@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,6 @@ import com.planetpeopleplatform.freegan.adapter.ProfileChildViewPagerAdaper;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
-import com.planetpeopleplatform.freegan.utils.VerticalViewPager;
 
 import java.util.HashMap;
 
@@ -54,7 +52,7 @@ public class ProflieChildImagePagerFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     @BindView(R.id.nestedViewPager)
-    VerticalViewPager nestedViewPager;
+    fr.castorflex.android.verticalviewpager.VerticalViewPager nestedViewPager;
 
     @BindView(R.id.text_view)
     TextView mTextView;

@@ -4,11 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.planetpeopleplatform.freegan.utils.VerticalViewPager
+    <fr.castorflex.android.verticalviewpager.VerticalViewPager
         android:id="@+id/nestedViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/transparent" />
+
 
     <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
