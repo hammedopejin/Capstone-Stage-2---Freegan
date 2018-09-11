@@ -104,4 +104,7 @@ public class Constants {
     //SharedPreferences
     public static final String SORT_BY = "sortBy";
 
+    //JSON KEY
+    public static final String JSONARRAYKEY = "uniqueArrays";
+
 }

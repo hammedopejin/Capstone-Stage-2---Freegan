@@ -54,6 +54,10 @@ import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -65,6 +69,7 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static android.support.v4.content.ContextCompat.checkSelfPermission;
+import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLATITUDE;
@@ -563,13 +568,26 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             String postUserObjectId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_ID));
             String profileImgUrl = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH));
             String postDate = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_DATE));
-             String postId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID));
+            String postId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID));
 
             String imageUrlString = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH));
 
-            ArrayList<String> imageUrl = new ArrayList(Arrays.asList(imageUrlString.split(",")));
+            JSONObject json = null;
+            try {
+                json = new JSONObject(imageUrlString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
-            mListPosts.add(new Post (postId, postUserObjectId, description, imageUrl, profileImgUrl, userName, postDate));
+            ArrayList<String> imageUrls = new ArrayList<>();
+
+            JSONArray items =  json.optJSONArray(JSONARRAYKEY);
+            for (int j = 0; j < items.length(); j++) {
+                String str_value = items.optString(j);
+                imageUrls.add(str_value);
+            }
+
+            mListPosts.add(new Post (postId, postUserObjectId, description, imageUrls, profileImgUrl, userName, postDate));
 
             mCursor.moveToNext();
         }

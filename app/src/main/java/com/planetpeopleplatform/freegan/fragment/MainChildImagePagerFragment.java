@@ -38,6 +38,10 @@ import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 import butterknife.BindView;
@@ -45,6 +49,7 @@ import butterknife.ButterKnife;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
+import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.SORT_BY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
@@ -305,7 +310,16 @@ public class MainChildImagePagerFragment extends Fragment {
 
         movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION, mPost.getDescription());
         movieValues.put(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID, mPost.getPostId());
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH, mPost.getImageUrl().toString());
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put(JSONARRAYKEY, new JSONArray(mPost.getImageUrl()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String postImageUrls = json.toString();
+
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH, postImageUrls);
         movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_NAME, mPost.getUserName());
         movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_ID, mPost.getPostUserObjectId());
         movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH, mPost.getProfileImgUrl());
