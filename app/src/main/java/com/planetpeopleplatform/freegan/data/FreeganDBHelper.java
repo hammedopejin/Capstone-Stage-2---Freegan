@@ -21,11 +21,13 @@ public class FreeganDBHelper extends SQLiteOpenHelper {
 
                     "CREATE TABLE " + FreeganContract.FreegansEntry.TABLE_NAME + " (" +
                             FreeganContract.FreegansEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID + " INTEGER UNIQUE , " +
-                            FreeganContract.FreegansEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
-                            FreeganContract.FreegansEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
-                            FreeganContract.FreegansEntry.COLUMN_POST_DATE + " TEXT NOT NULL, " +
-                            FreeganContract.FreegansEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL" +
+                            FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID + " TEXT UNIQUE NOT NULL, " +
+                            FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION + " TEXT NOT NULL, " +
+                            FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH + " TEXT NOT NULL, " +
+                            FreeganContract.FreegansEntry.COLUMN_POSTER_NAME + " TEXT NOT NULL, " +
+                            FreeganContract.FreegansEntry.COLUMN_POSTER_ID + " TEXT NOT NULL, " +
+                            FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH + " TEXT NOT NULL, " +
+                            FreeganContract.FreegansEntry.COLUMN_POST_DATE + " TEXT NOT NULL " +
                             "); ";
             sqLiteDatabase.execSQL(SQL_CREATE_FREEGAN_TABLE);
 

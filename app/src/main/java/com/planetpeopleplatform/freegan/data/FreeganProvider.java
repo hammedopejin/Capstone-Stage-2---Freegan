@@ -26,7 +26,7 @@ public class FreeganProvider extends ContentProvider {
         final String authority = FreeganContract.CONTENT_AUTHORITY;
 
         uriMatcher.addURI(authority, FreeganContract.FREEGAN_PATH, FREEGAN);
-        uriMatcher.addURI(authority, FreeganContract.FREEGAN_PATH + "/#", FREEGAN_ID);
+        uriMatcher.addURI(authority, FreeganContract.FREEGAN_PATH + "/*", FREEGAN_ID);
 
         return uriMatcher;
     }
@@ -216,5 +216,4 @@ public class FreeganProvider extends ContentProvider {
                 return super.bulkInsert(uri, contentValues);
         }
     }
-
 }

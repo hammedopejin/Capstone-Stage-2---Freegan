@@ -152,6 +152,18 @@
     <string name="delete_string">Delete</string>
     <string name="edit_post_title">Edit post</string>
     <string name="alert_at_least_one_image_needed_string">At least one image is needed for this post!</string>
+    <string name="back_arrow_description_string">Back arrow to navigate back to previous screen</string>
+    <string name="favorite_button_description_string">Star button to mark a post item as favorite and store for future view.</string>
+    <string name="com_planetpeopleplatform_freegan_preference_favorite_file_key">favorite</string>
+    <string name="err_data_not_available_string">Post data not available!</string>
+
+    <!-- Key name for sorting type in SharedPreferences -->
+    <string name="pref_sort_list_key" translatable="false">pref_sort</string>
+    <string name="err_no_network_connection_string">Error with network connection!</string>
+    <string name="action_sort_by">Sort by</string>
+    <string name="action_sort_by_all_post">All</string>
+    <string name="action_sort_by_favorite_post">Favorites</string>
+    <string name="no_favorites_saved">No favorite saved yet</string>
 
 
 </resources>

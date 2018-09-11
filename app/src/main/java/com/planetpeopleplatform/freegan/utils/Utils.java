@@ -1,5 +1,6 @@
 package com.planetpeopleplatform.freegan.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -9,6 +10,8 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -408,6 +411,11 @@ public class Utils {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         return new File(mediaStorageDir.getPath() + File.separator +
                 "IMG_"+ timeStamp + ".jpg");
+    }
+
+    public static void closeOnError(CoordinatorLayout coordinatorLayout, Activity activity) {
+        Snackbar.make(coordinatorLayout, R.string.err_data_not_available_string, Snackbar.LENGTH_SHORT).show();
+        activity.finish();
     }
 
 }

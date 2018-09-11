@@ -1,15 +1,23 @@
 package com.planetpeopleplatform.freegan.fragment;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -25,6 +33,7 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
 import com.planetpeopleplatform.freegan.adapter.MainChildViewPagerAdapter;
+import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
@@ -34,13 +43,16 @@ import java.util.HashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
+import static com.planetpeopleplatform.freegan.utils.Constants.SORT_BY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class MainChildImagePagerFragment extends Fragment {
 
@@ -61,11 +73,17 @@ public class MainChildImagePagerFragment extends Fragment {
     @BindView(R.id.text_view)
     TextView mTextView;
 
+    @BindView(R.id.main_content)
+    CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.back_arrow)
     ImageButton mBackArrow;
 
     @BindView(R.id.poster_image_button)
     de.hdodenhof.circleimageview.CircleImageView mPosterImageButton;
+
+    @BindView(R.id.favorite_image)
+    ImageView mFavoriteImageButton;
 
     @BindView(R.id.contact_button_view)
     android.support.design.widget.FloatingActionButton mContactButtonView;
@@ -91,8 +109,14 @@ public class MainChildImagePagerFragment extends Fragment {
         mAuth= FirebaseAuth.getInstance();
 
         Bundle arguments = getArguments();
+
+        if (arguments == null) {
+            closeOnError(mCoordinatorLayout, getActivity());
+        }
         mPost = arguments.getParcelable(KEY_POST_RES);
         String postDescription = mPost.getDescription();
+
+        //Log.d("TAGGGG", "onCreateView: " + mPost.getImageUrl().toString());
 
         mMainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
         mNestedViewPager.setAdapter(mMainChildViewPagerAdapter);
@@ -101,6 +125,49 @@ public class MainChildImagePagerFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getActivity().onBackPressed();
+            }
+        });
+
+        final SharedPreferences sharedPref = getActivity().getApplicationContext().getSharedPreferences(
+                getString(R.string.com_planetpeopleplatform_freegan_preference_favorite_file_key), MODE_PRIVATE);
+
+        final boolean[] mIsFavorited = { sharedPref.getBoolean(mPost.getPostId(), false) };
+        if (mIsFavorited[0]){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_on));
+            } else {
+                mFavoriteImageButton.setImageResource(android.R.drawable.star_big_on);
+            }
+        }
+
+        mFavoriteImageButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (mIsFavorited[0]){
+                    Uri uri = FreeganContract.FreegansEntry.buildFreeganUriWithFreeganId(mPost.getPostId());
+                    deleteData(uri);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_off));
+                    } else {
+                        mFavoriteImageButton.setImageResource(android.R.drawable.star_big_off);
+                    }
+                    mIsFavorited[0] = false;
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putBoolean(mPost.getPostId(), mIsFavorited[0]);
+                    editor.apply();
+                }else {
+                    insertData();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_on));
+                    } else {
+                        mFavoriteImageButton.setImageResource(android.R.drawable.star_big_on);
+                    }
+                    mIsFavorited[0] = true;
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putBoolean(mPost.getPostId(), mIsFavorited[0]);
+                    editor.apply();
+                }
             }
         });
 
@@ -230,5 +297,27 @@ public class MainChildImagePagerFragment extends Fragment {
             }
         });
         return mCurrentUser;
+    }
+
+    // insert data into database
+    private void insertData(){
+        ContentValues movieValues = new ContentValues();
+
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION, mPost.getDescription());
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID, mPost.getPostId());
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH, mPost.getImageUrl().toString());
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_NAME, mPost.getUserName());
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_ID, mPost.getPostUserObjectId());
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH, mPost.getProfileImgUrl());
+        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DATE, mPost.getPostDate());
+
+        getActivity().getApplicationContext().getContentResolver().insert(FreeganContract.FreegansEntry.CONTENT_URI,
+                movieValues);
+    }
+
+    // delete data from database
+    private void deleteData(Uri uri){
+        getActivity().getApplicationContext().getContentResolver().delete(uri,
+                null, null);
     }
 }

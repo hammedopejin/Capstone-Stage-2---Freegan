@@ -3,8 +3,13 @@ package com.planetpeopleplatform.freegan.fragment;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,8 +17,12 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.SharedElementCallback;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.transition.TransitionInflater;
@@ -36,17 +45,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.adapter.MainGridAdapter;
+import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +76,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 /**
  * A fragment for displaying a grid of images.
  */
-public class MainGridFragment extends Fragment {
+public class MainGridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String TAG = MainGridFragment.class.getSimpleName();
     private Fragment mFragment = null;
@@ -80,9 +90,12 @@ public class MainGridFragment extends Fragment {
     GeoQuery mGeoQuery;
     private GeoFire mGeoFire;
     private FusedLocationProviderClient mFusedLocationClient;
+    private static Boolean mSortByFavorite = false;
+    private Cursor mCursor;
 
     private static final int RC_POST_ITEM = 1;
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
+    private static final int CURSOR_LOADER_ID = 0;
 
     SearchView mSearchView;
 
@@ -144,7 +157,12 @@ public class MainGridFragment extends Fragment {
                                         });
                             }
                         } else {
-                            checkPosts();
+                            setupSharedPreferences();
+                            if (mSortByFavorite) {
+                                loadFavorite();
+                            } else {
+                                checkPosts();
+                            }
                         }
                     }
                 }
@@ -266,6 +284,18 @@ public class MainGridFragment extends Fragment {
         super.onResume();
         android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
         mToolbarContainer.setVisibility(View.VISIBLE);
+
+        showLoading();
+        if (isNetworkAvailable()) {
+
+                setupSharedPreferences();
+                if (mSortByFavorite) {
+                    loadFavorite();
+                }
+
+        } else {
+            Snackbar.make(mCoordinatorLayout, R.string.err_no_network_connection_string, Snackbar.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -280,6 +310,9 @@ public class MainGridFragment extends Fragment {
         if (mGeoQuery != null) {
             mGeoQuery.removeAllListeners();
         }
+        // Unregister the listener
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
     }
 
@@ -455,6 +488,19 @@ public class MainGridFragment extends Fragment {
         });
     }
 
+    private void setupSharedPreferences() {
+        // Get all of the values from shared preferences to set it up
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        loadSortFromPreferences(sharedPreferences);
+
+        // Register the listener
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    private void loadSortFromPreferences(SharedPreferences sharedPreferences) {
+        mSortByFavorite = sharedPreferences.getBoolean(getString(R.string.pref_sort_list_key),
+                false);
+    }
 
     private void showDataView() {
         /* First, hide the loading indicator */
@@ -470,4 +516,106 @@ public class MainGridFragment extends Fragment {
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        mSortByFavorite = sharedPreferences.getBoolean(getString(R.string.pref_sort_list_key),
+                false);
+
+        showLoading();
+
+        if (mSortByFavorite){
+            loadFavorite();
+        }else {
+            checkPosts();
+        }
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        return new CursorLoader(getActivity(),
+                FreeganContract.FreegansEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+        boolean cursorHasValidData = false;
+        if (cursor != null && cursor.moveToFirst()) {
+            /* We have valid data, continue on to bind the data to the UI */
+            cursorHasValidData = true;
+        }
+        if (!cursorHasValidData) {
+            /* No data to display, simply return and do nothing */
+            return;
+        }
+        mCursor = cursor;
+        mCursor.moveToFirst();
+        DatabaseUtils.dumpCursor(cursor);
+        mListPosts.clear();
+        for (int i = 0; i < mCursor.getCount(); i++) {
+
+            String description = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION));
+            String userName = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_NAME));
+            String postUserObjectId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_ID));
+            String profileImgUrl = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH));
+            String postDate = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_DATE));
+             String postId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID));
+
+            String imageUrlString = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH));
+
+            ArrayList<String> imageUrl = new ArrayList(Arrays.asList(imageUrlString.split(",")));
+
+            mListPosts.add(new Post (postId, postUserObjectId, description, imageUrl, profileImgUrl, userName, postDate));
+
+            mCursor.moveToNext();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        mCursor = null;
+    }
+
+    private boolean isNetworkAvailable() {
+        // Using ConnectivityManager to check for Network Connection
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
+                .getSystemService(getActivity().CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager
+                .getActiveNetworkInfo();
+        if(activeNetworkInfo != null ){
+            return  activeNetworkInfo.isConnected();
+        }
+        return activeNetworkInfo != null;
+    }
+
+    public void loadFavorite() {
+
+        boolean cursorHasValidData = false;
+        Cursor cursor =
+                getActivity().getContentResolver().query(FreeganContract.FreegansEntry.CONTENT_URI,
+                        new String[]{FreeganContract.FreegansEntry._ID},
+                        null,
+                        null,
+                        null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            /* We have valid data, continue on to bind the data to the UI */
+            cursorHasValidData = true;
+        }
+        if (!cursorHasValidData) {
+            /* No data to display, simply return and do nothing */
+            Snackbar.make(mCoordinatorLayout, getString(R.string.no_favorites_saved), Snackbar.LENGTH_SHORT).show();
+        }
+
+        mListPosts.clear();
+        // initialize loader
+        getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+        mMainGridAdapter.notifyDataSetChanged();
+        DatabaseUtils.dumpCursor(cursor);
+        showDataView();
+    }
 }

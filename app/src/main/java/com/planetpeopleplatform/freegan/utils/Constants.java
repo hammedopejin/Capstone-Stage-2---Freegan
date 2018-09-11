@@ -101,4 +101,7 @@ public class Constants {
     public static final String kBUNDLE = "bundle";
     public static final String kPOSTERID = "posterId";
 
+    //SharedPreferences
+    public static final String SORT_BY = "sortBy";
+
 }

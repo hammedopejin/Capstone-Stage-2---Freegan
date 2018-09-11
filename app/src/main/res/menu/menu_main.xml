@@ -14,4 +14,21 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_sort_by"
+        android:title="@string/action_sort_by"
+        android:orderInCategory="100"
+        app:showAsAction="never" >
+        <menu>
+            <item android:id="@+id/action_sort_by_all_post"
+                android:title="@string/action_sort_by_all_post"
+                android:orderInCategory="200"
+                app:showAsAction="never" />
+
+            <item android:id="@+id/action_sort_by_favorite_post"
+                android:title="@string/action_sort_by_favorite_post"
+                android:orderInCategory="200"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
 </menu>

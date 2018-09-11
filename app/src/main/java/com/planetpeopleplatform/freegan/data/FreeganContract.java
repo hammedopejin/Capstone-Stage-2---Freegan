@@ -42,11 +42,13 @@ public class FreeganContract {
 
         public static final String TABLE_NAME = "freegans";
 
-        public static final String COLUMN_FREEGAN_ID = "freegan_id";
-        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_POST_DESCRIPTION = "description";
+        public static final String COLUMN_POST_PICTURE_PATH = "post_images_url_path";
+        public static final String COLUMN_POSTER_NAME = "poster_name";
+        public static final String COLUMN_POSTER_ID = "poster_id";
+        public static final String COLUMN_POSTER_PICTURE_PATH = "poster_image_url_path";
         public static final String COLUMN_POST_DATE = "post_date";
-        public static final String COLUMN_POSTER_PATH = "poster_path";
-        public static final String COLUMN_OVERVIEW = "overview";
+        public static final String COLUMN_FREEGAN_ID = "post_id";
         public static final String _ID = "_id";
 
     }
