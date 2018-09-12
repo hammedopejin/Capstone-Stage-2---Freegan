@@ -21,6 +21,7 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
 import com.planetpeopleplatform.freegan.fragment.ProfileImagePagerFragment;
 import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,14 +41,16 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
     private final RequestManager mRequestManager;
     private final ProfileGridAdapter.ViewHolderListener mViewHolderListener;
     private  ArrayList<Post> mListPosts;
+    private User mPoster;
 
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
      */
-    public ProfileGridAdapter(Fragment fragment, ArrayList<Post> listPosts) {
+    public ProfileGridAdapter(Fragment fragment, ArrayList<Post> listPosts, User poster) {
         this.mRequestManager = Glide.with(fragment);
         this.mViewHolderListener = new ProfileGridAdapter.ViewHolderListenerImpl(fragment);
         this.mListPosts = listPosts;
+        this.mPoster = poster;
     }
 
     @NonNull
@@ -109,7 +112,7 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
                     .beginTransaction()
                     .setReorderingAllowed(true) // Optimize for shared element transition
                     .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, ProfileImagePagerFragment.newInstance(mListPosts), ProfileImagePagerFragment.class
+                    .replace(R.id.fragment_container, ProfileImagePagerFragment.newInstance(mListPosts, mPoster), ProfileImagePagerFragment.class
                             .getSimpleName())
                     .addToBackStack(null)
                     .commit();

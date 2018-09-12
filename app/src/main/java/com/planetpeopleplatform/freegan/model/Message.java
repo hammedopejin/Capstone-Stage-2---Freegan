@@ -18,9 +18,6 @@ public class Message implements Parcelable {
     private String status = "";
     private String type = "";
 
-
-
-
     public Message(String message, String date, String messageId, String senderId,
                    String senderName, String status, String type){
         this.message = message;

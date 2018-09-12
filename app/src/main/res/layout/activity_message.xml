@@ -59,49 +59,90 @@
         android:layout_height="2dp"
         android:background="#dfdfdf"
         android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/layout_chatbox"
+        app:layout_constraintBottom_toTopOf="@+id/layout_chat_box"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <LinearLayout
-        android:id="@+id/layout_chatbox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:minHeight="@dimen/pad_chat_item"
-        android:background="#ffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent">
-
-        <EditText
-            android:id="@+id/chat_message_edit_text"
-            style="@style/edittext_msg"
+        <FrameLayout
+            android:id="@+id/layout_chat_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:hint="@string/enter_message_here"
-            android:maxLines="6"
-            android:textColorHint="@color/gray_light" />
+            android:minHeight="@dimen/pad_chat_item"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent">
 
-        <Button
-            android:id="@+id/button_chat_box_send"
-            style="@style/btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@drawable/ic_send"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/layout_blocked_user"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:minHeight="@dimen/pad_chat_item"
+                android:background="#ffffff"
+                android:visibility="gone">
 
+                <TextView
+                    android:id="@+id/chat_message_text_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:text="@string/alert_blocked_user_string" />
 
-    </LinearLayout>
+                <Button
+                    android:id="@+id/button_chat_box_blocked"
+                    style="@style/btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:background="@drawable/ic_block_red_a400_24dp"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_chat_user"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:minHeight="@dimen/pad_chat_item"
+                android:background="#ffffff">
+
+                <EditText
+                    android:id="@+id/chat_message_edit_text"
+                    style="@style/edittext_msg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/enter_message_here"
+                    android:maxLines="6"
+                    android:textColorHint="@color/gray_light" />
+
+                <Button
+                    android:id="@+id/button_chat_box_send"
+                    style="@style/btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/ic_send"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </FrameLayout>
 
     </android.support.constraint.ConstraintLayout>
 

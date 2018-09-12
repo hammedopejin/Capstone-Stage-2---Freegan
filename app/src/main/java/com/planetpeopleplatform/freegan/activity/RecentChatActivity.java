@@ -123,7 +123,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-                    updateUserStatus(true);
+                        updateUserStatus(true);
                     }
             }
 

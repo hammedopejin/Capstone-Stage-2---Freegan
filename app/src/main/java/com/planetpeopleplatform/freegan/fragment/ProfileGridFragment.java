@@ -43,8 +43,10 @@ import butterknife.ButterKnife;
 
 import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 public class ProfileGridFragment extends Fragment {
 
@@ -55,7 +57,7 @@ public class ProfileGridFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
-    public User mCurrentUser = null;
+    public User mPoster = null;
 
     private static final String KEY_POSTER_UID = "com.planetpeopleplatform.freegan.key.posterUid";
 
@@ -93,19 +95,19 @@ public class ProfileGridFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         Bundle arguments = getArguments();
-        mCurrentUser = arguments.getParcelable(KEY_POSTER_UID);
+        mPoster = arguments.getParcelable(KEY_POSTER_UID);
 
         mFragment = this;
-        mAuth= FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         prepareTransitions();
         postponeEnterTransition();
 
-        Glide.with(this).load(mCurrentUser.getUserImgUrl()).apply(centerInsideTransform()
+        Glide.with(this).load(mPoster.getUserImgUrl()).apply(centerInsideTransform()
                 .placeholder(R.drawable.person_icon)).into(mProfileImageView);
 
         mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
-        mCollapsingToolbarLayout.setTitle(mCurrentUser.getUserName());
+        mCollapsingToolbarLayout.setTitle(mPoster.getUserName());
         mCollapsingToolbarLayout.setExpandedTitleGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         mCollapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.collapsing_tool_bar_layout_textview);
         showLoading();
@@ -120,10 +122,10 @@ public class ProfileGridFragment extends Fragment {
         mSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mCurrentUser.getObjectId().equals(mCurrentUserUid)){
+                if (mPoster.getObjectId().equals(mCurrentUserUid)){
                     Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
                     startActivity(settingsIntent);
-                }else {
+                } else {
                     showUserSettingsPopup(view);
                 }
             }
@@ -203,7 +205,7 @@ public class ProfileGridFragment extends Fragment {
 
     private void loadPosts(){
         showDataView();
-        firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mCurrentUser.getObjectId())
+        firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPoster.getObjectId())
                 .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -217,7 +219,7 @@ public class ProfileGridFragment extends Fragment {
                         mListPosts.add(new Post(post));
                     }
 
-                    mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts));
+                    mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster));
 
                 }catch (Exception e){
                     Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
@@ -234,13 +236,35 @@ public class ProfileGridFragment extends Fragment {
 
     private void showUserSettingsPopup(View view) {
         PopupMenu popup = new PopupMenu(getContext(), view);
-        popup.inflate(R.menu.popup_user_settings);
+        if (mPoster.getBlockedUsersList().contains(mCurrentUserUid)) {
+            popup.inflate(R.menu.popup_user_settings_unblock_option);
+        } else {
+            popup.inflate(R.menu.popup_user_settings);
+        }
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.action_report_user:
+
+                        return true;
+
+                    case R.id.action_block_user:
+                        ArrayList<String> blockedList = mPoster.getBlockedUsersList();
+                        blockedList.add(mCurrentUserUid);
+                        mPoster.addBlockedUser(mCurrentUserUid);
+                        HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
+                        newBlockedUser.put(kBLOCKEDUSER, blockedList);
+                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser);
+
+                        return true;
+
+                    case R.id.action_unblock_user:
+                        ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
+                        int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
+                        mPoster.removeBlockedUser(mCurrentUserUid);
+                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue();
 
                         return true;
 

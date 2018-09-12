@@ -16,6 +16,7 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileImagePagerAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
+import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,18 +25,23 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+
 public class ProfileImagePagerFragment extends Fragment {
 
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
+    private static final String KEY_POSTER = "com.planetpeopleplatform.freegan.key.poster";
     private ArrayList<Post> mListPosts =  new ArrayList<Post>();
+    private User mPoster;
     private ProfileImagePagerAdapter mProfileImagePagerAdapter;
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
 
-    public static ProfileImagePagerFragment newInstance(ArrayList<Post> listPosts) {
+    public static ProfileImagePagerFragment newInstance(ArrayList<Post> listPosts, User poster) {
         ProfileImagePagerFragment fragment = new ProfileImagePagerFragment();
         Bundle argument = new Bundle();
         argument.putParcelableArrayList(KEY_ARRAY_LIST, listPosts);
+        argument.putParcelable(KEY_POSTER, poster);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -49,8 +55,9 @@ public class ProfileImagePagerFragment extends Fragment {
 
         Bundle arguments = getArguments();
         mListPosts = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
+        mPoster = arguments.getParcelable(KEY_POSTER);
 
-        mProfileImagePagerAdapter = new ProfileImagePagerAdapter(this, mListPosts);
+        mProfileImagePagerAdapter = new ProfileImagePagerAdapter(this, mListPosts, mPoster);
         mViewPager.setAdapter(mProfileImagePagerAdapter);
 
         // Set the current position and add a listener that will update the selection coordinator when

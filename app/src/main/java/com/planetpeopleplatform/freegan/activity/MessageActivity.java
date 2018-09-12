@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
@@ -109,6 +110,12 @@ public class MessageActivity extends CustomActivity {
     @BindView(R.id.post_Image)
     ImageView mPostImage;
 
+    @BindView(R.id.layout_chat_user)
+    LinearLayout mChatLayout;
+
+    @BindView(R.id.layout_blocked_user)
+    LinearLayout mBlockedChatLayout;
+
     // The Editext to compose the message.
     @BindView(R.id.chat_message_edit_text)
     EditText mChatMessageEdittext;
@@ -154,6 +161,16 @@ public class MessageActivity extends CustomActivity {
                     linearLayoutManager.setReverseLayout(true);
                     mMessageRecycler.setLayoutManager(linearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
+
+
+                        if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
+                            || mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
+                            mChatLayout.setVisibility(View.GONE);
+                            mBlockedChatLayout.setVisibility(View.VISIBLE);
+                        } else {
+                            mChatLayout.setVisibility(View.VISIBLE);
+                            mBlockedChatLayout.setVisibility(View.GONE);
+                        }
                 }
             }
 

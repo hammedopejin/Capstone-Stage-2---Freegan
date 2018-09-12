@@ -34,7 +34,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
 
-    private User mCurrentUser = null;
+    private User mPoster = null;
     private String mPosterId;
 
     @Override
@@ -91,17 +91,17 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private User getCurrentUser(String currentUserUid) {
-        firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {
+    private User getCurrentUser(String posterUserUid) {
+        firebase.child(kUSER).child(posterUserUid).addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
-                    mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                    mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     fragmentManager
                             .beginTransaction()
-                            .add(R.id.fragment_container, ProfileGridFragment.newInstance(mCurrentUser), ProfileGridFragment.class.getSimpleName())
+                            .add(R.id.fragment_container, ProfileGridFragment.newInstance(mPoster), ProfileGridFragment.class.getSimpleName())
                             .commit();
                 }
             }
@@ -111,6 +111,6 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
             }
         });
-        return mCurrentUser;
+        return mPoster;
     }
 }

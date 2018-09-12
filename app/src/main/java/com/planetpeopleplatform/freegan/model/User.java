@@ -6,14 +6,17 @@ import android.os.Parcelable;
 import com.google.firebase.database.DatabaseReference;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import com.planetpeopleplatform.freegan.utils.Constants;
+
+import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 
-public class User implements Parcelable {
+public class User implements Parcelable{
 
     private String objectId;
     private String pushId;
@@ -26,6 +29,7 @@ public class User implements Parcelable {
     private String status = "";
     private Double latitude;
     private Double longitude;
+    private ArrayList<String> blockedUsersList = new ArrayList<>();
 
 
     public User (String _objectId, String _pushId, String _createdAt, String _updatedAt, String _email,
@@ -42,6 +46,7 @@ public class User implements Parcelable {
         this.userImgUrl = _userimgurl;
 
         this.loginMethod = _loginMethod;
+        this.blockedUsersList.add("placeHolder");
     }
 
     public User (HashMap<String, Object> dictionary){
@@ -56,10 +61,12 @@ public class User implements Parcelable {
         loginMethod = (String) dictionary.get(Constants.kLOGINMETHOD);
         latitude = (Double) dictionary.get(Constants.kLATITUDE);
         longitude = (Double) dictionary.get(Constants.kLONGITUDE);
+        blockedUsersList = (ArrayList<String>) dictionary.get(kBLOCKEDUSER);
     }
 
     static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
     static Date dataobj= new Date();
+
 
     protected User(Parcel in) {
         objectId = in.readString();
@@ -71,8 +78,17 @@ public class User implements Parcelable {
         userImgUrl = in.readString();
         loginMethod = in.readString();
         status = in.readString();
-        latitude = in.readDouble();
-        longitude = in.readDouble();
+        if (in.readByte() == 0) {
+            latitude = null;
+        } else {
+            latitude = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            longitude = null;
+        } else {
+            longitude = in.readDouble();
+        }
+        blockedUsersList = in.createStringArrayList();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -182,6 +198,30 @@ public class User implements Parcelable {
         this.longitude = longitude;
     }
 
+    public ArrayList<String> getBlockedUsersList() {
+        return blockedUsersList;
+    }
+
+    public void setBlockedUsersList(ArrayList<String> blockedUsersList) {
+        this.blockedUsersList = blockedUsersList;
+    }
+
+    public void addBlockedUser(String blockedUserId) {
+        if(this.blockedUsersList != null) {
+            if (!(this.blockedUsersList.contains(blockedUserId))) {
+                this.blockedUsersList.add(blockedUserId);
+            }
+        }
+    }
+
+    public void removeBlockedUser(String blockedUserId){
+        if(this.blockedUsersList != null) {
+            if (this.blockedUsersList.contains(blockedUserId)) {
+                this.blockedUsersList.remove(blockedUserId);
+            }
+        }
+    }
+
     //Set User status
     public void put(String status, Boolean online){
         if (online){
@@ -194,7 +234,6 @@ public class User implements Parcelable {
     public boolean getBoolean(String status) {
         return status.equals(this.status);
     }
-
 
     @Override
     public int describeContents() {
@@ -212,7 +251,18 @@ public class User implements Parcelable {
         parcel.writeString(userImgUrl);
         parcel.writeString(loginMethod);
         parcel.writeString(status);
-        parcel.writeDouble(latitude);
-        parcel.writeDouble(longitude);
+        if (latitude == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeDouble(latitude);
+        }
+        if (longitude == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeDouble(longitude);
+        }
+        parcel.writeStringList(blockedUsersList);
     }
 }

@@ -41,6 +41,7 @@ public class Constants {
     public static final String kCURRENTUSER = "currentUser";
     public static final String kLONGITUDE = "longitude";
     public static final String kLATITUDE = "latitude";
+    public static final String kBLOCKEDUSER = "blockedUsers";
 
     //posts
     public static final String kPOST = "posts";
