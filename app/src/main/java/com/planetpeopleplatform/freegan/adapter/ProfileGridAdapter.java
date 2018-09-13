@@ -42,15 +42,17 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
     private final ProfileGridAdapter.ViewHolderListener mViewHolderListener;
     private  ArrayList<Post> mListPosts;
     private User mPoster;
+    private User mCurrentUser;
 
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
      */
-    public ProfileGridAdapter(Fragment fragment, ArrayList<Post> listPosts, User poster) {
+    public ProfileGridAdapter(Fragment fragment, ArrayList<Post> listPosts, User poster, User currentUser) {
         this.mRequestManager = Glide.with(fragment);
         this.mViewHolderListener = new ProfileGridAdapter.ViewHolderListenerImpl(fragment);
         this.mListPosts = listPosts;
         this.mPoster = poster;
+        this.mCurrentUser = currentUser;
     }
 
     @NonNull
@@ -112,7 +114,7 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
                     .beginTransaction()
                     .setReorderingAllowed(true) // Optimize for shared element transition
                     .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, ProfileImagePagerFragment.newInstance(mListPosts, mPoster), ProfileImagePagerFragment.class
+                    .replace(R.id.fragment_container, ProfileImagePagerFragment.newInstance(mListPosts, mPoster, mCurrentUser), ProfileImagePagerFragment.class
                             .getSimpleName())
                     .addToBackStack(null)
                     .commit();

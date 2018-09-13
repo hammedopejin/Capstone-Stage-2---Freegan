@@ -105,7 +105,7 @@
     <string name="title_string">title</string>
     <string name="class_cast_exception_string">must implement OnCompleteListener</string>
     <string name="capital_yes_string">YES</string>
-    <string name="capital_no_string">CANCEL</string>
+    <string name="capital_no_string">Cancel</string>
     <string name="error_decrypting_string">error decrypting</string>
     <string name="source_string">source</string>
     <string name="err_image_missing_string">An image must be selected</string>
@@ -117,6 +117,7 @@
     <string name="err_location_saving_string">There was an error saving the location to GeoFire:</string>
     <string name="alert_post_upload_successful">Post uploaded successfully!</string>
     <string name="err_post_upload_fail_string">Post upload failed:</string>
+    <string name="err_message_sending_failed_string">Message failed to send!</string>
     <string name="alert_successfully_uploaded_photo_string">Successfully uploaded new photo!</string>
     <string name="err_upload_failed_string">upload failed</string>
     <string name="alert_all_text_field_must_be_entered_string">All text fields must be entered properly!</string>
@@ -133,7 +134,7 @@
     <string name="gallery_string">Gallery</string>
     <string name="alert_location_successfully_updated_string">Location successfully updated</string>
     <string name="post_image">Post image</string>
-    <string name="enter_message_here">Enter message here...</string>
+    <string name="enter_message_here">Enter message here…</string>
     <string name="contact_giver_button">Button when pressed help start chat with post owner</string>
     <string name="give_button">Button when clicked help start the process of posting new item</string>
     <string name="app_logo">App logo</string>
@@ -155,7 +156,7 @@
     <string name="back_arrow_description_string">Back arrow to navigate back to previous screen</string>
     <string name="favorite_button_description_string">Star button to mark a post item as favorite and store for future view.</string>
     <string name="com_planetpeopleplatform_freegan_preference_favorite_file_key">favorite</string>
-    <string name="err_data_not_available_string">Post data not available!</string>
+    <string name="err_data_not_available_string">Data not available!</string>
 
     <!-- Key name for sorting type in SharedPreferences -->
     <string name="pref_sort_list_key" translatable="false">pref_sort</string>
@@ -164,8 +165,14 @@
     <string name="action_sort_by_all_post">All</string>
     <string name="action_sort_by_favorite_post">Favorites</string>
     <string name="no_favorites_saved">No favorite saved yet</string>
-    <string name="alert_blocked_user_string">User blocked by you</string>
+    <string name="alert_blocked_user_string">Chat blocked by participant!</string>
     <string name="action_unblock_user">Unblock user</string>
+    <string name="enter_report_description">Enter report description</string>
+    <string name="alert_message_sent_successfully">Message sent successfully!</string>
+    <string name="alert_user_blocked_successfully_string">User blocked successfully</string>
+    <string name="err_user_block_failed_string">Error blocking user! Try again.</string>
+    <string name="alert_user_unblocked_successfully_string">User successfully unblocked!</string>
+    <string name="err_user_unblock_failed_string">Error unblocking user! Try again.</string>
 
 
 </resources>

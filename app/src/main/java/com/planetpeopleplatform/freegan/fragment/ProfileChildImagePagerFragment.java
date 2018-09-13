@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
 import android.view.LayoutInflater;
@@ -18,10 +20,8 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.EditPostActivity;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
@@ -52,20 +52,23 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class ProfileChildImagePagerFragment extends Fragment {
 
     private static final int EDIT_POST_REQUEST_CODE = 123;
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final String KEY_POSER = "com.planetpeopleplatform.freegan.key.poster";
+    private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.currentUser";
     private Post mPost = null;
     private User mPoster = null;
 
-    private String mChatMateId;
     private String mChatRoomId = null;
     private User mCurrentUser = null;
     private String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
+
+    @BindView(R.id.main_content)
+    CoordinatorLayout mCoordinatorLayout;
 
     @BindView(R.id.nestedViewPager)
     fr.castorflex.android.verticalviewpager.VerticalViewPager mNestedViewPager;
@@ -88,11 +91,12 @@ public class ProfileChildImagePagerFragment extends Fragment {
     public ProfileChildImagePagerFragment() {
     }
 
-    public static ProfileChildImagePagerFragment newInstance(Post post, User poster) {
+    public static ProfileChildImagePagerFragment newInstance(Post post, User poster, User currentUser) {
         ProfileChildImagePagerFragment fragment = new ProfileChildImagePagerFragment();
         Bundle argument = new Bundle();
         argument.putParcelable(KEY_POST_RES, post);
         argument.putParcelable(KEY_POSER, poster);
+        argument.putParcelable(KEY_CURRENT_USER, currentUser);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -104,11 +108,16 @@ public class ProfileChildImagePagerFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_image_pager, container, false);
         ButterKnife.bind(this, rootView);
 
-        mAuth = FirebaseAuth.getInstance();
-
         Bundle arguments = getArguments();
+        if (arguments == null) {
+            closeOnError(mCoordinatorLayout, getActivity());
+        }
+
         mPoster = arguments.getParcelable(KEY_POSER);
         mPost = arguments.getParcelable(KEY_POST_RES);
+        mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
+        mCurrentUserUid = mCurrentUser.getObjectId();
+
         String postDescription = mPost.getDescription();
 
         //        mOptionImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
@@ -117,11 +126,10 @@ public class ProfileChildImagePagerFragment extends Fragment {
         mNestedViewPager.setAdapter(new ProfileChildViewPagerAdaper(this, mPost));
 
         mTextView.setText(postDescription);
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
         if (mPost.getPostUserObjectId().equals(mCurrentUserUid)) {
             mContactButtonView.setVisibility(View.GONE);
         }
-        getCurrentUser(mCurrentUserUid);
+
         mOptionImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,11 +193,8 @@ public class ProfileChildImagePagerFragment extends Fragment {
             public void onClick(View view) {
 
                 final Intent intent = new Intent(getActivity(), MessageActivity.class);
-                mChatMateId = mPost.getPostUserObjectId();
-
 
                             if (!(mPoster.getObjectId().equals(mCurrentUserUid))) {
-
                                 if (mCurrentUser != null) {
                                     mChatRoomId = Utils.startChat(mCurrentUser, mPoster, mPost.getPostId());
 
@@ -236,12 +241,14 @@ public class ProfileChildImagePagerFragment extends Fragment {
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.action_edit_post:
+
                         Intent editPostActivityIntent = new Intent(getContext(), EditPostActivity.class);
                         Bundle argument = new Bundle();
                         argument.putParcelable(kPOST, mPost);
                         argument.putParcelable(kCURRENTUSER, mCurrentUser);
                         editPostActivityIntent.putExtra(kBUNDLE, argument);
                         startActivityForResult(editPostActivityIntent, EDIT_POST_REQUEST_CODE);
+
                         return true;
 
                     case R.id.action_share_post:
@@ -257,13 +264,24 @@ public class ProfileChildImagePagerFragment extends Fragment {
                         return true;
 
                     case R.id.action_block_user:
-                        ArrayList<String> blockedList = mPoster.getBlockedUsersList();
 
+                        ArrayList<String> blockedList = mPoster.getBlockedUsersList();
                         blockedList.add(mCurrentUserUid);
                         mPoster.addBlockedUser(mCurrentUserUid);
                         HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
                         newBlockedUser.put(kBLOCKEDUSER, blockedList);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser);
+                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                } else {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
 
                         return true;
 
@@ -271,12 +289,25 @@ public class ProfileChildImagePagerFragment extends Fragment {
                         ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
                         int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
                         mPoster.removeBlockedUser(mCurrentUserUid);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue();
+                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                } else {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
 
                         return true;
 
                     default:
-                        return false;
+
+                        return true;
                 }
             }
         });
@@ -300,24 +331,6 @@ public class ProfileChildImagePagerFragment extends Fragment {
                 mPost.getPostId(), kPOST, position);
         deleteDialog.show(getActivity().getSupportFragmentManager(), getString(R.string.delete_fragment_alert_tag));
 
-    }
-
-    private User getCurrentUser(String currentUserUid) {
-        firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        return mCurrentUser;
     }
 
     // insert data into database

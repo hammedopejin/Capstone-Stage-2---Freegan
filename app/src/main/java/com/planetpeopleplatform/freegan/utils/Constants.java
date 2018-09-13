@@ -48,6 +48,7 @@ public class Constants {
     public static final String kLIKE = "likes";
     public static final String kPOSTUSEROBJECTID = "postUserObjectId";
     public static final String kPOSTID = "postId";
+    public static final String kPOSTER = "poster";
     public static final String kPROFILEIMAGEURL = "profileImgUrl";
     public static final String kIMAGEURL = "imageUrl";
     public static final String kPOSTDATE = "postDate";

@@ -7,56 +7,62 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.fragment.ProfileGridFragment;
-import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.HashMap;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
-import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
 public class ProfileActivity extends AppCompatActivity implements DeleteDialogFragment.OnCompleteListener{
 
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
+    private static final String KEY_CURRENT_USER_ID = "com.planetpeopleplatform.freegan.key.currentUserUid";
+    private static final String KEY_POSTER_ID = "com.planetpeopleplatform.freegan.key.posterUid";
 
     private User mPoster = null;
+    private User mCurrentUser = null;
+    private String mCurrentUserUid = null;
     private String mPosterId;
+    private FirebaseAuth mAuth;
+    private ValueEventListener mPosterValueEventListener;
+    private ValueEventListener mCurrentUserValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        mAuth = FirebaseAuth.getInstance();
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
+            mCurrentUserUid = savedInstanceState.getString(KEY_CURRENT_USER_ID);
+            mPosterId = savedInstanceState.getString(KEY_POSTER_ID);
             // Return here to prevent adding additional GridFragments when changing orientation.
             return;
         }
 
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
         mPosterId = getIntent().getStringExtra(kPOSTERID);
-        getCurrentUser(mPosterId);
-
+        getCurrentUser(mCurrentUserUid);
 
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(KEY_CURRENT_POSITION, currentPosition);
+        outState.putString(KEY_CURRENT_USER_ID, mCurrentUserUid);
+        outState.putString(KEY_POSTER_ID, mPosterId);
         super.onSaveInstanceState(outState);
     }
 
@@ -91,26 +97,62 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private User getCurrentUser(String posterUserUid) {
-        firebase.child(kUSER).child(posterUserUid).addValueEventListener(new ValueEventListener() {
+    private void getCurrentUser(String currentUserUid) {
+        if(mCurrentUserValueEventListener == null) {
+            mCurrentUserValueEventListener = new ValueEventListener() {
 
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    fragmentManager
-                            .beginTransaction()
-                            .add(R.id.fragment_container, ProfileGridFragment.newInstance(mPoster), ProfileGridFragment.class.getSimpleName())
-                            .commit();
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                        getPoster(mPosterId);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
-        return mPoster;
+                }
+            };
+            firebase.child(kUSER).child(currentUserUid).addValueEventListener(mCurrentUserValueEventListener);
+        }
+    }
+
+    private void getPoster(String posterUserUid) {
+        if (mPosterValueEventListener == null) {
+            mPosterValueEventListener = new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()) {
+                        mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        fragmentManager
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, ProfileGridFragment.newInstance(mPoster, mCurrentUser), ProfileGridFragment.class.getSimpleName())
+                                .commit();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
+            firebase.child(kUSER).child(posterUserUid).addValueEventListener(mPosterValueEventListener);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (mPosterValueEventListener != null) {
+            firebase.child(kUSER).child(mPosterId).removeEventListener(mPosterValueEventListener);
+            mPosterValueEventListener = null;
+        }
+        if (mCurrentUserValueEventListener != null){
+            firebase.child(kUSER).child(mCurrentUserUid).removeEventListener(mCurrentUserValueEventListener);
+            mCurrentUserValueEventListener = null;
+        }
+        super.onPause();
     }
 }

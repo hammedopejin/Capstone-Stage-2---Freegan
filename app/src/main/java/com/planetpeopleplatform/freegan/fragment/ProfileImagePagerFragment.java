@@ -25,23 +25,24 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
-
 public class ProfileImagePagerFragment extends Fragment {
 
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
     private static final String KEY_POSTER = "com.planetpeopleplatform.freegan.key.poster";
+    private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.current_user";
     private ArrayList<Post> mListPosts =  new ArrayList<Post>();
     private User mPoster;
+    private User mCurrentUser;
     private ProfileImagePagerAdapter mProfileImagePagerAdapter;
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
 
-    public static ProfileImagePagerFragment newInstance(ArrayList<Post> listPosts, User poster) {
+    public static ProfileImagePagerFragment newInstance(ArrayList<Post> listPosts, User poster, User currentUser) {
         ProfileImagePagerFragment fragment = new ProfileImagePagerFragment();
         Bundle argument = new Bundle();
         argument.putParcelableArrayList(KEY_ARRAY_LIST, listPosts);
         argument.putParcelable(KEY_POSTER, poster);
+        argument.putParcelable(KEY_CURRENT_USER, currentUser);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -56,8 +57,9 @@ public class ProfileImagePagerFragment extends Fragment {
         Bundle arguments = getArguments();
         mListPosts = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
         mPoster = arguments.getParcelable(KEY_POSTER);
+        mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
 
-        mProfileImagePagerAdapter = new ProfileImagePagerAdapter(this, mListPosts, mPoster);
+        mProfileImagePagerAdapter = new ProfileImagePagerAdapter(this, mListPosts, mPoster, mCurrentUser);
         mViewPager.setAdapter(mProfileImagePagerAdapter);
 
         // Set the current position and add a listener that will update the selection coordinator when

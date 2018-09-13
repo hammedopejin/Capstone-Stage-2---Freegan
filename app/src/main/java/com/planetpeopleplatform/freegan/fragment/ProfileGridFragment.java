@@ -5,10 +5,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,10 +20,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -47,6 +48,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class ProfileGridFragment extends Fragment {
 
@@ -54,12 +56,14 @@ public class ProfileGridFragment extends Fragment {
 
     private Fragment mFragment = null;
     public String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
 
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
-    public User mPoster = null;
+    private User mPoster = null;
+    private User mCurrentUser = null;
 
-    private static final String KEY_POSTER_UID = "com.planetpeopleplatform.freegan.key.posterUid";
+
+    private static final String KEY_POSTER = "com.planetpeopleplatform.freegan.key.poster";
+    private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.current_user";
 
     @BindView(R.id.profile_image_view)
     de.hdodenhof.circleimageview.CircleImageView mProfileImageView;
@@ -73,16 +77,20 @@ public class ProfileGridFragment extends Fragment {
     @BindView(R.id.back_arrow)
     ImageButton mBackArrow;
 
+    @BindView(R.id.fragment_container)
+    CoordinatorLayout mCoordinatorLayout;
+
     @BindView(R.id.collapsing_toolbar)
     android.support.design.widget.CollapsingToolbarLayout mCollapsingToolbarLayout;
 
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
 
-    public static ProfileGridFragment newInstance(User user) {
+    public static ProfileGridFragment newInstance(User poster, User currentUser) {
         ProfileGridFragment fragment = new ProfileGridFragment();
         Bundle argument = new Bundle();
-        argument.putParcelable(KEY_POSTER_UID, user);
+        argument.putParcelable(KEY_POSTER, poster);
+        argument.putParcelable(KEY_CURRENT_USER, currentUser);
         fragment.setArguments(argument);
         return fragment;
     }
@@ -95,10 +103,13 @@ public class ProfileGridFragment extends Fragment {
         ButterKnife.bind(this, rootView);
 
         Bundle arguments = getArguments();
-        mPoster = arguments.getParcelable(KEY_POSTER_UID);
+        if (arguments == null) {
+            closeOnError(mCoordinatorLayout, getActivity());
+        }
+        mPoster = arguments.getParcelable(KEY_POSTER);
+        mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
 
         mFragment = this;
-        mAuth = FirebaseAuth.getInstance();
 
         prepareTransitions();
         postponeEnterTransition();
@@ -118,7 +129,7 @@ public class ProfileGridFragment extends Fragment {
                 getActivity().onBackPressed();
             }
         });
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        mCurrentUserUid = mCurrentUser.getObjectId();
         mSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -219,7 +230,7 @@ public class ProfileGridFragment extends Fragment {
                         mListPosts.add(new Post(post));
                     }
 
-                    mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster));
+                    mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster, mCurrentUser));
 
                 }catch (Exception e){
                     Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
@@ -251,25 +262,50 @@ public class ProfileGridFragment extends Fragment {
                         return true;
 
                     case R.id.action_block_user:
+
                         ArrayList<String> blockedList = mPoster.getBlockedUsersList();
                         blockedList.add(mCurrentUserUid);
                         mPoster.addBlockedUser(mCurrentUserUid);
                         HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
                         newBlockedUser.put(kBLOCKEDUSER, blockedList);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser);
+                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                } else {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
 
                         return true;
 
                     case R.id.action_unblock_user:
+
                         ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
                         int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
                         mPoster.removeBlockedUser(mCurrentUserUid);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue();
+                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                } else {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
 
                         return true;
 
                         default:
-                            return false;
+                            return true;
                 }
             }
         });

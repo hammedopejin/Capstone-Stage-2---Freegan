@@ -121,8 +121,6 @@ public class MainChildImagePagerFragment extends Fragment {
         mPost = arguments.getParcelable(KEY_POST_RES);
         String postDescription = mPost.getDescription();
 
-        //Log.d("TAGGGG", "onCreateView: " + mPost.getImageUrl().toString());
-
         mMainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
         mNestedViewPager.setAdapter(mMainChildViewPagerAdapter);
 

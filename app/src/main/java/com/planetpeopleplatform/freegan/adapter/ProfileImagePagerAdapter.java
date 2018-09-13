@@ -13,12 +13,14 @@ public class ProfileImagePagerAdapter extends FragmentStatePagerAdapter {
 
     private ArrayList<Post> listPosts;
     private User mPoster;
+    private User mCurrentUser;
 
-    public ProfileImagePagerAdapter(Fragment fragment, ArrayList<Post> listPosts, User poster) {
+    public ProfileImagePagerAdapter(Fragment fragment, ArrayList<Post> listPosts, User poster, User currentUser) {
         // Note: Initialize with the child fragment manager.
         super(fragment.getChildFragmentManager());
         this.listPosts =  listPosts;
         this.mPoster = poster;
+        this.mCurrentUser = currentUser;
     }
 
     @Override
@@ -28,6 +30,6 @@ public class ProfileImagePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return ProfileChildImagePagerFragment.newInstance(listPosts.get(position), mPoster);
+        return ProfileChildImagePagerFragment.newInstance(listPosts.get(position), mPoster, mCurrentUser);
     }
 }

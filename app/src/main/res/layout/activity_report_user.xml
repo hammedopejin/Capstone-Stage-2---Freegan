@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordinator_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.planetpeopleplatform.freegan.activity.ReportUserActivity">
+
+
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/report_description_edit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="@dimen/general_layout_margin"
+            android:layout_marginLeft="@dimen/general_layout_margin"
+            android:layout_marginRight="@dimen/general_layout_margin"
+            android:layout_marginStart="@dimen/general_layout_margin"
+            android:layout_marginTop="@dimen/post_activity_edit_text_margin_top"
+            android:hint="@string/enter_report_description"
+            android:inputType="textLongMessage"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/report_user_button"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginEnd="@dimen/general_layout_margin"
+            android:layout_marginLeft="@dimen/general_layout_margin"
+            android:layout_marginRight="@dimen/general_layout_margin"
+            android:layout_marginStart="@dimen/general_layout_margin"
+            android:layout_marginTop="@dimen/general_layout_margin"
+            android:background="@drawable/round_corner_button"
+            android:text="@string/post_string"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/report_description_edit_text" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <!-- A progress bar that will be shown to users to indicate that movies data is loading -->
+    <ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        android:layout_width="@dimen/progressbar_size"
+        android:layout_height="@dimen/progressbar_size"
+        android:layout_gravity="center"
+        android:visibility="invisible" />
+
+</android.support.design.widget.CoordinatorLayout>

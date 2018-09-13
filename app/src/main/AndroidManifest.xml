@@ -66,6 +66,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <activity android:name=".activity.ReportUserActivity"></activity>
     </application>
 
 </manifest>
