@@ -176,6 +176,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_POST_ITEM && data != null && resultCode == RESULT_OK) {
             checkPosts();
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_post_upload_successful, Snackbar.LENGTH_SHORT).show();
         }
     }
 

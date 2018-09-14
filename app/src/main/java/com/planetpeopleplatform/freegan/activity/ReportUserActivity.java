@@ -26,23 +26,23 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kREPORTDATE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kREPORTMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTYPE;
-import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class ReportUserActivity extends AppCompatActivity {
-
-    private static final String TAG = PostActivity.class.getSimpleName();
 
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
@@ -71,23 +71,22 @@ public class ReportUserActivity extends AppCompatActivity {
             mPoster = savedInstanceState.getParcelable(kPOSTER);
 
         } else {
-            Intent intent = getIntent();
-
-            if (intent == null) {
+            Bundle argument = getIntent().getBundleExtra(kBUNDLE);
+            if (argument == null) {
                 closeOnError(mCoordinatorLayout, this);
             }
-            mCurrentUser = intent.getParcelableExtra(kCURRENTUSER);
-            mPoster = intent.getParcelableExtra(kPOSTER);
+            mCurrentUser = argument.getParcelable(kCURRENTUSER);
+            mPoster = argument.getParcelable(kPOSTER);
         }
 
-        mReportDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
+        mReportDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(120)});
         mReportUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String description = mReportDescriptionEditText.getText().toString();
                 if(description.equals("")){
                     Snackbar.make(mCoordinatorLayout,
-                            R.string.err_description_missing_string, Snackbar.LENGTH_SHORT).show();
+                            R.string.alert_reason_for_report_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
                 postToFirebase();
@@ -102,43 +101,30 @@ public class ReportUserActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    private void postToFirebase() {
+        showLoading();
+        final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
+        final Date dataobj= new Date();
 
+        DatabaseReference reference = firebase.child(kREPORTMESSAGE).push();
+        String messageId = reference.getKey();
 
+        HashMap<String, Object> message = new HashMap<String, Object>();
 
-        private void postToFirebase() {
+        message.put(kMESSAGE, mReportDescriptionEditText.getText().toString() );
+        message.put(kMESSAGEID, messageId);
+        message.put(kSENDERID, mCurrentUser.getObjectId());
+        message.put(kSENDERNAME, mCurrentUser.getUserName());
+        message.put(kPOSTERID, mPoster.getObjectId());
+        message.put(kPOSTERNAME, mPoster.getUserName());
+        message.put(kREPORTDATE, sfd.format(dataobj));
+        message.put(kTYPE, kTYPE);
 
-            if (mCurrentUser.getLatitude() == null){
-                Snackbar.make(mCoordinatorLayout,
-                        R.string.alert_location_missing_string, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
+        mReportDescriptionEditText.getText().clear();
+        mReportDescriptionEditText.clearFocus();
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-            final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
-            final Date dataobj= new Date();
-
-
-            showLoading();
-
-
-                        DatabaseReference reference = firebase.child(kMESSAGE).push();
-                        String messageId = reference.getKey();
-
-                        HashMap<String, Object> message = new HashMap<String, Object>();
-
-            message.put(kMESSAGE, mReportDescriptionEditText.getText().toString() );
-            message.put((kMESSAGEID), messageId);
-            message.put(kSENDERID, mCurrentUser.getObjectId());
-            message.put(kSENDERNAME, mCurrentUser.getUserName());
-            message.put(kPOSTDATE, sfd.format(dataobj));
-            message.put(kTYPE, "type");
-
-            mReportDescriptionEditText.getText().clear();
-            mReportDescriptionEditText.clearFocus();
-
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-
-            reference.setValue(message).addOnCompleteListener(new OnCompleteListener<Void>() {
+        reference.setValue(message).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
@@ -164,6 +150,6 @@ public class ReportUserActivity extends AppCompatActivity {
             mReportUserButton.setVisibility(View.INVISIBLE);
             /* Finally, show the loading indicator */
             mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+    }
 }
 

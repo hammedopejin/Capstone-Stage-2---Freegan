@@ -173,6 +173,7 @@
     <string name="err_user_block_failed_string">Error blocking user! Try again.</string>
     <string name="alert_user_unblocked_successfully_string">User successfully unblocked!</string>
     <string name="err_user_unblock_failed_string">Error unblocking user! Try again.</string>
+    <string name="alert_reason_for_report_missing_string">Reason for reporting user missing.</string>
 
 
 </resources>

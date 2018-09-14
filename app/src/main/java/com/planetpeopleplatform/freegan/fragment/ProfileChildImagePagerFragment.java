@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.Task;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.EditPostActivity;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
+import com.planetpeopleplatform.freegan.activity.ReportUserActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileChildViewPagerAdaper;
 import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
@@ -51,12 +52,14 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class ProfileChildImagePagerFragment extends Fragment {
 
     private static final int EDIT_POST_REQUEST_CODE = 123;
+    private static final int REPORT_USER_REQUEST_CODE = 234;
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final String KEY_POSER = "com.planetpeopleplatform.freegan.key.poster";
     private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.currentUser";
@@ -217,9 +220,20 @@ public class ProfileChildImagePagerFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == EDIT_POST_REQUEST_CODE && resultCode ==RESULT_OK){
-            getActivity().onBackPressed();
-            getActivity().getSupportFragmentManager().popBackStack();
+        if (data != null && resultCode == RESULT_OK) {
+
+
+            if (requestCode == EDIT_POST_REQUEST_CODE) {
+                getActivity().onBackPressed();
+                getActivity().getSupportFragmentManager().popBackStack();
+                Snackbar.make(mCoordinatorLayout,
+                        R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
+
+            } else if (requestCode == REPORT_USER_REQUEST_CODE) {
+                Snackbar.make(mCoordinatorLayout,
+                        R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
+
+            }
         }
     }
 
@@ -261,6 +275,12 @@ public class ProfileChildImagePagerFragment extends Fragment {
                         return true;
 
                     case R.id.action_report_user:
+                        Intent reportUserIntent = new Intent(getContext(), ReportUserActivity.class);
+                        Bundle data = new Bundle();
+                        data.putParcelable(kCURRENTUSER, mCurrentUser);
+                        data.putParcelable(kPOSTER, mPoster);
+                        reportUserIntent.putExtra(kBUNDLE, data);
+                        startActivityForResult(reportUserIntent, REPORT_USER_REQUEST_CODE);
                         return true;
 
                     case R.id.action_block_user:
@@ -307,7 +327,7 @@ public class ProfileChildImagePagerFragment extends Fragment {
 
                     default:
 
-                        return true;
+                        return false;
                 }
             }
         });

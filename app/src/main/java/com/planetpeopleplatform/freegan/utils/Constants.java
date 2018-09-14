@@ -49,6 +49,7 @@ public class Constants {
     public static final String kPOSTUSEROBJECTID = "postUserObjectId";
     public static final String kPOSTID = "postId";
     public static final String kPOSTER = "poster";
+    public static final String kPOSTERNAME = "posterName";
     public static final String kPROFILEIMAGEURL = "profileImgUrl";
     public static final String kIMAGEURL = "imageUrl";
     public static final String kPOSTDATE = "postDate";
@@ -72,14 +73,19 @@ public class Constants {
     public static final String kWITHUSERUSERNAME = "withUserUserName";
     public static final String kWITHUSERUSERID = "withUserUserID";
     public static final String kOWNERID = "ownerID";
-    public static final String kSTATUS = "status";
-    public static final String kMESSAGE = "message";
-    public static final String kMESSAGEID = "messageId";
+
     public static final String kNAME = "name";
     public static final String kSENDERID = "senderId";
     public static final String kSENDERNAME = "senderName";
     public static final String kTHUMBNAIL = "thumbnail";
     public static final String kCURRENTUSERID = "currentUserUid";
+
+    //Message
+    public static final String kSTATUS = "status";
+    public static final String kMESSAGE = "message";
+    public static final String kMESSAGEID = "messageId";
+    public static final String kREPORTMESSAGE = "reportMessages";
+
 
     //Friends
     public static final String kFRIEND = "friends";
@@ -104,9 +110,12 @@ public class Constants {
     public static final String kPOSTERID = "posterId";
 
     //SharedPreferences
-    public static final String SORT_BY = "sortBy";
+    public static final String kSORT_BY = "sortBy";
 
     //JSON KEY
     public static final String JSONARRAYKEY = "uniqueArrays";
+
+    //Report
+    public static final String kREPORTDATE = "reportDate";
 
 }

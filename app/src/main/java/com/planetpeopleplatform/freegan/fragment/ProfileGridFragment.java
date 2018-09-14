@@ -29,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
+import com.planetpeopleplatform.freegan.activity.ReportUserActivity;
 import com.planetpeopleplatform.freegan.activity.SettingsActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
@@ -42,10 +43,15 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.app.Activity.RESULT_OK;
 import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
@@ -53,6 +59,7 @@ import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 public class ProfileGridFragment extends Fragment {
 
     private static final String TAG = ProfileGridFragment.class.getSimpleName();
+    private static final int REPORT_USER_REQUEST_CODE = 234;
 
     private Fragment mFragment = null;
     public String mCurrentUserUid = null;
@@ -258,7 +265,12 @@ public class ProfileGridFragment extends Fragment {
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.action_report_user:
-
+                        Intent reportUserIntent = new Intent(getContext(), ReportUserActivity.class);
+                        Bundle data = new Bundle();
+                        data.putParcelable(kCURRENTUSER, mCurrentUser);
+                        data.putParcelable(kPOSTER, mPoster);
+                        reportUserIntent.putExtra(kBUNDLE, data);
+                        startActivityForResult(reportUserIntent, REPORT_USER_REQUEST_CODE);
                         return true;
 
                     case R.id.action_block_user:
@@ -330,5 +342,13 @@ public class ProfileGridFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (data != null && resultCode == RESULT_OK) {
+
+            if (requestCode == REPORT_USER_REQUEST_CODE) {
+                Snackbar.make(mCoordinatorLayout,
+                        R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
+
+            }
+        }
     }
 }
