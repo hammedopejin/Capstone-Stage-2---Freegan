@@ -5,35 +5,49 @@
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
 
 
-    <Preference android:title="Profile Photo"
+    <Preference android:title="@string/profile_photo_string"
         android:key="@string/user_profile_image_key"
         android:summary=""
         android:icon="@android:drawable/ic_menu_gallery" />
-    <Preference android:title="User Name"
+    <Preference android:title="@string/user_name_string"
         android:key="@string/user_name_key"
         android:summary=""
         android:icon="@android:drawable/ic_menu_sort_alphabetically" />
-    <Preference android:title="Email"
+    <Preference android:title="@string/email_string"
         android:key="@string/user_email_key"
         android:summary=""
         android:icon="@android:drawable/sym_action_email" />
-    <Preference android:title="Password"
+    <Preference android:title="@string/password_string"
         android:key="@string/user_password_key"
         android:summary=""
         android:icon="@android:drawable/ic_lock_lock" />
-    <Preference android:title="Location"
+    <Preference android:title="@string/location_string"
         android:key="@string/user_location_key"
         android:summary=""
         android:icon="@android:drawable/ic_menu_mylocation" />
 
+    <Preference android:title=""
+        android:summary="" />
 
+    <Preference android:title="@string/help_string"
+        android:summary=""
+        android:icon="@android:drawable/ic_menu_help"/>
 
+    <Preference android:title="@string/terms_and_conditions_string"
+        android:key="@string/terms_and_conditions_key"
+        android:summary=""
+        android:icon="@android:drawable/ic_menu_info_details"/>
 
+    <Preference android:title="@string/privacy_policy_string"
+        android:key="@string/privacy_policy_key"
+        android:summary=""
+        android:icon="@android:drawable/ic_menu_preferences"/>
 
-    <Preference android:title="Log Out"
+    <Preference android:title="@string/log_out_string"
         android:key="@string/logout_button_key"
         android:summary=""
         android:icon="@android:drawable/ic_lock_power_off"/>
+
 
 
 </PreferenceScreen>

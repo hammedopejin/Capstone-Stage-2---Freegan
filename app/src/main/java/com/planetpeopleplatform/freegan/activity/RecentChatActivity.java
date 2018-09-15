@@ -300,7 +300,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                 .into((de.hdodenhof.circleimageview.CircleImageView) itemView.findViewById(R.id.img_recent_user));
 
                         Glide.with(getApplicationContext())
-                                .load(post.getImageUrl())
+                                .load(post.getImageUrl().get(0))
                                 .listener(new RequestListener<Drawable>() {
                                     @Override
                                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>

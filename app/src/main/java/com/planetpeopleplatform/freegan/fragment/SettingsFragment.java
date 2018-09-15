@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
+import com.planetpeopleplatform.freegan.activity.PrivacyPolicyActivity;
+import com.planetpeopleplatform.freegan.activity.TermsAndConditionsActivity;
 import com.planetpeopleplatform.freegan.activity.UpdateEmailActivity;
 import com.planetpeopleplatform.freegan.activity.UpdatePasswordActivity;
 import com.planetpeopleplatform.freegan.activity.UpdateUserNameActivity;
@@ -197,6 +199,28 @@ public class SettingsFragment extends PreferenceFragmentCompat
                         }else {
                             addNewLocation();
                         }
+
+                        return true;
+                    }
+                });
+
+        findPreference(getString(R.string.privacy_policy_key))
+                .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                       Intent privacyPolicyIntent = new Intent(getContext(), PrivacyPolicyActivity.class);
+                       getActivity().startActivity(privacyPolicyIntent);
+
+                        return true;
+                    }
+                });
+
+        findPreference(getString(R.string.terms_and_conditions_key))
+                .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent termsAndConditionsIntent = new Intent(getContext(), TermsAndConditionsActivity.class);
+                        getActivity().startActivity(termsAndConditionsIntent);
 
                         return true;
                     }

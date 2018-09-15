@@ -127,17 +127,23 @@ public class EditPostActivity extends AppCompatActivity
         mPost = argument.getParcelable(kPOST);
         mItemDescriptionEditText.setText(mPost.getDescription());
 
+        int photoSize = mPost.getImageUrl().size();
+
+        for (int i = photoSize; i < 4; i++) {
+            mPost.getImageUrl().add(i, "placeHolder");
+        }
+
         Glide.with(this).load(mPost.getImageUrl().get(0)).into(mItemPhotoFrame1);
         mPostDownloadURLs.add(0, mPost.getImageUrl().get(0));
-        if(mPost.getImageUrl().size() > 1) {
+        if(!(mPost.getImageUrl().get(1).equals("placeHolder"))) {
             Glide.with(this).load(mPost.getImageUrl().get(1)).into(mItemPhotoFrame2);
             mPostDownloadURLs.add(1, mPost.getImageUrl().get(1));
         }
-        if(mPost.getImageUrl().size() > 2) {
+        if(!(mPost.getImageUrl().get(2).equals("placeHolder"))) {
             Glide.with(this).load(mPost.getImageUrl().get(2)).into(mItemPhotoFrame3);
             mPostDownloadURLs.add(2, mPost.getImageUrl().get(2));
         }
-        if(mPost.getImageUrl().size() > 3) {
+        if(!(mPost.getImageUrl().get(3).equals("placeHolder"))) {
             Glide.with(this).load(mPost.getImageUrl().get(3)).into(mItemPhotoFrame4);
             mPostDownloadURLs.add(3, mPost.getImageUrl().get(3));
         }
@@ -219,7 +225,7 @@ public class EditPostActivity extends AppCompatActivity
                             R.string.err_description_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                postIt();
+                postToFirebase();
             }
         });
 
@@ -253,7 +259,6 @@ public class EditPostActivity extends AppCompatActivity
 
 
             mTempImg.setBackgroundResource(R.color.transparent);
-            postToFirebase();
 
 
 
@@ -279,7 +284,6 @@ public class EditPostActivity extends AppCompatActivity
                     .into(mTempImg);
 
             mTempImg.setBackgroundResource(R.color.transparent);
-            postToFirebase();
 
         } else if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
             if (resultCode == RESULT_CANCELED) {
@@ -384,40 +388,55 @@ public class EditPostActivity extends AppCompatActivity
 
             final StorageReference imageRef = storageRef.child("post_pics/"+imagePath );
 
-            // Upload file to Firebase Storage
-            imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                @Override
-                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                    if (!task.isSuccessful()) {
-                        throw task.getException();
-                    }
-                    return imageRef.getDownloadUrl();
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        Uri downloadUri = task.getResult();
-                        mPostDownloadURL = downloadUri.toString();
-                        mPostDownloadURLs.add(mCurrentIndex, mPostDownloadURL);
-
-                        if (!mNewImageSelected) {
-                            firebase.child(kPOST).child(mPost.getPostId()).child(kIMAGEURL).child(String.valueOf(mCurrentIndex)).removeValue();
-                            StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
-                            toDelete.delete();
+            if (!(mSelectedImageUri == (null))) {
+                // Upload file to Firebase Storage
+                imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
                         }
-
-                    } else {
-                        mLoadingIndicator.setVisibility(View.INVISIBLE);
-                        Snackbar.make(mCoordinatorLayout,
-                                R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
+                        return imageRef.getDownloadUrl();
                     }
-                }
-            });
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            mPostDownloadURL = downloadUri.toString();
+                            mPostDownloadURLs.add(mPostDownloadURL);
+
+                            if (!mNewImageSelected) {
+                                firebase.child(kPOST).child(mPost.getPostId()).child(kIMAGEURL).child(String.valueOf(mCurrentIndex)).removeValue();
+                                StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
+                                toDelete.delete();
+                            }
+                            postIt();
+                        } else {
+                            mLoadingIndicator.setVisibility(View.INVISIBLE);
+                            Snackbar.make(mCoordinatorLayout,
+                                    R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }else {
+                postIt();
+            }
     }
 
     private void postIt(){
+        ArrayList postDownloadURLs = new ArrayList<String>(4);
+        for (int i = 0; i < mPostDownloadURLs.size(); i++){
+            if (mPostDownloadURLs.get(i) != null) {
+                postDownloadURLs.add(mPostDownloadURLs.get(i));
+            }
+        }
+        mPostDownloadURLs.clear();
+        for (int i = 0; i < postDownloadURLs.size(); i++){
+            mPostDownloadURLs.add(i, postDownloadURLs.get(i));
+        }
+        postDownloadURLs.clear();
 
         SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
         DatabaseReference reference = firebase.child(kPOST).child(mPost.getPostId());
@@ -438,6 +457,7 @@ public class EditPostActivity extends AppCompatActivity
                 R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
 
         finish();
+
     }
 
     private void editPostPicture(String position, int flag) {
@@ -457,6 +477,7 @@ public class EditPostActivity extends AppCompatActivity
         } else if (source == 3){
             StorageReference toDelete = storage.getReferenceFromUrl(mPost.getImageUrl().get(mCurrentIndex));
             toDelete.delete();
+            mPostDownloadURLs.remove(mCurrentIndex);
             mTempImg.setBackground(getResources().getDrawable(R.color.cardview_dark_background));
             mTempImg.setImageDrawable(null);
         }

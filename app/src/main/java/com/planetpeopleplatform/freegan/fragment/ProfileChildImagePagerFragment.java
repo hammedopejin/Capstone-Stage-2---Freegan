@@ -220,11 +220,11 @@ public class ProfileChildImagePagerFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (data != null && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
 
 
             if (requestCode == EDIT_POST_REQUEST_CODE) {
-                getActivity().onBackPressed();
+                getActivity().finish();
                 getActivity().getSupportFragmentManager().popBackStack();
                 Snackbar.make(mCoordinatorLayout,
                         R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();

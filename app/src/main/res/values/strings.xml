@@ -4,11 +4,17 @@
 
     <string name="add_a_caption">Add a caption</string>
 
+    <string name="google_link">http://www.google.com</string>
+
 
     <string name="type_msg">Type message</string>
 
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
+
+    <string name="no_favorites_saved">No favorite saved yet</string>
+    <string name="action_unblock_user">Unblock user</string>
+    <string name="enter_report_description">Enter report description</string>
 
     <string name="or">or</string>
     <string name="email">Email</string>
@@ -44,6 +50,10 @@
     <string name="user_email_key">User Email Key</string>
     <string name="user_password_key">User Password Key</string>
     <string name="user_location_key">User Location Key</string>
+    <string name="privacy_policy_key">Privacy Policy Key</string>
+    <string name="terms_and_conditions_key">Terms And Conditions key</string>
+
+    <string name="terms_and_conditions_string">Terms and Conditions</string>
 
     <!-- Example settings for Notifications -->
     <string name="pref_header_notifications">Notifications</string>
@@ -99,37 +109,18 @@
 
     <string name="delete_message">Are you sure you want to delete?</string>
     <string name="chats_title">Chats</string>
-    <string name="choose_fragment_alert_tag">Choose fragment alert</string>
-    <string name="delete_fragment_alert_tag">Delete fragment alert</string>
+
     <string name="attention_alert_title">ATTENTION !!!</string>
     <string name="title_string">title</string>
-    <string name="class_cast_exception_string">must implement OnCompleteListener</string>
-    <string name="capital_yes_string">YES</string>
+    <string name="class_cast_exception_string">Must implement OnCompleteListener</string>
+    <string name="capital_yes_string">Yes</string>
     <string name="capital_no_string">Cancel</string>
-    <string name="error_decrypting_string">error decrypting</string>
+
     <string name="source_string">source</string>
-    <string name="err_image_missing_string">An image must be selected</string>
-    <string name="err_description_missing_string">Item must have description</string>
-    <string name="alert_complete_action_using_string">Complete action using</string>
-    <string name="alert_location_missing_string">Location needed to make post!</string>
-    <string name="alert_permission_needed_string">Permission needed to complete action</string>
+
+
     <string name="post_string">Post</string>
-    <string name="err_location_saving_string">There was an error saving the location to GeoFire:</string>
-    <string name="alert_post_upload_successful">Post uploaded successfully!</string>
-    <string name="err_post_upload_fail_string">Post upload failed:</string>
-    <string name="err_message_sending_failed_string">Message failed to send!</string>
-    <string name="alert_successfully_uploaded_photo_string">Successfully uploaded new photo!</string>
-    <string name="err_upload_failed_string">upload failed</string>
-    <string name="alert_all_text_field_must_be_entered_string">All text fields must be entered properly!</string>
-    <string name="err_registration_failed_string">Registration failed</string>
-    <string name="err_login_failed_string">login failed</string>
-    <string name="alert_email_successfully_updated_string">Email successfully updated!</string>
-    <string name="err_email_failed_to_update_string">Email failed to update!!!</string>
-    <string name="err_password_must_match_string">Password must match!</string>
-    <string name="alert_password_successfully_updated_string">Password successfully updated!</string>
-    <string name="err_password_failed_to_update_string">Password failed to update!</string>
-    <string name="alert_username_successfully_updated_string">Username successfully updated!</string>
-    <string name="err_username_failed_to_update_string">Username failed to update!</string>
+
     <string name="camera_string">Camera</string>
     <string name="gallery_string">Gallery</string>
     <string name="alert_location_successfully_updated_string">Location successfully updated</string>
@@ -149,14 +140,14 @@
     <string name="action_report_user">Report User</string>
     <string name="update_button_text">Update</string>
     <string name="save_changes_string">Save changes</string>
-    <string name="alert_post_update_successful">Post update was successful!</string>
+
     <string name="delete_string">Delete</string>
     <string name="edit_post_title">Edit post</string>
-    <string name="alert_at_least_one_image_needed_string">At least one image is needed for this post!</string>
+
+    <!-- Description strings  -->
     <string name="back_arrow_description_string">Back arrow to navigate back to previous screen</string>
     <string name="favorite_button_description_string">Star button to mark a post item as favorite and store for future view.</string>
-    <string name="com_planetpeopleplatform_freegan_preference_favorite_file_key">favorite</string>
-    <string name="err_data_not_available_string">Data not available!</string>
+
 
     <!-- Key name for sorting type in SharedPreferences -->
     <string name="pref_sort_list_key" translatable="false">pref_sort</string>
@@ -164,16 +155,56 @@
     <string name="action_sort_by">Sort by</string>
     <string name="action_sort_by_all_post">All</string>
     <string name="action_sort_by_favorite_post">Favorites</string>
-    <string name="no_favorites_saved">No favorite saved yet</string>
-    <string name="alert_blocked_user_string">Chat blocked by participant!</string>
-    <string name="action_unblock_user">Unblock user</string>
-    <string name="enter_report_description">Enter report description</string>
+
+    <string name="com_planetpeopleplatform_freegan_preference_favorite_file_key">favorite</string>
+
+
+    <!-- Settings strings  -->
+    <string name="help_string">Help</string>
+    <string name="privacy_policy_string">Privacy Policy</string>
+    <string name="log_out_string">Log out</string>
+    <string name="location_string">Location</string>
+    <string name="password_string">Password</string>
+    <string name="email_string">Email</string>
+    <string name="user_name_string">User name</string>
+    <string name="profile_photo_string">Profile photo</string>
+
+    <!-- Alerts and error messages  -->
+    <string name="alert_reason_for_report_missing_string">Reason for reporting user missing.</string>
+    <string name="alert_user_unblocked_successfully_string">User successfully unblocked!</string>
     <string name="alert_message_sent_successfully">Message sent successfully!</string>
     <string name="alert_user_blocked_successfully_string">User blocked successfully</string>
+    <string name="alert_blocked_user_string">Chat blocked by participant!</string>
+    <string name="alert_post_update_successful">Post update was successful!</string>
+    <string name="alert_at_least_one_image_needed_string">At least one image is needed for this post!</string>
+    <string name="alert_complete_action_using_string">Complete action using</string>
+    <string name="alert_location_missing_string">Location needed to make post!</string>
+    <string name="alert_permission_needed_string">Permission needed to complete action</string>
+    <string name="alert_all_text_field_must_be_entered_string">All text fields must be entered properly!</string>
+    <string name="alert_post_upload_successful">Post uploaded successfully!</string>
+    <string name="alert_successfully_uploaded_photo_string">Successfully uploaded new photo!</string>
+    <string name="alert_email_successfully_updated_string">Email successfully updated!</string>
+    <string name="alert_password_successfully_updated_string">Password successfully updated!</string>
+    <string name="alert_username_successfully_updated_string">Username successfully updated!</string>
+    <string name="choose_fragment_alert_tag">Choose fragment alert</string>
+    <string name="delete_fragment_alert_tag">Delete fragment alert</string>
+
     <string name="err_user_block_failed_string">Error blocking user! Try again.</string>
-    <string name="alert_user_unblocked_successfully_string">User successfully unblocked!</string>
     <string name="err_user_unblock_failed_string">Error unblocking user! Try again.</string>
-    <string name="alert_reason_for_report_missing_string">Reason for reporting user missing.</string>
+    <string name="err_data_not_available_string">Data not available!</string>
+    <string name="err_username_failed_to_update_string">Username failed to update!</string>
+    <string name="err_email_failed_to_update_string">Email failed to update!</string>
+    <string name="err_password_must_match_string">Password must match!</string>
+    <string name="err_registration_failed_string">Registration failed</string>
+    <string name="err_login_failed_string">login failed</string>
+    <string name="err_post_upload_fail_string">Post upload failed:</string>
+    <string name="err_message_sending_failed_string">Message failed to send!</string>
+    <string name="err_image_missing_string">An image must be selected</string>
+    <string name="err_description_missing_string">Item must have description</string>
+    <string name="err_location_saving_string">There was an error saving the location to GeoFire:</string>
+    <string name="err_upload_failed_string">upload failed</string>
+    <string name="err_password_failed_to_update_string">Password failed to update!</string>
+    <string name="error_decrypting_string">Error decrypting</string>
 
 
 </resources>
