@@ -78,7 +78,6 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
             alertDialogBuilder.setNeutralButton(R.string.delete_string, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    firebase.child(mChildRef).child(mKey).child(kIMAGEURL).child(mPosition).removeValue();
                     mListener.onComplete(3);
                 }
             });
