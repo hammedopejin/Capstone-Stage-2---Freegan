@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -34,13 +35,16 @@ import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ChoosePictureSourceDialogFragment;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.zelory.compressor.Compressor;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
@@ -68,6 +72,8 @@ import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 public class SettingsActivity extends AppCompatActivity
         implements ChoosePictureSourceDialogFragment.OnCompleteListener {
 
+    private static final String TAG = SettingsActivity.class.getSimpleName();
+
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
     private static final int RC_TAKE_CAMERA_PHOTO_CODE = 100;
@@ -75,6 +81,7 @@ public class SettingsActivity extends AppCompatActivity
 
     private String mPostDownloadURL;
     private Uri mSelectedImageUri = null;
+    private File mCompressedImageFile = null;
     private User mCurrentUser;
     private String mCurrentUserUid;
     private FirebaseAuth mAuth;
@@ -91,6 +98,12 @@ public class SettingsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
+
+        destFile = getOutputMediaFile(this);
+        mSelectedImageUri = FileProvider.getUriForFile(
+                this,
+                "com.planetpeopleplatform.freegan.provider",
+                destFile);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -136,6 +149,18 @@ public class SettingsActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
+
+            try {
+                destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
+            } catch (NullPointerException ex){
+                try {
+                    destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
+
+                } catch (NullPointerException e){
+                    Log.d(TAG, "onActivityResult: Image from unrecognized source!!");
+                }
+            }
+
             postPictureToFirebase();
 
         } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
@@ -163,12 +188,6 @@ public class SettingsActivity extends AppCompatActivity
                         ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                    destFile = getOutputMediaFile(this);
-                    mSelectedImageUri = FileProvider.getUriForFile(
-                            this,
-                            "com.planetpeopleplatform.freegan.provider",
-                            destFile);
 
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
                     startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
@@ -207,6 +226,13 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     private void postPictureToFirebase() {
+
+        try {
+            mCompressedImageFile = new Compressor(this).compressToFile(destFile);
+            mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
         final Date dataobj= new Date();
@@ -278,11 +304,6 @@ public class SettingsActivity extends AppCompatActivity
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-            destFile = getOutputMediaFile(this);
-            mSelectedImageUri = FileProvider.getUriForFile(
-                    this,
-                    "com.planetpeopleplatform.freegan.provider",
-                    destFile);
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }

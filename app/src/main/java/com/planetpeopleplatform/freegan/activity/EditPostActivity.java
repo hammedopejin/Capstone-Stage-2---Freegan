@@ -42,8 +42,10 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ChoosePictureSourceDialogFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +53,7 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.zelory.compressor.Compressor;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
@@ -82,6 +85,7 @@ public class EditPostActivity extends AppCompatActivity
     private ArrayList<StorageReference> mImageRef = new ArrayList<>();
     private ArrayList mPostDownloadURLs = new ArrayList<String>(4);
     private ArrayList mToDeletePostDownloadURLs = new ArrayList<String>();
+    private File mCompressedImageFile = null;
     private Uri mSelectedImageUri = null;
     private ArrayList<Uri> mSelectedImageUris = new ArrayList<>();
     private File destFile;
@@ -121,6 +125,12 @@ public class EditPostActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_post);
         ButterKnife.bind(this);
+
+        destFile = getOutputMediaFile(this);
+        mSelectedImageUri = FileProvider.getUriForFile(
+                this,
+                "com.planetpeopleplatform.freegan.provider",
+                destFile);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -256,6 +266,26 @@ public class EditPostActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
+
+            try {
+                destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
+            } catch (NullPointerException ex){
+                try {
+                    Log.d(TAG, "onActivityResult: Image not from google photos, check sdCard!!");
+                    destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
+
+                } catch (NullPointerException e){
+                    Log.d(TAG, "onActivityResult: Image from unrecognized source!!");
+                }
+            }
+
+            try {
+                mCompressedImageFile = new Compressor(this).compressToFile(destFile);
+                mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             mSelectedImageUris.add(mSelectedImageUri);
 
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
@@ -284,6 +314,14 @@ public class EditPostActivity extends AppCompatActivity
 
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
+
+            try {
+                mCompressedImageFile = new Compressor(this).compressToFile(destFile);
+                mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             mSelectedImageUris.add(mSelectedImageUri);
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
@@ -330,12 +368,6 @@ public class EditPostActivity extends AppCompatActivity
 
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-                    destFile = getOutputMediaFile(this);
-                    mSelectedImageUri = FileProvider.getUriForFile(
-                            this,
-                            "com.planetpeopleplatform.freegan.provider",
-                            destFile);
-
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
                     startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
 
@@ -374,11 +406,7 @@ public class EditPostActivity extends AppCompatActivity
 
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            destFile = getOutputMediaFile(this);
-            mSelectedImageUri = FileProvider.getUriForFile(
-                    this,
-                    "com.planetpeopleplatform.freegan.provider",
-                    destFile);
+
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
