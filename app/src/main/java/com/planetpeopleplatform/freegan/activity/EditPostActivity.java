@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +32,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
@@ -77,13 +80,13 @@ public class EditPostActivity extends AppCompatActivity
     private User mCurrentUser;
 
     private ArrayList<StorageReference> mImageRef = new ArrayList<>();
-    private String mPostDownloadURL;
     private ArrayList mPostDownloadURLs = new ArrayList<String>(4);
     private ArrayList mToDeletePostDownloadURLs = new ArrayList<String>();
     private Uri mSelectedImageUri = null;
     private ArrayList<Uri> mSelectedImageUris = new ArrayList<>();
     private File destFile;
     private int mCurrentIndex;
+    private int mImageRefUploadCounter = 0;
 
     private Post mPost;
 
@@ -399,40 +402,38 @@ public class EditPostActivity extends AppCompatActivity
 
     private void postToFirebase() {
         mLoadingIndicator.setVisibility(View.VISIBLE);
+        mItemPostButton.setVisibility(View.INVISIBLE);
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
 
         if (mSelectedImageUris.size() > 0) {
 
             for (int i = 0; i < mSelectedImageUris.size(); i++) {
 
-                final Date dataobj = new Date();
-                String imagePath = SplitString(mCurrentUser.getEmail()) + "." + df.format(dataobj) + ".jpg";
+                String imagePath = SplitString(mCurrentUser.getEmail()) + String.valueOf(i) + "." + df.format(new Date()) + ".jpg";
 
                 //final StorageReference imageRef = storageRef.child("post_pics/" + imagePath);
 
                 mImageRef.add(storageRef.child("post_pics/" + imagePath));
 
-                if (!(mSelectedImageUris.get(i) == (null))) {
                     // Upload file to Firebase Storage
-                    final int finalI = i;
-                    mImageRef.get(finalI).putFile(mSelectedImageUris.get(finalI)).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                mImageRefUploadCounter = i;
+                    mImageRef.get(mImageRefUploadCounter).putFile(mSelectedImageUris.get(mImageRefUploadCounter))
+                            .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                             if (!task.isSuccessful()) {
                                 throw task.getException();
                             }
-                            return mImageRef.get(finalI).getDownloadUrl();
+                            return mImageRef.get(mImageRefUploadCounter).getDownloadUrl();
                         }
                     }).addOnCompleteListener(new OnCompleteListener<Uri>() {
 
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
-                                Uri downloadUri = task.getResult();
-                                mPostDownloadURL = downloadUri.toString();
-                                mPostDownloadURLs.add(mPostDownloadURL);
+                                mPostDownloadURLs.add(task.getResult().toString());
 
-                                if (finalI == (mSelectedImageUris.size() - 1)) {
+                                if (mImageRefUploadCounter == (mSelectedImageUris.size() - 1)) {
                                     postIt();
                                 }
 
@@ -442,12 +443,23 @@ public class EditPostActivity extends AppCompatActivity
                                         R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
                             }
                         }
+                    }).addOnSuccessListener(this, new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            mPostDownloadURLs.add(uri.toString());
+
+                            if (mImageRefUploadCounter == (mSelectedImageUris.size() - 1)) {
+                                postIt();
+                            }
+                        }
+                    }).addOnFailureListener(this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
+                        }
                     });
-                } else {
-                    postIt();
                 }
 
-            }
         } else {
             postIt();
         }
@@ -455,10 +467,20 @@ public class EditPostActivity extends AppCompatActivity
     }
 
     private void postIt(){
+
+        mPostDownloadURLs.removeAll(mToDeletePostDownloadURLs);
+
+        if (mPostDownloadURLs.size() < 1) {
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mItemPostButton.setVisibility(View.VISIBLE);
+            Snackbar.make(mCoordinatorLayout, R.string.alert_at_least_one_image_needed_string, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
         mSelectedImageUris.clear();
+        mImageRef.clear();
 
         for (int i = 0; i < mToDeletePostDownloadURLs.size(); i ++){
-            mPostDownloadURLs.removeAll(mToDeletePostDownloadURLs);
             StorageReference toDelete = storage.getReferenceFromUrl((String) mToDeletePostDownloadURLs.get(i));
             toDelete.delete();
         }
@@ -505,9 +527,6 @@ public class EditPostActivity extends AppCompatActivity
         } else if (source == 2){
             captureGalleryImage();
         } else if (source == 3){
-            if (mToDeletePostDownloadURLs.size() > 0) {
-                mPostDownloadURLs.removeAll(mToDeletePostDownloadURLs);
-            }
             mTempImg.setBackground(getResources().getDrawable(R.color.cardview_dark_background));
             mTempImg.setImageDrawable(null);
         }
