@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,8 +42,11 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,7 +54,9 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.zelory.compressor.Compressor;
 
+import static butterknife.internal.Utils.arrayOf;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
@@ -99,8 +102,10 @@ public class PostActivity extends AppCompatActivity {
     private boolean mImageSelected;
     private ArrayList<String> mPostDownloadURL = new ArrayList<>();
     private Uri mSelectedImageUri = null;
+    private File mCompressedImageFile = null;
     private GeoFire mGeoFire;
     private File destFile;
+    private FileOutputStream mFileOutputStream;
 
 
     @Override
@@ -108,6 +113,13 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         ButterKnife.bind(this);
+
+        destFile = getOutputMediaFile(this);
+        mSelectedImageUri = FileProvider.getUriForFile(
+                this,
+                "com.planetpeopleplatform.freegan.provider",
+                destFile);
+
         int source = getIntent().getIntExtra(getString(R.string.source_string), 1);
         if (source == 1){
             takeCameraPicture();
@@ -171,6 +183,18 @@ public class PostActivity extends AppCompatActivity {
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
 
+            try {
+                 destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
+            } catch (NullPointerException ex){
+                try {
+                    destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
+
+                } catch (NullPointerException e){
+                    Log.d(TAG, "onActivityResult: Image from unrecognized source!!");
+                }
+            }
+
+
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
                     .load(mSelectedImageUri)
@@ -198,6 +222,9 @@ public class PostActivity extends AppCompatActivity {
 
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
+
+
+
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
                     .load(mSelectedImageUri)
@@ -239,6 +266,14 @@ public class PostActivity extends AppCompatActivity {
             return;
         }
 
+        try {
+            mCompressedImageFile = new Compressor(this).compressToFile(destFile);
+            mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
         final Date dataobj= new Date();
@@ -248,6 +283,7 @@ public class PostActivity extends AppCompatActivity {
         final StorageReference imageRef = storageRef.child("post_pics/"+imagePath );
 
         showLoading();
+
 
         // Upload file to Firebase Storage
         imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -347,11 +383,7 @@ public class PostActivity extends AppCompatActivity {
 
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            destFile = getOutputMediaFile(this);
-            mSelectedImageUri = FileProvider.getUriForFile(
-                    this,
-                    "com.planetpeopleplatform.freegan.provider",
-                    destFile);
+
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
@@ -368,12 +400,7 @@ public class PostActivity extends AppCompatActivity {
                         ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    destFile = getOutputMediaFile(this);
 
-                    mSelectedImageUri = FileProvider.getUriForFile(
-                            this,
-                            "com.planetpeopleplatform.freegan.provider",
-                            destFile);
 
                     intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
                     startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
