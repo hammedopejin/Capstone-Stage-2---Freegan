@@ -303,10 +303,10 @@ public class MainChildImagePagerFragment extends Fragment {
 
     // insert data into database
     private void insertData(){
-        ContentValues movieValues = new ContentValues();
+        ContentValues postValues = new ContentValues();
 
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION, mPost.getDescription());
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID, mPost.getPostId());
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION, mPost.getDescription());
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID, mPost.getPostId());
 
         JSONObject json = new JSONObject();
         try {
@@ -316,14 +316,14 @@ public class MainChildImagePagerFragment extends Fragment {
         }
         String postImageUrls = json.toString();
 
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH, postImageUrls);
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_NAME, mPost.getUserName());
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_ID, mPost.getPostUserObjectId());
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH, mPost.getProfileImgUrl());
-        movieValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DATE, mPost.getPostDate());
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH, postImageUrls);
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_NAME, mPost.getUserName());
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_ID, mPost.getPostUserObjectId());
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH, mPost.getProfileImgUrl());
+        postValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DATE, mPost.getPostDate());
 
         getActivity().getApplicationContext().getContentResolver().insert(FreeganContract.FreegansEntry.CONTENT_URI,
-                movieValues);
+                postValues);
     }
 
     // delete data from database

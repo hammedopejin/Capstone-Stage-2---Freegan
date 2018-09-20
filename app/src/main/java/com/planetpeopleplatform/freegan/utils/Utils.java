@@ -87,9 +87,11 @@ public class Utils {
         return chatRoomId;
     }
 
-    public static void updateChatStatus(HashMap<String, Object> chat, String chatRoomId) {
+    public static void updateChatStatus(HashMap<String, Object> message, String chatRoomId) {
 
-        firebase.child(kMESSAGE).child(chatRoomId).child(((String)chat.get(kMESSAGEID))).child(kSTATUS).setValue(Message.STATUS_READ);
+        HashMap<String, Object> values = new HashMap<String, Object>();
+        values.put(kSTATUS, Message.STATUS_READ);
+        firebase.child(kMESSAGE).child(chatRoomId).child(((String)message.get(kMESSAGEID))).updateChildren(values);
 
     }
 

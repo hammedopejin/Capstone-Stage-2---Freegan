@@ -125,16 +125,19 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText;
+        TextView messageText, timeText, statusText;
 
         SentMessageHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.text_message_body);
             timeText = itemView.findViewById(R.id.text_message_time);
+            statusText = itemView.findViewById(R.id.text_message_status);
+
         }
 
         void bind(Message message) {
             messageText.setText(message.getMessage());
+            statusText.setText(message.getStatus());
 
             // Format the stored timestamp into a readable String using method.
             try {

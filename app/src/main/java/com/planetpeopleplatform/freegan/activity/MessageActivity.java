@@ -69,7 +69,6 @@ public class MessageActivity extends CustomActivity {
     private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference chatRef = firebase.child(kMESSAGE);
     private String chatRoomId = null;
-    Boolean initialLoadComplete = false;
     private Post mPost = null;
     private User mChatMate = null;
     private Parcelable mRecyclerViewState;
@@ -184,7 +183,9 @@ public class MessageActivity extends CustomActivity {
         mScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadNextDataFromApi(totalItemsCount);
+                if (totalItemsCount > 29) {
+                    loadNextDataFromApi(totalItemsCount);
+                }
             }
         };
         // Adds the scroll listener to RecyclerView
@@ -365,9 +366,6 @@ public class MessageActivity extends CustomActivity {
                                         (String) item.get(kTYPE));
                                 mMessageList.add(0, message);
 
-                                // if (lastMsgDate == null || lastMsgDate.before(c.date)) {
-                                //    lastMsgDate = message.getDate()
-                                //}
 
                                 if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
                                     Utils.updateChatStatus(item, chatRoomId);
@@ -381,7 +379,28 @@ public class MessageActivity extends CustomActivity {
                     }
                 }
 
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    if (dataSnapshot.exists()){
+
+                        HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
+
+                        RNCryptorNative rncryptor  =  new RNCryptorNative();
+                        String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                        Message message = new Message(decrypted, (String) item.get(kDATE),
+                                (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
+                                (String) item.get(kTYPE));
+
+
+                                if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
+
+                                    mMessageList.remove(0);
+                                    mMessageList.add(0, message);
+                                    mMessageAdapter.notifyDataSetChanged();
+                                }
+                            }
+
+                }
                 public void onChildRemoved(DataSnapshot dataSnapshot) {}
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
                 public void onCancelled(DatabaseError databaseError) {
