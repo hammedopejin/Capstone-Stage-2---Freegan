@@ -380,25 +380,36 @@ public class MessageActivity extends CustomActivity {
                 }
 
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
                     if (dataSnapshot.exists()){
+
+                        mLastSeenKey.add(dataSnapshot.getKey());
 
                         HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
 
-                        RNCryptorNative rncryptor  =  new RNCryptorNative();
-                        String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
-                        Message message = new Message(decrypted, (String) item.get(kDATE),
-                                (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
-                                (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
-                                (String) item.get(kTYPE));
+                        if (item.get(kTYPE) != null) {
+
+                            if (legitTypes.contains(item.get(kTYPE))) {
+
+                                RNCryptorNative rncryptor  =  new RNCryptorNative();
+                                String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                                Message message = new Message(decrypted, (String) item.get(kDATE),
+                                        (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                        (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
+                                        (String) item.get(kTYPE));
+                                mMessageList.remove(0);
+                                mMessageList.add(0, message);
 
 
                                 if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
-
-                                    mMessageList.remove(0);
-                                    mMessageList.add(0, message);
-                                    mMessageAdapter.notifyDataSetChanged();
+                                    Utils.updateChatStatus(item, chatRoomId);
                                 }
                             }
+
+                        }
+                        mMessageAdapter.notifyDataSetChanged();
+                        mMessageRecycler.smoothScrollToPosition(0);
+                    }
 
                 }
                 public void onChildRemoved(DataSnapshot dataSnapshot) {}
