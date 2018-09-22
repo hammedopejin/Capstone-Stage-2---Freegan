@@ -207,4 +207,10 @@
     <string name="error_decrypting_string">Error decrypting</string>
 
 
+
+
+    <!-- Message and Notification Strings -->
+    <string name="notification_message">"New message from %1$s"</string>
+
+
 </resources>

@@ -68,6 +68,7 @@
             android:authorities="com.planetpeopleplatform.freegan"
             android:exported="false"
             android:syncable="true" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.planetpeopleplatform.freegan.provider"
@@ -80,6 +81,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+
+        <!-- Service listening for any incoming messages -->
         <service android:name=".fcm.FreeganFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
