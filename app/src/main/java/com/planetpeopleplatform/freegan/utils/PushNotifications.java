@@ -1,5 +1,9 @@
 package com.planetpeopleplatform.freegan.utils;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -7,6 +11,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.planetpeopleplatform.freegan.activity.MessageActivity;
+import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
@@ -24,6 +30,12 @@ public class PushNotifications {
 
     private static DatabaseReference mRef = firebase.child(kRECENT);
     private static boolean mShouldSendPushNotification = false;
+    private static final String MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID = "message_received_notification_channel";
+
+    /**
+     * This pending intent id is used to uniquely reference the pending intent
+     */
+    private static final int RECEIVED_MESSAGE_PENDING_INTENT_ID = 3417;
 
     public  static void sendPushNotification1(String chatRoomID, final String message, final String currentUserId) {
 
@@ -151,6 +163,21 @@ public class PushNotifications {
         }
 
         return updatedMembers;
+    }
+
+    public static void clearAllNotifications(Context context) {
+        NotificationManager notificationManager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+    }
+
+    private static PendingIntent contentIntent(Context context) {
+        Intent startActivityIntent = new Intent(context, MessageActivity.class);
+        return PendingIntent.getActivity(
+                context,
+                RECEIVED_MESSAGE_PENDING_INTENT_ID,
+                startActivityIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
 

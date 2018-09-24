@@ -57,7 +57,8 @@
         <activity android:name=".activity.UpdateUserNameActivity" />
         <activity android:name=".activity.UpdateEmailActivity" />
         <activity android:name=".activity.UpdatePasswordActivity" />
-        <activity android:name=".activity.MessageActivity" />
+        <activity android:name=".activity.MessageActivity"
+            android:launchMode="singleTop" />
         <activity android:name=".activity.EditPostActivity" />
         <activity android:name=".activity.ReportUserActivity" />
         <activity android:name=".activity.PrivacyPolicyActivity" />
