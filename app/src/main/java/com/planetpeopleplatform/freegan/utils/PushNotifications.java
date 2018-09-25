@@ -30,7 +30,6 @@ public class PushNotifications {
 
     private static DatabaseReference mRef = firebase.child(kRECENT);
     private static boolean mShouldSendPushNotification = false;
-    private static final String MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID = "message_received_notification_channel";
 
     /**
      * This pending intent id is used to uniquely reference the pending intent
