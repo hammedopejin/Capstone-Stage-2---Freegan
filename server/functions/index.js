@@ -6,7 +6,7 @@ exports.sendNotification = functions.database.ref('/notifications/messages/{push
     .onWrite(event => {
         const message = event.data.current.val();
         const senderUid = message.senderId;
-        const receiverUid = message.messageId;
+        const receiverUid = message.receiverId;
         const promises = [];
 
         if (senderUid == receiverUid) {
@@ -25,15 +25,15 @@ exports.sendNotification = functions.database.ref('/notifications/messages/{push
 
             const payload = {
                 notification: {
-                    title: sender.userName,
-                    body: message.message,
-                    icon: sender.userImgUrl
+                    title: message.senderName,
+                    body: message.message
                 }
             };
 
             admin.messaging().sendToDevice(instanceId, payload)
                 .then(function (response) {
                     console.log("Successfully sent message:", response);
+                    promises.push(event.data.current.ref.remove());
                 })
                 .catch(function (error) {
                     console.log("Error sending message:", error);

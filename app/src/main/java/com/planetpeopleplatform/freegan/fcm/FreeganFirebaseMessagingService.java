@@ -2,31 +2,28 @@ package com.planetpeopleplatform.freegan.fcm;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.planetpeopleplatform.freegan.R;
-import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
 
 import java.util.Map;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kINSTANCEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 
 public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -48,18 +45,15 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
         // Instance ID token to your app server.
         sendRegistrationToServer(token);
 
-
     }
 
 
     private void sendRegistrationToServer(String token) {
-        // This method is blank, but if you were to build a server that stores users token
-        // information, this is where you'd send the token to the server.
+        // This is where you'd send the token to the server.
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
-            FirebaseDatabase.getInstance().getReference()
-                    .child(kUSER)
+            firebase.child(kUSER)
                     .child(firebaseUser.getUid())
                     .child(kINSTANCEID)
                     .setValue(token);
@@ -118,7 +112,7 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_ONE_SHOT);
 
-        String user = data.get(kUSER);
+        String user = data.get(kUSERNAME);
         String message = data.get(kMESSAGE);
 
         // If the message is longer than the max number of characters we want in our

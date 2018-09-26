@@ -12,17 +12,19 @@ public class Message implements Parcelable {
     //String sender = null
     private String message = "";
     private String senderId = "";
+    private String receiverId = "";
     private String messageId = "";
     private String senderName = "";
     private String date = "";
     private String status = "";
     private String type = "";
 
-    public Message(String message, String date, String messageId, String senderId,
+    public Message(String message, String date, String messageId, String senderId, String receiverId,
                    String senderName, String status, String type){
         this.message = message;
         this.messageId = messageId;
         this.senderId = senderId;
+        this.receiverId = receiverId;
         this.senderName = senderName;
         this.date = date;
         this.status = status;
@@ -33,6 +35,7 @@ public class Message implements Parcelable {
     protected Message(Parcel in) {
         message = in.readString();
         senderId = in.readString();
+        receiverId = in.readString();
         messageId = in.readString();
         senderName = in.readString();
         date = in.readString();
@@ -66,6 +69,14 @@ public class Message implements Parcelable {
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 
     public String getMessageId() {
@@ -117,6 +128,7 @@ public class Message implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(message);
         parcel.writeString(senderId);
+        parcel.writeString(receiverId);
         parcel.writeString(messageId);
         parcel.writeString(senderName);
         parcel.writeString(date);

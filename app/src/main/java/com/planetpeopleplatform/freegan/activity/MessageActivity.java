@@ -55,6 +55,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPICTURE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kRECEIVERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERNAME;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSTATUS;
@@ -288,6 +289,7 @@ public class MessageActivity extends CustomActivity {
                             String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
                             Message message = new Message(decrypted, (String) item.get(kDATE),
                                     (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                    (String) item.get(kRECEIVERID),
                                     (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                     (String) item.get(kTYPE));
                             mMessageList.add(0, message);
@@ -331,7 +333,7 @@ public class MessageActivity extends CustomActivity {
 
 
         String messageId = reference.getKey();
-        final Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUID,
+        final Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUID, mChatMate.getObjectId(),
                 mCurrentUser.getUserName(),  Message.STATUS_DELIVERED, kTEXT);
 
         reference.setValue(cryptMessage);
@@ -367,6 +369,7 @@ public class MessageActivity extends CustomActivity {
                                 String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
                                 Message message = new Message(decrypted, (String) item.get(kDATE),
                                         (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                        (String) item.get(kRECEIVERID),
                                         (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                         (String) item.get(kTYPE));
                                 mMessageList.add(0, message);
@@ -400,6 +403,7 @@ public class MessageActivity extends CustomActivity {
                                 String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
                                 Message message = new Message(decrypted, (String) item.get(kDATE),
                                         (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
+                                        (String) item.get(kRECEIVERID),
                                         (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                         (String) item.get(kTYPE));
                                 mMessageList.remove(0);

@@ -76,6 +76,7 @@ public class Constants {
 
     public static final String kNAME = "name";
     public static final String kSENDERID = "senderId";
+    public static final String kRECEIVERID = "receiverId";
     public static final String kSENDERNAME = "senderName";
     public static final String kTHUMBNAIL = "thumbnail";
     public static final String kCURRENTUSERID = "currentUserUid";
