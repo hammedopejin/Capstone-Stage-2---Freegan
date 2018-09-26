@@ -118,4 +118,7 @@ public class Constants {
     //Report
     public static final String kREPORTDATE = "reportDate";
 
+    //FirebaseMessagingService
+    public static final String kINSTANCEID = "instanceId";
+
 }

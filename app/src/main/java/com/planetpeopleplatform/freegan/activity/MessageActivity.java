@@ -336,6 +336,11 @@ public class MessageActivity extends CustomActivity {
 
         reference.setValue(cryptMessage);
 
+        firebase.child("notifications")
+                .child("messages")
+                .push()
+                .setValue(cryptMessage);
+
         Utils.updateRecents(chatRoomId, encrypted);
 
     }
