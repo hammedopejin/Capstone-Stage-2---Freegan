@@ -69,7 +69,7 @@ public class MessageActivity extends CustomActivity {
     private ChildEventListener mChildEventListener;
     private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference chatRef = firebase.child(kMESSAGE);
-    private String chatRoomId = null;
+    private String mChatRoomId = null;
     private Post mPost = null;
     private User mChatMate = null;
     private Parcelable mRecyclerViewState;
@@ -94,7 +94,7 @@ public class MessageActivity extends CustomActivity {
      * Allow access to the current user info
      */
     private User mCurrentUser = null;
-    private String mCurrentUserUID = null;
+    private String mCurrentUserUid = null;
     private LinearLayoutManager linearLayoutManager = null;
 
     private Query mDataBaseQuery;
@@ -135,8 +135,8 @@ public class MessageActivity extends CustomActivity {
 
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
-        mCurrentUserUID = getIntent().getStringExtra(kCURRENTUSERID);
-        chatRoomId = getIntent().getStringExtra(kCHATROOMID);
+        mCurrentUserUid = getIntent().getStringExtra(kCURRENTUSERID);
+        mChatRoomId = getIntent().getStringExtra(kCHATROOMID);
 
         mPost = getIntent().getParcelableExtra(kPOST);
         mChatMate = getIntent().getParcelableExtra(kUSER);
@@ -144,13 +144,13 @@ public class MessageActivity extends CustomActivity {
         getSupportActionBar().setTitle(mPost.getDescription());
         Glide.with(this).load(mPost.getImageUrl()).into(mPostImage);
 
-        mMessagesDatabaseReference = firebase.child(kMESSAGE).child(chatRoomId);
+        mMessagesDatabaseReference = firebase.child(kMESSAGE).child(mChatRoomId);
         mDataBaseQuery = mMessagesDatabaseReference.limitToLast(30);
         mDataBaseQuery.keepSynced(true);
 
         linearLayoutManager = new LinearLayoutManager(MessageActivity.this);
 
-        firebase.child(kUSER).child(mCurrentUserUID).addValueEventListener(new ValueEventListener() {
+        firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -224,7 +224,7 @@ public class MessageActivity extends CustomActivity {
     public void onResume() {
         super.onResume();
         attachDatabaseReadListener();
-        Utils.clearRecentCounter(chatRoomId);
+        Utils.clearRecentCounter(mChatRoomId);
         isRunning = true;
     }
 
@@ -239,7 +239,7 @@ public class MessageActivity extends CustomActivity {
 
     @Override
     public void onDestroy() {
-        Utils.clearRecentCounter(chatRoomId);
+        Utils.clearRecentCounter(mChatRoomId);
         super.onDestroy();
     }
 
@@ -286,10 +286,10 @@ public class MessageActivity extends CustomActivity {
                         if (legitTypes.contains(item.get(kTYPE))) {
 
                             RNCryptorNative rncryptor  =  new RNCryptorNative();
-                            String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                            String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), mChatRoomId);
                             Message message = new Message(decrypted, (String) item.get(kDATE),
                                     (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
-                                    (String) item.get(kRECEIVERID),
+                                    (String) item.get(kRECEIVERID), (String) item.get(kCHATROOMID),
                                     (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                     (String) item.get(kTYPE));
                             mMessageList.add(0, message);
@@ -326,24 +326,19 @@ public class MessageActivity extends CustomActivity {
         SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
         RNCryptorNative rncryptor =  new RNCryptorNative();
 
-        String encrypted = new String((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), chatRoomId)));
+        String encrypted = new String((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), mChatRoomId)));
         mChatMessageEdittext.setText(null);
-        DatabaseReference reference = chatRef.child(chatRoomId).push();
+        DatabaseReference reference = chatRef.child(mChatRoomId).push();
 
 
 
         String messageId = reference.getKey();
-        final Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUID, mChatMate.getObjectId(),
-                mCurrentUser.getUserName(),  Message.STATUS_DELIVERED, kTEXT);
+        final Message cryptMessage = new Message( encrypted,  sfd.format(new Date()), messageId, mCurrentUserUid, mChatMate.getObjectId(),
+                mChatRoomId, mCurrentUser.getUserName(),  Message.STATUS_DELIVERED, kTEXT);
 
         reference.setValue(cryptMessage);
 
-        firebase.child("notifications")
-                .child("messages")
-                .push()
-                .setValue(cryptMessage);
-
-        Utils.updateRecents(chatRoomId, encrypted);
+        Utils.updateRecents(mChatRoomId, encrypted);
 
     }
 
@@ -366,17 +361,17 @@ public class MessageActivity extends CustomActivity {
                             if (legitTypes.contains(item.get(kTYPE))) {
 
                                 RNCryptorNative rncryptor  =  new RNCryptorNative();
-                                String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                                String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), mChatRoomId);
                                 Message message = new Message(decrypted, (String) item.get(kDATE),
                                         (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
-                                        (String) item.get(kRECEIVERID),
+                                        (String) item.get(kRECEIVERID), (String) item.get(kCHATROOMID),
                                         (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                         (String) item.get(kTYPE));
                                 mMessageList.add(0, message);
 
 
-                                if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
-                                    Utils.updateChatStatus(item, chatRoomId);
+                                if (!((item.get(kSENDERID)).equals(mCurrentUserUid))) {
+                                    Utils.updateChatStatus(item, mChatRoomId);
                                 }
                             }
 
@@ -400,18 +395,18 @@ public class MessageActivity extends CustomActivity {
                             if (legitTypes.contains(item.get(kTYPE))) {
 
                                 RNCryptorNative rncryptor  =  new RNCryptorNative();
-                                String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), chatRoomId);
+                                String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), mChatRoomId);
                                 Message message = new Message(decrypted, (String) item.get(kDATE),
                                         (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
-                                        (String) item.get(kRECEIVERID),
+                                        (String) item.get(kRECEIVERID), (String) item.get(kCHATROOMID),
                                         (String) item.get(kSENDERNAME), (String) item.get(kSTATUS),
                                         (String) item.get(kTYPE));
                                 mMessageList.remove(0);
                                 mMessageList.add(0, message);
 
 
-                                if (!((item.get(kSENDERID)).equals(mCurrentUserUID))) {
-                                    Utils.updateChatStatus(item, chatRoomId);
+                                if (!((item.get(kSENDERID)).equals(mCurrentUserUid))) {
+                                    Utils.updateChatStatus(item, mChatRoomId);
                                 }
                             }
 

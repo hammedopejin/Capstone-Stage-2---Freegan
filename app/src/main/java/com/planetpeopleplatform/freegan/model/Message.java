@@ -14,17 +14,19 @@ public class Message implements Parcelable {
     private String senderId = "";
     private String receiverId = "";
     private String messageId = "";
+    private String chatRoomId = null;
     private String senderName = "";
     private String date = "";
     private String status = "";
     private String type = "";
 
     public Message(String message, String date, String messageId, String senderId, String receiverId,
-                   String senderName, String status, String type){
+                   String chatRoomId, String senderName, String status, String type){
         this.message = message;
         this.messageId = messageId;
         this.senderId = senderId;
         this.receiverId = receiverId;
+        this.chatRoomId = chatRoomId;
         this.senderName = senderName;
         this.date = date;
         this.status = status;
@@ -37,6 +39,7 @@ public class Message implements Parcelable {
         senderId = in.readString();
         receiverId = in.readString();
         messageId = in.readString();
+        chatRoomId = in.readString();
         senderName = in.readString();
         date = in.readString();
         status = in.readString();
@@ -87,6 +90,14 @@ public class Message implements Parcelable {
         this.messageId = messageId;
     }
 
+    public String getChatRoomId() {
+        return chatRoomId;
+    }
+
+    public void setChatRoomId(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
+    }
+
     public String getSenderName() {
         return senderName;
     }
@@ -130,6 +141,7 @@ public class Message implements Parcelable {
         parcel.writeString(senderId);
         parcel.writeString(receiverId);
         parcel.writeString(messageId);
+        parcel.writeString(chatRoomId);
         parcel.writeString(senderName);
         parcel.writeString(date);
         parcel.writeString(status);

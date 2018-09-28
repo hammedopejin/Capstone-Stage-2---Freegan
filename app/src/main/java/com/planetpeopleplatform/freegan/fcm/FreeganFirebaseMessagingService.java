@@ -1,13 +1,16 @@
 package com.planetpeopleplatform.freegan.fcm;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,9 +22,14 @@ import com.planetpeopleplatform.freegan.activity.MessageActivity;
 
 import java.util.Map;
 
+import tgio.rncryptor.RNCryptorNative;
+
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kINSTANCEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 
@@ -29,7 +37,11 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = FreeganFirebaseMessagingService.class.getSimpleName();
     private static final int NOTIFICATION_MAX_CHARACTERS = 30;
+    private static final int CHAT_MESSAGE_NOTIFICATION_ID = 0;
     private static final String MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID = "message_received_notification_channel";
+
+    private String mCurrentUserUid = null;
+    private String mChatRoomId = null;
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of
@@ -82,7 +94,6 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
         // sends notification
         // messages.
 
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
 
@@ -104,7 +115,7 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
      * @param data Map which has the message data in it
      */
     private void sendNotification(Map<String, String> data) {
-        Intent intent = new Intent(this, MessageActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(getApplicationContext());
@@ -114,26 +125,54 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
 
         String user = data.get(kUSERNAME);
         String message = data.get(kMESSAGE);
+        mChatRoomId = data.get(kCHATROOMID);
+
+        Log.d(TAG, "Message data payload: " + mChatRoomId);
+
+        RNCryptorNative rncryptor = new RNCryptorNative();
+        String decrypted = rncryptor.decrypt(message, mChatRoomId);
+
+        Log.d(TAG, "Message data payload: " + decrypted);
+
+
+        intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
+        intent.putExtra(kCHATROOMID, mChatRoomId);
+//        intent.putExtra(kPOST, mPost);
+//        intent.putExtra(kUSER, chatMate);
 
         // If the message is longer than the max number of characters we want in our
         // notification, truncate it and add the unicode character for ellipsis
-        if (message.length() > NOTIFICATION_MAX_CHARACTERS) {
-            message = message.substring(0, NOTIFICATION_MAX_CHARACTERS) + "\u2026";
+        if (decrypted.length() > NOTIFICATION_MAX_CHARACTERS) {
+            decrypted = decrypted.substring(0, NOTIFICATION_MAX_CHARACTERS) + "\u2026";
         }
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID)
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = new NotificationChannel(
+                    MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID,
+                    getApplicationContext().getString(R.string.main_notification_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID)
+                .setColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary))
                 .setSmallIcon(R.drawable.ic_freegan_foreground)
                 .setContentTitle(String.format(getString(R.string.notification_message), user))
-                .setContentText(message)
-                .setAutoCancel(true)
+                .setContentText(decrypted)
                 .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                //.addAction(ignoreReminderAction(context))
+                .setAutoCancel(true);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        }
+        notificationManager.notify(CHAT_MESSAGE_NOTIFICATION_ID, notificationBuilder.build());
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
+
 
 }

@@ -211,6 +211,8 @@
 
     <!-- Message and Notification Strings -->
     <string name="notification_message">"New message from %1$s"</string>
+    <string name="title_activity_message">Message</string>
+    <string name="main_notification_channel_name">Main notification channel</string>
 
 
 </resources>
