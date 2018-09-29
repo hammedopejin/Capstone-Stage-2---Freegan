@@ -58,7 +58,6 @@
         <activity android:name=".activity.UpdateEmailActivity" />
         <activity android:name=".activity.UpdatePasswordActivity" />
         <activity android:name=".activity.MessageActivity"
-            android:launchMode="singleTop"
             android:label="@string/title_activity_message"/>
         <activity android:name=".activity.EditPostActivity" />
         <activity android:name=".activity.ReportUserActivity" />
@@ -77,7 +76,7 @@
             android:exported="false"
             android:grantUriPermissions="true">
 
-            <!-- ressource file to create -->
+            <!-- resource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />

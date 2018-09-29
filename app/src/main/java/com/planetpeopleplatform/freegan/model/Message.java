@@ -14,14 +14,16 @@ public class Message implements Parcelable {
     private String senderId = "";
     private String receiverId = "";
     private String messageId = "";
-    private String chatRoomId = null;
+    private String chatRoomId = "";
     private String senderName = "";
     private String date = "";
     private String status = "";
     private String type = "";
+    private String postId = "";
 
     public Message(String message, String date, String messageId, String senderId, String receiverId,
-                   String chatRoomId, String senderName, String status, String type){
+                   String chatRoomId, String senderName, String status, String type,
+                   String postId){
         this.message = message;
         this.messageId = messageId;
         this.senderId = senderId;
@@ -31,6 +33,7 @@ public class Message implements Parcelable {
         this.date = date;
         this.status = status;
         this.type = type;
+        this.postId = postId;
     }
 
 
@@ -44,6 +47,7 @@ public class Message implements Parcelable {
         date = in.readString();
         status = in.readString();
         type = in.readString();
+        postId = in.readString();
     }
 
     public static final Creator<Message> CREATOR = new Creator<Message>() {
@@ -130,6 +134,14 @@ public class Message implements Parcelable {
         this.type = type;
     }
 
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -146,5 +158,6 @@ public class Message implements Parcelable {
         parcel.writeString(date);
         parcel.writeString(status);
         parcel.writeString(type);
+        parcel.writeString(postId);
     }
 }
