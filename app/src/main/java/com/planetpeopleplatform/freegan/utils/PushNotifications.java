@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
@@ -20,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
+import com.planetpeopleplatform.freegan.free.FreeganAppWidget;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
@@ -29,6 +32,7 @@ import java.util.List;
 
 import tgio.rncryptor.RNCryptorNative;
 
+import static com.planetpeopleplatform.freegan.free.FreeganAppWidget.updateFreeganWidgets;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCOUNTER;
@@ -112,6 +116,16 @@ public class PushNotifications {
         if (decrypted.length() > NOTIFICATION_MAX_CHARACTERS) {
             decrypted = decrypted.substring(0, NOTIFICATION_MAX_CHARACTERS) + "\u2026";
         }
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, FreeganAppWidget.class));
+//        //Trigger data update to handle the GridView widgets and force a data refresh
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
+        //Now update all widgets
+        updateFreeganWidgets(context, appWidgetManager,
+        appWidgetIds, userName, decrypted,
+                currentUserUid, chatRoomId,
+                post, chatMate);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 

@@ -23,13 +23,17 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCSGoXGj_DBV7s-Ram-Fw7JlJqwVTopHjo" />
 
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
+        <!--
+     Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_freegan_foreground" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+             Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
@@ -57,8 +61,9 @@
         <activity android:name=".activity.UpdateUserNameActivity" />
         <activity android:name=".activity.UpdateEmailActivity" />
         <activity android:name=".activity.UpdatePasswordActivity" />
-        <activity android:name=".activity.MessageActivity"
-            android:label="@string/title_activity_message"/>
+        <activity
+            android:name=".activity.MessageActivity"
+            android:label="@string/title_activity_message" />
         <activity android:name=".activity.EditPostActivity" />
         <activity android:name=".activity.ReportUserActivity" />
         <activity android:name=".activity.PrivacyPolicyActivity" />
@@ -69,7 +74,6 @@
             android:authorities="com.planetpeopleplatform.freegan"
             android:exported="false"
             android:syncable="true" />
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.planetpeopleplatform.freegan.provider"
@@ -82,15 +86,26 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-
         <!-- Service listening for any incoming messages -->
-        <service android:name=".fcm.FreeganFirebaseMessagingService"
+        <service
+            android:name=".fcm.FreeganFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <service android:name=".utils.ListWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
+        <receiver android:name=".free.FreeganAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/freegan_app_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

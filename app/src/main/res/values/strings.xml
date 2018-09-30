@@ -207,12 +207,13 @@
     <string name="error_decrypting_string">Error decrypting</string>
 
 
-
-
     <!-- Message and Notification Strings -->
     <string name="notification_message">"New message from %1$s"</string>
     <string name="title_activity_message">Message</string>
     <string name="main_notification_channel_name">Main notification channel</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="no_new_notification_string">No new notification</string>
 
 
 </resources>

@@ -31,7 +31,6 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onNewToken(String token) {
-        Log.d(TAG, "Refreshed token: " + token);
 
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
@@ -80,7 +79,6 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
         Map<String, String> data = remoteMessage.getData();
 
         if (data.size() > 0) {
-            Log.d(TAG, "Message data payload: " + data);
 
             String userName = data.get(kUSERNAME);
             String message = data.get(kMESSAGE);
