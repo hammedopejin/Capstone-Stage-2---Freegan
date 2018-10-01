@@ -14,6 +14,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kINSTANCEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECEIVERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
@@ -86,10 +87,11 @@ public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
             String postId = data.get(kPOSTID);
             String chatMateId = data.get(kSENDERID);
             String currentUserUid = data.get(kRECEIVERID);
+            String messageId = data.get(kMESSAGEID);
 
 
             //load chat post
-            PushNotifications.loadPost(getApplicationContext(), postId, chatMateId, message, userName, chatRoomId, currentUserUid);
+            PushNotifications.loadPost(getApplicationContext(), messageId, postId, chatMateId, message, userName, chatRoomId, currentUserUid);
         }
     }
 

@@ -17,6 +17,8 @@ public class FreeganProvider extends ContentProvider {
     // Codes for the UriMatcher
     private static final int FREEGAN = 100;
     private static final int FREEGAN_ID = 101;
+    private static final int MESSAGE = 200;
+    private static final int MESSAGE_ID = 201;
 
     private static final String FAILED_TO_INSERT_ROW_INTO = "Failed to insert row into ";
     private static final String CANNOT_HAVE_NULL = "Cannot have null content values";
@@ -27,6 +29,9 @@ public class FreeganProvider extends ContentProvider {
 
         uriMatcher.addURI(authority, FreeganContract.FREEGAN_PATH, FREEGAN);
         uriMatcher.addURI(authority, FreeganContract.FREEGAN_PATH + "/*", FREEGAN_ID);
+
+        uriMatcher.addURI(authority, FreeganContract.MESSAGE_PATH, MESSAGE);
+        uriMatcher.addURI(authority, FreeganContract.MESSAGE_PATH + "/*", MESSAGE_ID);
 
         return uriMatcher;
     }
@@ -60,6 +65,17 @@ public class FreeganProvider extends ContentProvider {
                 cursor = database.query(FreeganContract.FreegansEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
+            case MESSAGE:
+                cursor = database.query(FreeganContract.MessagesEntry.TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
+                break;
+            case MESSAGE_ID:
+                String message_id = uri.getLastPathSegment();
+                selection = FreeganContract.MessagesEntry.COLUMN_MESSAGE_ID + "=?";
+                selectionArgs = new String[]{message_id};
+                cursor = database.query(FreeganContract.MessagesEntry.TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
+                break;
 
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
@@ -81,6 +97,10 @@ public class FreeganProvider extends ContentProvider {
                 return FreeganContract.FreegansEntry.CONTENT_DIR_TYPE;
             case FREEGAN_ID:
                 return FreeganContract.FreegansEntry.CONTENT_ITEM_TYPE;
+            case MESSAGE:
+                return FreeganContract.MessagesEntry.CONTENT_DIR_TYPE;
+            case MESSAGE_ID:
+                return FreeganContract.MessagesEntry.CONTENT_ITEM_TYPE;
             default: {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
             }
@@ -101,6 +121,15 @@ public class FreeganProvider extends ContentProvider {
                         contentValues, SQLiteDatabase.CONFLICT_REPLACE);
                 if (id > 0) {
                     returnUri = FreeganContract.FreegansEntry.buildFreeganUri(id);
+                } else {
+                    throw new android.database.SQLException(FAILED_TO_INSERT_ROW_INTO + uri);
+                }
+                break;
+            case MESSAGE:
+                id = db.insertWithOnConflict(FreeganContract.MessagesEntry.TABLE_NAME, null,
+                        contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+                if (id > 0) {
+                    returnUri = FreeganContract.MessagesEntry.buildFreeganUri(id);
                 } else {
                     throw new android.database.SQLException(FAILED_TO_INSERT_ROW_INTO + uri);
                 }
@@ -134,6 +163,22 @@ public class FreeganProvider extends ContentProvider {
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
                         FreeganContract.FreegansEntry.TABLE_NAME + "'");
                 break;
+            case MESSAGE:
+                rowsDeleted = db.delete(FreeganContract.MessagesEntry.TABLE_NAME, selection, selectionArgs);
+                // reset _ID
+                db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                        FreeganContract.MessagesEntry.TABLE_NAME + "'");
+                break;
+            case MESSAGE_ID:
+                String message_id = uri.getLastPathSegment();
+                selection = FreeganContract.MessagesEntry.COLUMN_MESSAGE_ID + "=?";
+                selectionArgs = new String[]{message_id};
+                rowsDeleted = db.delete(FreeganContract.MessagesEntry.TABLE_NAME,
+                        selection, selectionArgs);
+                // reset _ID
+                db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" +
+                        FreeganContract.MessagesEntry.TABLE_NAME + "'");
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -163,6 +208,19 @@ public class FreeganProvider extends ContentProvider {
                 selection = FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID + "=?";
                 selectionArgs = new String[]{freegan_id};
                 rowsUpdated = db.update(FreeganContract.FreegansEntry.TABLE_NAME,
+                        contentValues,
+                        selection,
+                        selectionArgs);
+                break;
+            case MESSAGE:
+                rowsUpdated = db.update(FreeganContract.MessagesEntry.TABLE_NAME, contentValues,
+                        selection, selectionArgs);
+                break;
+            case MESSAGE_ID:
+                String message_id = uri.getLastPathSegment();
+                selection = FreeganContract.MessagesEntry.COLUMN_MESSAGE_ID + "=?";
+                selectionArgs = new String[]{message_id};
+                rowsUpdated = db.update(FreeganContract.MessagesEntry.TABLE_NAME,
                         contentValues,
                         selection,
                         selectionArgs);
@@ -212,6 +270,37 @@ public class FreeganProvider extends ContentProvider {
                     getContext().getContentResolver().notifyChange(uri, null);
                 }
                 return returnCount;
+
+            case MESSAGE:
+                db.beginTransaction();
+                int returnCounter = 0;
+                try {
+                    for (ContentValues value : contentValues) {
+                        if (value == null){
+                            throw new IllegalArgumentException(CANNOT_HAVE_NULL);
+                        }
+                        long id = -1;
+                        id = db.insertWithOnConflict(FreeganContract.MessagesEntry.TABLE_NAME,
+                                null, value, SQLiteDatabase.CONFLICT_REPLACE);
+                        if (id != -1) {
+                            returnCounter++;
+                        }
+                    }
+                    if(returnCounter > 0){
+                        // If no errors, declare a successful transaction.
+                        // database will not populate if this is not called
+                        db.setTransactionSuccessful();
+                    }
+                } finally {
+                    db.endTransaction();
+                }
+                if(returnCounter > 0){
+                    // if there was successful insertion, notify the content resolver that there
+                    // was a change
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+                return returnCounter;
+
             default:
                 return super.bulkInsert(uri, contentValues);
         }

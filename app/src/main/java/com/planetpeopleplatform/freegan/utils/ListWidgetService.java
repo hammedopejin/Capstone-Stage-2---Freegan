@@ -2,15 +2,25 @@ package com.planetpeopleplatform.freegan.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
@@ -23,28 +33,14 @@ public class ListWidgetService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
 
-        Log.d("TAG", "onGetViewFactory:  Called!!!!!!");
-
-        String message = intent.getStringExtra(kMESSAGE);
-        String userName = intent.getStringExtra(kUSERNAME);
-        String currentUserUid = intent.getStringExtra(kCURRENTUSERID);
-        String chatRoomId = intent.getStringExtra(kCHATROOMID);
-        Post post = intent.getParcelableExtra(kPOST);
-        User chatMate = intent.getParcelableExtra(kUSER);
-
-        //Log.d("TAG", "onGetViewFactory: " + message + ": " + "by " + userName);
-
-        return new GridRemoteViewsFactory(this.getApplicationContext()
-                ,
-                message, userName, currentUserUid, chatRoomId, post,
-                chatMate
-        );
+        return new GridRemoteViewsFactory(this.getApplicationContext(), intent);
     }
 }
 
 class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
-    private Context context;
+    private Context mContext;
+    private Cursor mCursor;
 
     private String mMessage = null;
     private String mUserName = null;
@@ -53,20 +49,16 @@ class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     private Post mPost = null;
     private User mChatMate = null;
 
-    GridRemoteViewsFactory(Context applicationContext
-            , String message,
-                           String userName, String currentUserUid,
-                           String chatRoomId, Post post,
-                           User chatMate
-    ) {
+    GridRemoteViewsFactory(Context applicationContext, Intent intent) {
+        mContext = applicationContext;
+        mMessage = intent.getStringExtra(kMESSAGE);
+        mUserName = intent.getStringExtra(kUSERNAME);
+        mCurrentUserUid = intent.getStringExtra(kCURRENTUSERID);
+        mChatRoomId = intent.getStringExtra(kCHATROOMID);
+        mPost = intent.getParcelableExtra(kPOST);
+        mChatMate = intent.getParcelableExtra(kUSER);
 
-        context = applicationContext;
-        mMessage = message;
-        mUserName = userName;
-        mCurrentUserUid = currentUserUid;
-        mChatRoomId = chatRoomId;
-        mPost = post;
-        mChatMate = chatMate;
+        Log.d("TAG", "GridRemoteViewsFactory: " + mChatRoomId);
     }
 
     @Override
@@ -77,18 +69,57 @@ class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     //called on start and when notifyAppWidgetViewDataChanged is called
     @Override
     public void onDataSetChanged() {
+        boolean cursorHasValidData = false;
+        if (mCursor != null && mCursor.moveToFirst()) {
+            /* We have valid data, continue on to bind the data to the UI */
+            cursorHasValidData = true;
+        }
+        if (!cursorHasValidData) {
+            /* No data to display, simply return and do nothing */
+            return;
+        }
 
+        mCursor.moveToFirst();
+        //mListPosts.clear();
+        for (int i = 0; i < mCursor.getCount(); i++) {
+
+            String description = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION));
+            String userName = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_NAME));
+            String postUserObjectId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_ID));
+            String profileImgUrl = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POSTER_PICTURE_PATH));
+            String postDate = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_DATE));
+            String postId = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_FREEGAN_ID));
+
+            String imageUrlString = mCursor.getString(mCursor.getColumnIndex(FreeganContract.FreegansEntry.COLUMN_POST_PICTURE_PATH));
+
+            ArrayList<String> imageUrls = new ArrayList<>();
+            JSONObject json = null;
+            try {
+                json = new JSONObject(imageUrlString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            JSONArray items =  json.optJSONArray(JSONARRAYKEY);
+            for (int j = 0; j < items.length(); j++) {
+                String value = items.optString(j);
+                imageUrls.add(value);
+            }
+
+            //mListPosts.add(new Post (postId, postUserObjectId, description, imageUrls, profileImgUrl, userName, postDate));
+
+            mCursor.moveToNext();
+        }
     }
 
     @Override
     public void onDestroy() {
-
+        mCursor.close();
     }
 
     @Override
     public int getCount() {
-        if (mCurrentUserUid == null) return 0;
-        return 1;
+        if (mCursor == null) return 0;
+        return mCursor.getCount();
     }
 
     /**
@@ -101,7 +132,7 @@ class GridRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public RemoteViews getViewAt(int position) {
         if (mCurrentUserUid == null) return null;
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.freegan_app_widget);
+        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.freegan_app_widget);
 
 
         views.setTextViewText(R.id.appwidget_user_name_text, mUserName);

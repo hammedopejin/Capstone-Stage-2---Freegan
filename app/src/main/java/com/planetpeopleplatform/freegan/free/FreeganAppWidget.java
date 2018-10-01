@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -39,6 +40,31 @@ public class FreeganAppWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = getFreeganListRemoteView(context, userName, message,
                 currentUserUid, chatRoomId, post, chatMate);
+
+//        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.freegan_app_widget);
+//
+//
+//        views.setTextViewText(R.id.appwidget_user_name_text, userName);
+//        views.setTextViewText(R.id.appwidget_message_text, message);
+//
+//        Bundle extras = new Bundle();
+//
+//        extras.putString(kCURRENTUSERID, currentUserUid);
+//        extras.putString(kCHATROOMID, chatRoomId);
+//        extras.putParcelable(kPOST, post);
+//        extras.putParcelable(kUSER, chatMate);
+//
+//
+//        Intent fillInIntent = new Intent();
+//        fillInIntent.putExtras(extras);
+//        views.setOnClickFillInIntent(R.id.appwidget_user_name_text, fillInIntent);
+//
+//        // Set the MessageActivity intent to launch when clicked
+//        Intent appIntent = new Intent(context, MessageActivity.class);
+////        wateringIntent.putExtra(PlantWateringService.EXTRA_PLANT_ID, plantId);
+//        PendingIntent appPendingIntent = PendingIntent.getService(context, 0, appIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        views.setPendingIntentTemplate(R.id.appwidget_user_name_text, appPendingIntent);
+
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
