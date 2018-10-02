@@ -106,7 +106,7 @@ public class MessageActivity extends CustomActivity {
     ProgressBar mLoadingIndicator;
 
     @BindView(R.id.button_chat_box_send)
-    Button mSendButton;
+    android.support.design.widget.FloatingActionButton mSendButton;
 
     @BindView(R.id.post_Image)
     ImageView mPostImage;
@@ -119,7 +119,7 @@ public class MessageActivity extends CustomActivity {
 
     // The Editext to compose the message.
     @BindView(R.id.chat_message_edit_text)
-    EditText mChatMessageEdittext;
+    android.support.design.widget.TextInputEditText mChatMessageEdittext;
 
     @BindView(R.id.reyclerview_message_list)
     RecyclerView mMessageRecycler;
@@ -232,16 +232,11 @@ public class MessageActivity extends CustomActivity {
 
     @Override
     public void onPause() {
-        super.onPause();
+        Utils.clearRecentCounter(mChatRoomId);
         isRunning = false;
         mMessageList.clear();
         detachDatabaseReadListener();
-    }
-
-    @Override
-    public void onDestroy() {
-        Utils.clearRecentCounter(mChatRoomId);
-        super.onDestroy();
+        super.onPause();
     }
 
     @Override

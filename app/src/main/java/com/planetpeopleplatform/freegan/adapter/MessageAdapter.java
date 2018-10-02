@@ -7,6 +7,7 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -125,19 +126,24 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
 
     private class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText, statusText;
+        TextView messageText, timeText;
+        ImageView statusImage;
 
         SentMessageHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.text_message_body);
             timeText = itemView.findViewById(R.id.text_message_time);
-            statusText = itemView.findViewById(R.id.text_message_status);
+            statusImage = itemView.findViewById(R.id.text_message_status);
 
         }
 
         void bind(Message message) {
             messageText.setText(message.getMessage());
-            statusText.setText(message.getStatus());
+            if (message.getStatus().equals(Message.STATUS_DELIVERED)){
+                statusImage.setImageResource(R.drawable.ic_done_green_a700_24dp);
+            } else if (message.getStatus().equals(Message.STATUS_READ)){
+                statusImage.setImageResource(R.drawable.ic_done_all_green_a700_24dp);
+            }
 
             // Format the stored timestamp into a readable String using method.
             try {

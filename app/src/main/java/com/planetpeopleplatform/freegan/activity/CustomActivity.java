@@ -33,9 +33,6 @@ public class CustomActivity extends AppCompatActivity implements OnClickListener
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             actionBar.setDisplayUseLogoEnabled(true);
-            //actionBar.setLogo(R.drawable.icon)
-            //actionBar.setBackgroundDrawable(getResources().getDrawable(
-            //		R.drawable.actionbar_bg))
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
         }

@@ -82,6 +82,7 @@ public class PushNotifications {
         });
     }
 
+    //Helper method for fetching user
     private static void loadUser(final Context context,
                                  final String messageDate, final String chatMateId,
                                  final String message, final String userName,

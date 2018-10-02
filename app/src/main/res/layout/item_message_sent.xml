@@ -11,7 +11,7 @@
     <TextView
         android:id="@+id/text_message_body"
         tools:text="hello, hello!"
-        android:background="@drawable/rounded_rectangle_green"
+        android:background="@drawable/message_sent_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxWidth="240dp"
@@ -26,21 +26,22 @@
         android:id="@+id/text_message_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:layout_marginRight="4dp"
+        android:textSize="@dimen/txt_10sp"
+        android:layout_marginRight="@dimen/pad_4dp"
         app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
         app:layout_constraintRight_toLeftOf="@+id/text_message_body"
-        android:layout_marginEnd="4dp" />
+        android:layout_marginEnd="@dimen/pad_4dp" />
 
-    <TextView
+    <ImageView
         android:id="@+id/text_message_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:layout_marginRight="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
         app:layout_constraintTop_toBottomOf="@+id/text_message_body"
         app:layout_constraintRight_toRightOf="@+id/text_message_body"
-        android:layout_marginEnd="4dp" />
+        android:paddingTop="@dimen/pad_8dp"
+        android:layout_marginRight="@dimen/pad_4dp"
+        android:layout_marginEnd="@dimen/pad_4dp"
+        android:contentDescription="@string/message_status_image_description" />
 
 </android.support.constraint.ConstraintLayout>

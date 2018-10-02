@@ -108,7 +108,7 @@
 
 
     <string name="delete_message">Are you sure you want to delete?</string>
-    <string name="chats_title">Chats</string>
+    <string name="chats_title">Recent chats</string>
 
     <string name="attention_alert_title">ATTENTION !!!</string>
     <string name="title_string">title</string>
@@ -224,6 +224,7 @@
     <string name="no_unread_message_string">No unread message</string>
     <string name="one_unread_message_string">1 unread message</string>
     <string name="unread_messages_string">unread messages</string>
+    <string name="message_status_image_description">Image that indicates the status of the message sent, if delievered or read.</string>
 
 
 </resources>
