@@ -1,7 +1,6 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.adapter.MessageAdapter;
-import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
@@ -73,7 +71,6 @@ public class MessageActivity extends CustomActivity {
     private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference chatRef = firebase.child(kMESSAGE);
     private String mChatRoomId = null;
-    private String mMessageId = null;
     private Post mPost = null;
     private User mChatMate = null;
     private Parcelable mRecyclerViewState;
@@ -144,13 +141,6 @@ public class MessageActivity extends CustomActivity {
 
         mPost = getIntent().getParcelableExtra(kPOST);
         mChatMate = getIntent().getParcelableExtra(kUSER);
-
-        mMessageId = getIntent().getStringExtra(kMESSAGEID);
-
-        if (mMessageId != null) {
-            Uri uri = FreeganContract.MessagesEntry.buildMessageUriWithMessageId(mMessageId);
-            deleteData(uri, this);
-        }
 
         getSupportActionBar().setTitle(mPost.getDescription());
         Glide.with(this).load(mPost.getImageUrl()).into(mPostImage);
@@ -453,12 +443,5 @@ public class MessageActivity extends CustomActivity {
             mChildEventListener = null;
         }
     }
-
-    // delete data from database
-    private void deleteData(Uri uri, Context context){
-        context.getContentResolver().delete(uri,
-                null, null);
-    }
-
 
 }

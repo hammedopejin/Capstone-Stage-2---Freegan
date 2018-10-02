@@ -211,9 +211,19 @@
     <string name="notification_message">"New message from %1$s"</string>
     <string name="title_activity_message">Message</string>
     <string name="main_notification_channel_name">Main notification channel</string>
-    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_text">--</string>
     <string name="add_widget">Add widget</string>
     <string name="no_new_notification_string">No new notification</string>
+
+
+    <!-- Widget Strings -->
+    <string name="freegan_logo_string">App image logo</string>
+    <string name="from_sting">From :</string>
+    <string name="message_sting">Message:</string>
+    <string name="last_message_received">Last message received:</string>
+    <string name="no_unread_message_string">No unread message</string>
+    <string name="one_unread_message_string">1 unread message</string>
+    <string name="unread_messages_string">unread messages</string>
 
 
 </resources>

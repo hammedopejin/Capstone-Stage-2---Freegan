@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
@@ -16,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,14 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
-import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.free.FreeganAppWidget;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,12 +35,10 @@ import java.util.List;
 import tgio.rncryptor.RNCryptorNative;
 
 import static com.planetpeopleplatform.freegan.free.FreeganAppWidget.updateFreeganWidgets;
-import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCOUNTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
@@ -66,7 +60,8 @@ public class PushNotifications {
     private static final int RECEIVED_MESSAGE_PENDING_INTENT_ID = 3417;
 
     //Helper method for fetching post
-    public static void loadPost(final Context context, final String messageId, String postId, final String chatMateId,
+    public static void loadPost(final Context context, final String messageDate,
+                                String postId, final String chatMateId,
                                 final String message, final String userName, final String chatRoomId, final String currentUserUid){
 
         firebase.child(kPOST).child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -75,7 +70,7 @@ public class PushNotifications {
                 try {
                     HashMap<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
                     Post post = (new Post(map));
-                    loadUser(context, messageId, chatMateId, message, userName, post, chatRoomId, currentUserUid);
+                    loadUser(context, messageDate, chatMateId, message, userName, post, chatRoomId, currentUserUid);
                 } catch (Exception e) {
                 }
             }
@@ -87,7 +82,8 @@ public class PushNotifications {
         });
     }
 
-    private static void loadUser(final Context context, final String messageId, final String chatMateId,
+    private static void loadUser(final Context context,
+                                 final String messageDate, final String chatMateId,
                                  final String message, final String userName,
                                  final Post post, final String chatRoomId, final String currentUserUid){
         firebase.child(kUSER).child(chatMateId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -95,7 +91,7 @@ public class PushNotifications {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
                     User chatMate = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-                    numberOfUnreadMessagesOfUser(context, messageId, post, chatMate,
+                    numberOfUnreadMessagesOfUser(context, messageDate, post, chatMate,
                             message, userName, chatRoomId, currentUserUid);
                 }catch (Exception ex){}
             }
@@ -112,15 +108,14 @@ public class PushNotifications {
     /**
      * Create and show a simple notification containing the received data message
      */
-    private static void sendNotification(Context context, String messageId, Post post, User chatMate,
+    private static void sendNotification(Context context, String messageDate,
+                                         Post post, User chatMate,
                                          String message, String userName, String chatRoomId, String currentUserUid,
                                           int counter) {
 
         RNCryptorNative rncryptor = new RNCryptorNative();
         String decrypted = rncryptor.decrypt(message, chatRoomId);
 
-        insertData(context, messageId, chatMate,
-                decrypted, userName, chatRoomId, currentUserUid);
 
         // If the message is longer than the max number of characters we want in our
         // notification, truncate it and add the unicode character for ellipsis
@@ -130,13 +125,13 @@ public class PushNotifications {
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, FreeganAppWidget.class));
-//        //Trigger data update to handle the GridView widgets and force a data refresh
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
+
         //Now update all widgets
         updateFreeganWidgets(context, appWidgetManager,
-        appWidgetIds, userName, decrypted,
-                currentUserUid, chatRoomId,
-                post, chatMate);
+                appWidgetIds,  userName,  decrypted,
+                 currentUserUid,
+                 chatRoomId,
+                 post,  chatMate, counter);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -154,7 +149,7 @@ public class PushNotifications {
                 .setContentTitle(String.format(context.getString(R.string.notification_message), userName))
                 .setContentText(decrypted)
                 .setSound(defaultSoundUri)
-                .setContentIntent(contentIntent(context, messageId, currentUserUid, chatRoomId,
+                .setContentIntent(contentIntent(context, currentUserUid, chatRoomId,
                         post, chatMate))
                 .setNumber(counter)
                 //.addAction(ignoreReminderAction(context))
@@ -198,16 +193,14 @@ public class PushNotifications {
         notificationManager.cancelAll();
     }
 
-    private static PendingIntent contentIntent(Context context, String messageId,
-                                               String currentUserUid, String chatRoomId,
-                                               Post post, User chatMate) {
+    private static PendingIntent contentIntent(Context context, String currentUserUid,
+                                               String chatRoomId, Post post, User chatMate) {
 
         Intent startActivityIntent = new Intent(context, MessageActivity.class);
         startActivityIntent.putExtra(kCURRENTUSERID, currentUserUid);
         startActivityIntent.putExtra(kCHATROOMID, chatRoomId);
         startActivityIntent.putExtra(kPOST, post);
         startActivityIntent.putExtra(kUSER, chatMate);
-        startActivityIntent.putExtra(kMESSAGEID, messageId);
 
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
         taskStackBuilder.addNextIntentWithParentStack(startActivityIntent);
@@ -216,7 +209,8 @@ public class PushNotifications {
     }
 
 
-    private static void numberOfUnreadMessagesOfUser(final Context context, final String messageId,
+    private static void numberOfUnreadMessagesOfUser(final Context context,
+                                                     final String messageDate,
                                                      final Post post, final User chatMate,
                                                      final String message, final String userName,
                                                      final String chatRoomId, final String currentUserUid) {
@@ -243,7 +237,7 @@ public class PushNotifications {
 
                         if (resultCounter[0] == recents.size()) {
                             // Send a notification that you got a new message
-                            sendNotification(context, messageId, post, chatMate,
+                            sendNotification(context, messageDate, post, chatMate,
                                     message, userName, chatRoomId, currentUserUid, counter[0]);
                         }
 
@@ -259,22 +253,6 @@ public class PushNotifications {
             }
         });
 
-    }
-
-    // insert data into database
-    private static void insertData(Context context, String messageId, User chatMate,
-                                   String message, String userName, String chatRoomId, String currentUserUid){
-        ContentValues postValues = new ContentValues();
-
-        postValues.put(FreeganContract.MessagesEntry.COLUMN_MESSAGE, message);
-        postValues.put(FreeganContract.MessagesEntry.COLUMN_MESSAGE_ID, messageId);
-        postValues.put(FreeganContract.MessagesEntry.COLUMN_CURRENT_USER_ID, currentUserUid);
-        postValues.put(FreeganContract.MessagesEntry.COLUMN_CHAT_ROOM_ID, chatRoomId);
-        postValues.put(FreeganContract.MessagesEntry.COLUMN_USER_NAME, userName);
-        postValues.put(FreeganContract.MessagesEntry.COLUMN_CHAT_MATE_ID, chatMate.getObjectId());
-
-        context.getContentResolver().insert(FreeganContract.FreegansEntry.CONTENT_URI,
-                postValues);
     }
 
 }

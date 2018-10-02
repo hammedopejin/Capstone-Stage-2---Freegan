@@ -86,6 +86,7 @@ public class Constants {
     public static final String kMESSAGE = "message";
     public static final String kMESSAGEID = "messageId";
     public static final String kREPORTMESSAGE = "reportMessages";
+    public static final String kMESSAGEDATE = "messageDate";
 
 
     //Friends

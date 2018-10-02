@@ -1,36 +1,111 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#09C"
-    android:padding="@dimen/widget_margin">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/Secondary"
+    android:padding="@dimen/widget_margin"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/Primary"
+            android:orientation="vertical">
+                <ImageView
+                    android:layout_width="@dimen/pad_30dp"
+                    android:layout_height="@dimen/pad_30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/freegan_logo"
+                    android:contentDescription="@string/freegan_logo_string" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/number_of_unread_messages"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="@dimen/txt_14sp"/>
+                </LinearLayout>
+        </LinearLayout>
 
     <TextView
-        android:id="@+id/appwidget_user_name_text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:background="#09C"
-        android:contentDescription="@string/appwidget_text"
-        android:text="@string/appwidget_text"
-        android:textColor="#ffffff"
-        android:textSize="24sp"
-        android:textStyle="bold|italic" />
+        android:textAlignment="center"
+        android:text="@string/last_message_received"
+        android:textColor="@color/white"
+        android:layout_margin="@dimen/pad_8dp" />
 
-    <TextView
-        android:id="@+id/appwidget_message_text"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/message_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:background="#09C"
-        android:contentDescription="@string/appwidget_text"
-        android:text="@string/appwidget_text"
-        android:textColor="#ffffff"
-        android:textSize="14sp"
-        android:layout_below="@+id/appwidget_user_name_text"
-        android:textStyle="bold|italic" />
+        android:orientation="vertical"
+        android:gravity="center">
 
-</RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textEnd"
+                android:gravity="end"
+                android:textSize="@dimen/txt_12sp"
+                android:text="@string/from_sting"
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:id="@+id/appwidget_user_name_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:contentDescription="@string/appwidget_text"
+                android:text="@string/appwidget_text"
+                android:textSize="@dimen/txt_12sp"
+                android:textColor="@color/white"
+                android:textStyle="bold|italic"
+                android:layout_marginLeft="@dimen/pad_8dp"
+                android:layout_marginStart="@dimen/pad_8dp"
+                android:layout_marginRight="@dimen/pad_8dp"
+                android:layout_marginEnd="@dimen/pad_8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textEnd"
+                android:text="@string/message_sting"
+                android:textColor="@color/white"
+                android:textSize="@dimen/txt_12sp"
+                android:gravity="end" />
+            <TextView
+                android:id="@+id/appwidget_message_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:contentDescription="@string/appwidget_text"
+                android:text="@string/appwidget_text"
+                android:textColor="@color/white"
+                android:textSize="@dimen/txt_12sp"
+                android:textStyle="bold|italic"
+                android:layout_marginLeft="@dimen/pad_8dp"
+                android:layout_marginStart="@dimen/pad_8dp"
+                android:layout_marginRight="@dimen/pad_8dp"
+                android:layout_marginEnd="@dimen/pad_8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

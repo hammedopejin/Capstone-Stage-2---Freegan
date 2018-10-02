@@ -30,6 +30,8 @@ exports.sendNotification = functions.database.ref('/message/{chatRoomId}/{pushId
                         senderId: message.senderId,
                         postId: message.postId,
                         receiverId: message.receiverId,
+                        messageId: message.messageId,
+                        messageDate: message.date,
                     }
                 };
 
