@@ -1,9 +1,12 @@
 package com.planetpeopleplatform.freegan.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,9 +20,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +38,7 @@ import com.planetpeopleplatform.freegan.adapter.MessageAdapter;
 import com.planetpeopleplatform.freegan.model.Message;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.EmptyStateRecyclerView;
 import com.planetpeopleplatform.freegan.utils.EndlessRecyclerViewScrollListener;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
@@ -43,11 +51,15 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import tgio.rncryptor.RNCryptorNative;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kAUDIO;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLOCATION;
@@ -55,6 +67,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPICTURE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECEIVERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
@@ -66,6 +80,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kVIDEO;
 
 public class MessageActivity extends CustomActivity {
+
+    private static final int REPORT_USER_REQUEST_CODE = 234;
 
     private ChildEventListener mChildEventListener;
     private DatabaseReference mMessagesDatabaseReference;
@@ -101,6 +117,8 @@ public class MessageActivity extends CustomActivity {
     private Query mDataBaseQuery;
     private ArrayList mLastSeenKey = new ArrayList<String>();
 
+    @BindView(R.id.chat_content)
+    CoordinatorLayout mCoordinatorLayout;
 
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
@@ -108,8 +126,11 @@ public class MessageActivity extends CustomActivity {
     @BindView(R.id.button_chat_box_send)
     android.support.design.widget.FloatingActionButton mSendButton;
 
-    @BindView(R.id.post_Image)
+    @BindView(R.id.post_Img)
     ImageView mPostImage;
+
+    @BindView(R.id.chat_options)
+    ImageView mChatOptions;
 
     @BindView(R.id.layout_chat_user)
     LinearLayout mChatLayout;
@@ -122,7 +143,10 @@ public class MessageActivity extends CustomActivity {
     android.support.design.widget.TextInputEditText mChatMessageEdittext;
 
     @BindView(R.id.reyclerview_message_list)
-    RecyclerView mMessageRecycler;
+    EmptyStateRecyclerView mMessageRecycler;
+
+    @BindView(R.id.empty_chat_message_text)
+    TextView mEmptyTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +167,7 @@ public class MessageActivity extends CustomActivity {
         mChatMate = getIntent().getParcelableExtra(kUSER);
 
         getSupportActionBar().setTitle(mPost.getDescription());
-        Glide.with(this).load(mPost.getImageUrl()).into(mPostImage);
+        Glide.with(this).load(mPost.getImageUrl().get(0)).into(mPostImage);
 
         mMessagesDatabaseReference = firebase.child(kMESSAGE).child(mChatRoomId);
         mDataBaseQuery = mMessagesDatabaseReference.limitToLast(30);
@@ -162,6 +186,7 @@ public class MessageActivity extends CustomActivity {
                     linearLayoutManager.setReverseLayout(true);
                     mMessageRecycler.setLayoutManager(linearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
+                    mMessageRecycler.setEmptyView(mEmptyTextView);
 
 
                         if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
@@ -218,6 +243,19 @@ public class MessageActivity extends CustomActivity {
 
         setTouchNClick(R.id.button_chat_box_send);
 
+        mChatOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showUserSettingsPopup(view);
+            }
+        });
+
+        mPostImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startProfileView(view);
+            }
+        });
 
     }
 
@@ -235,6 +273,7 @@ public class MessageActivity extends CustomActivity {
         Utils.clearRecentCounter(mChatRoomId);
         isRunning = false;
         mMessageList.clear();
+        mCurrentUser = null;
         detachDatabaseReadListener();
         super.onPause();
     }
@@ -250,7 +289,8 @@ public class MessageActivity extends CustomActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            //Utils.clearRecentCounter(chatRoomId);
+            Utils.clearRecentCounter(mChatRoomId);
+            onBackPressed();
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -439,4 +479,93 @@ public class MessageActivity extends CustomActivity {
         }
     }
 
+    private void showUserSettingsPopup(View view) {
+
+        PopupMenu popup = new PopupMenu(this, view);
+
+            if (mChatMate.getBlockedUsersList().contains(mCurrentUserUid)) {
+                popup.inflate(R.menu.popup_chat_visitor_settings_unblock_option);
+            } else {
+                popup.inflate(R.menu.popup_chat_visitor_settings);
+            }
+
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+
+
+                    case R.id.action_report_user:
+                        Intent reportUserIntent = new Intent(getApplicationContext(), ReportUserActivity.class);
+                        Bundle data = new Bundle();
+                        data.putParcelable(kCURRENTUSER, mCurrentUser);
+                        data.putParcelable(kPOSTER, mChatMate);
+                        reportUserIntent.putExtra(kBUNDLE, data);
+                        startActivityForResult(reportUserIntent, REPORT_USER_REQUEST_CODE);
+                        return true;
+
+                    case R.id.action_block_user:
+
+                        ArrayList<String> blockedList = mChatMate.getBlockedUsersList();
+                        blockedList.add(mCurrentUserUid);
+                        mChatMate.addBlockedUser(mCurrentUserUid);
+                        HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
+                        newBlockedUser.put(kBLOCKEDUSER, blockedList);
+                        firebase.child(kUSER).child(mChatMate.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                    Intent intent = getIntent();
+                                    finish();
+                                    startActivity(intent);
+                                } else {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                        return true;
+
+                    case R.id.action_unblock_user:
+                        ArrayList<String> blockedLists = mChatMate.getBlockedUsersList();
+                        int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
+                        mChatMate.removeBlockedUser(mCurrentUserUid);
+                        firebase.child(kUSER).child(mChatMate.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Snackbar.make(mCoordinatorLayout,
+                                                    R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                            Intent intent = getIntent();
+                                            finish();
+                                            startActivity(intent);
+                                        } else {
+                                            Snackbar.make(mCoordinatorLayout,
+                                                    R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
+                        return true;
+
+                    default:
+
+                        return false;
+                }
+            }
+        });
+        popup.show();
+
+    }
+
+    public void startProfileView(View view){
+        Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
+        profileIntent.putExtra(kPOSTERID, mPost.getPostUserObjectId());
+        startActivity(profileIntent);
+    }
 }

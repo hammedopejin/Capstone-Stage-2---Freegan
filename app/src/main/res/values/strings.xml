@@ -204,7 +204,7 @@
     <string name="err_location_saving_string">There was an error saving the location to GeoFire:</string>
     <string name="err_upload_failed_string">upload failed</string>
     <string name="err_password_failed_to_update_string">Password failed to update!</string>
-    <string name="error_decrypting_string">Error decrypting</string>
+    <string name="error_decrypting_string">error decrypting</string>
 
 
     <!-- Message and Notification Strings -->
@@ -224,7 +224,13 @@
     <string name="no_unread_message_string">No unread message</string>
     <string name="one_unread_message_string">1 unread message</string>
     <string name="unread_messages_string">unread messages</string>
-    <string name="message_status_image_description">Image that indicates the status of the message sent, if delievered or read.</string>
+
+    <!-- Message Strings -->
+    <string name="message_status_image_description">Image that indicates the status of the message sent, if delivered or read.</string>
+    <string name="empty_recent_chat_text">No recent chats yet!</string>
+    <string name="empty_chat_message_text">Make an inquiry, ask!</string>
+    <string name="post_image_description">Image of Freegan item</string>
+    <string name="chat_options_image_description">Menu for chat options</string>
 
 
 </resources>

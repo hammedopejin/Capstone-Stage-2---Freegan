@@ -33,19 +33,26 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.EmptyStateRecyclerView;
 import com.planetpeopleplatform.freegan.utils.ItemTouchHelperAdapter;
 import com.planetpeopleplatform.freegan.utils.MyItemTouchHelperCallback;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tgio.rncryptor.RNCryptorNative;
 
+import static butterknife.internal.Utils.listOf;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCOUNTER;
@@ -53,8 +60,10 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLASTMESSAGE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kOBJECTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPRIVATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENTID;
@@ -76,7 +85,10 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     ProgressBar mLoadingIndicator;
 
     @BindView(R.id.recent_recyclerview)
-    RecyclerView mRecentRecyclerView;
+    EmptyStateRecyclerView mRecentRecyclerView;
+
+    @BindView(R.id.empty_recent_chat_text)
+    TextView mEmptyTextView;
 
     private final int MESSAGE_ACTIVITY = 777;
 
@@ -91,7 +103,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     //Chat order participants
     private ArrayList mUserList = new ArrayList<User>();
 
-
+    RNCryptorNative mRncryptor;
     PostAdapter mAdapter;
 
     /** The user. */
@@ -116,6 +128,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         mCurrentUserUid = getIntent().getStringExtra(kCURRENTUSERID);
 
+        mRncryptor = new RNCryptorNative();
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -132,35 +145,50 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         });
 
         mRecentsDatabaseReference = firebase.child(kRECENT);
+        attachDatabaseReadListener();
     }
 
 
     @Override
     public void onResume(){
         super.onResume();
-        attachDatabaseReadListener();
         isRunning = true;
     }
 
 
     @Override
     public void onPause(){
-        super.onPause();
         isRunning = false;
-        mRecents.clear();
-        mUserList.clear();
-        mChatRoomIDs.clear();
-        mPostList.clear();
-
-        detachDatabaseReadListener();
+        super.onPause();
     }
 
 
     @Override
     public void onDestroy(){
-        super.onDestroy();
         updateUserStatus(false);
+        detachDatabaseReadListener();
+        super.onDestroy();
     }
+
+    static final Comparator<HashMap<String, Object>> byDate = new Comparator<HashMap<String, Object>>() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+
+        public int compare(HashMap<String, Object> ord1, HashMap<String, Object> ord2) {
+            Date d1 = null;
+            Date d2 = null;
+            try {
+                d1 = sdf.parse((String) ord1.get(kDATE));
+                d2 = sdf.parse((String) ord2.get(kDATE));
+            } catch (ParseException e) {
+
+                e.printStackTrace();
+            }
+
+
+            return (d1.getTime() > d2.getTime() ? -1 : 1);     //descending
+            //return (d1.getTime() > d2.getTime() ? 1 : -1);     //ascending
+        }
+    };
 
     private void attachDatabaseReadListener() {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
@@ -174,33 +202,53 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                         mUserList.clear();
                         mChatRoomIDs.clear();
                         mPostList.clear();
+                        mWithUserIds.clear();
+                        mPostIds.clear();
 
-                        Collection<Object> sortedArray =
-                                ((HashMap<String, Object>) dataSnapshot.getValue()).values();
+                        HashMap<String, Object> snapshotValue = (HashMap<String, Object>) dataSnapshot.getValue();
 
+                        ArrayList<HashMap<String, Object>> map = new ArrayList<>();
+                        for (Object object : snapshotValue.values()){
+                            map.add((HashMap<String, Object>) object);
+                        }
 
+                        Collections.sort(map, byDate);
 
-                        for (Object recent : sortedArray){
+                        for (Object recent : map){
 
                             final HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
 
-                            if(( (currentRecent.get(kTYPE)).equals(kPRIVATE))) {
+                            if((currentRecent.get(kTYPE)).equals(kPRIVATE)) {
 
                                 mWithUserIds.add(currentRecent.get(kWITHUSERUSERID));
                                 mPostIds.add(currentRecent.get(kPOSTID));
                                 mRecents.add(currentRecent);
-
                                 mChatRoomIDs.add(currentRecent.get(kCHATROOMID));
 
-                                if(mChatRoomIDs.size() == sortedArray.size()) {
-                                    loadUser(getApplicationContext(), mPostIds, mWithUserIds);
+                                if(mChatRoomIDs.size() == map.size()) {
+                                    loadUser(getApplicationContext(), mPostIds, mWithUserIds, mRecents, mChatRoomIDs);
                                 }
+
+
+                                mRecentsDatabaseReference.orderByChild(kCHATROOMID).equalTo((String) currentRecent.get(kCHATROOMID))
+                                        .addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+
 
 
                             }
                         }
                     }catch(Exception e){
-                        Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                     }
                 }
 
@@ -222,8 +270,10 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     }
 
     //Helper method for fetching post
-    public void loadPost(final Context context, final ArrayList<String> postIds, final ArrayList<User> userList){
-
+    public void loadPost(final Context context, final ArrayList<String> postIds,
+                         final ArrayList<User> userList, final ArrayList<HashMap<String, Object>> recents,
+                         final ArrayList<String> chatRoomIDs){
+        final ArrayList postList = new ArrayList<Post>();
         for (String postId : postIds)
         firebase.child(kPOST).child(postId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -233,16 +283,20 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                         if(dataSnapshot.exists()) {
 
                             Post post = new Post ((HashMap<String, Object>) dataSnapshot.getValue());
-                            mPostList.add(post);
+                            postList.add(post);
 
-                            if (mPostList.size() == postIds.size()) {
-                                mAdapter = new PostAdapter(context, userList, mPostList);
+                            if (postList.size() == postIds.size()) {
+
+                                mAdapter = new PostAdapter(context, userList, postList, recents,
+                                        chatRoomIDs);
                                 MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapter);
                                 ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
                                 touchHelper.attachToRecyclerView(mRecentRecyclerView);
                                 mRecentRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                                 mRecentRecyclerView.hasFixedSize();
                                 mRecentRecyclerView.setAdapter(mAdapter);
+                                mRecentRecyclerView.setEmptyView(mEmptyTextView);
+
                             }
 
                         }
@@ -256,7 +310,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     }
 
     //Helper method for fetching user
-    private void loadUser(final Context context, final ArrayList<String> postIds, final ArrayList<String> withUserIds){
+    private void loadUser(final Context context, final ArrayList<String> postIds, final ArrayList<String> withUserIds,
+                          final ArrayList<HashMap<String, Object>> recents, final ArrayList<String> chatRoomIDs){
 
         for (int i = 0; i < withUserIds.size(); i++) {
             final int finalI = i;
@@ -270,7 +325,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                 mUserList.add(chatMate);
 
                                 if ((withUserIds.size() -1) == finalI) {
-                                    loadPost(context, postIds, mUserList);
+                                    loadPost(context, postIds, mUserList, recents, chatRoomIDs);
                                 }
 
                             }
@@ -348,18 +403,23 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         Context mContext;
         ArrayList<User> uList;
         ArrayList<Post> uPosts;
+        ArrayList<HashMap<String, Object>> uRecents;
+        ArrayList<String> uChatRoomIDs;
 
-        public PostAdapter(Context context, ArrayList userList, ArrayList posts) {
+        PostAdapter(Context context, ArrayList<User> userList, ArrayList<Post> posts,
+                    ArrayList<HashMap<String, Object>> recents, ArrayList<String> chatRoomIDs) {
             mContext = context;
             uList = userList;
             uPosts = posts;
-
+            uRecents = recents;
+            uChatRoomIDs = chatRoomIDs;
         }
 
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            myView = LayoutInflater.from(mContext).inflate(R.layout.recent_item, parent, false);
+            myView = LayoutInflater.from(mContext).inflate(R.layout.recent_item, parent,
+                    false);
             return new Item(myView);
         }
 
@@ -372,18 +432,20 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
             TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
 
             try {
-                lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(), Utils.DateHelper.DF_SIMPLE_FORMAT
-                                .get().parse((String) ((HashMap<String, Object>) mRecents.get(position)).get(kDATE)).getTime(),DateUtils.SECOND_IN_MILLIS,
+                lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(),
+                        Utils.DateHelper.DF_SIMPLE_FORMAT
+                                .get().parse((String) ((HashMap<String, Object>) uRecents.get(position))
+                                .get(kDATE)).getTime(), DateUtils.SECOND_IN_MILLIS,
                         DateUtils.SECOND_IN_MILLIS,0));
                 } catch (ParseException e) {
                 e.printStackTrace();
                 }
                 lbl = holder.itemView.findViewById(R.id.tv_recent_message);
             lbl.setMaxLines(1);
-            RNCryptorNative rncryptor = new RNCryptorNative();
 
-            String decrypted = rncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position)).get(kLASTMESSAGE),
-                    (String) ((HashMap<String, Object>) mRecents.get(position)).get(kCHATROOMID));
+            String decrypted = mRncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position))
+                            .get(kLASTMESSAGE),
+                    (String) ((HashMap<String, Object>) uRecents.get(position)).get(kCHATROOMID));
 
             if(decrypted.equals(getString(R.string.error_decrypting_string))){
                 decrypted = "";
@@ -393,17 +455,19 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
             lbl = holder.itemView.findViewById(R.id.tv_recent_counter);
             lbl.setText("");
 
-            if( (long) ((HashMap<String, Object>) mRecents.get(position)).get(kCOUNTER)   > 0){
+            if( (long) ((HashMap<String, Object>) uRecents.get(position)).get(kCOUNTER)   > 0){
 
-                lbl.setText( ((HashMap<String, Object>) mRecents.get(position)).get(kCOUNTER).toString() + " New  ");
+                lbl.setText( ((HashMap<String, Object>) uRecents.get(position)).get(kCOUNTER)
+                        .toString() + " New  ");
             }
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view) { Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+                        public void onClick(View view) { Intent intent =
+                                new Intent(getApplicationContext(), MessageActivity.class);
 
                         intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
-                        intent.putExtra(kCHATROOMID, (String) mChatRoomIDs.get(position));
+                        intent.putExtra(kCHATROOMID, (String) uChatRoomIDs.get(position));
                         intent.putExtra(kPOST, (Post) uPosts.get(position));
                         intent.putExtra(kUSER, (User) uList.get(position));
 
@@ -420,7 +484,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         @Override
         public int getItemCount(){
-            return mRecents.size();
+            return uRecents.size();
         }
 
         @Override
@@ -435,7 +499,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         DeleteDialogFragment deleteDialog = DeleteDialogFragment.newInstance(getString(R.string.attention_alert_title),
                 ((String) ((HashMap<String, Object>) mRecents.get(position)).get(kRECENTID)), kRECENT, position);
-        deleteDialog.show(getSupportFragmentManager(),getString(R.string.delete_fragment_alert_tag));
+        deleteDialog.show(getSupportFragmentManager(), getString(R.string.delete_fragment_alert_tag));
     }
 
     @Override

@@ -57,8 +57,10 @@
             android:layout_marginLeft="@dimen/pad_5dp"
             android:layout_marginEnd="@dimen/pad_2dp"
             android:layout_marginRight="@dimen/pad_2dp"
+            android:layout_marginTop="@dimen/pad_2dp"
+            android:layout_marginBottom="@dimen/pad_2dp"
             android:background="@drawable/round_corner_white"
-            android:src="@drawable/common_google_signin_btn_icon_light"
+            android:src="@drawable/person_icon"
             android:contentDescription="@string/post_image" />
 
         <TextView
