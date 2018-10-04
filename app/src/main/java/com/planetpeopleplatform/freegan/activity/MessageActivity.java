@@ -1,7 +1,9 @@
 package com.planetpeopleplatform.freegan.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
@@ -267,6 +269,13 @@ public class MessageActivity extends CustomActivity {
         isRunning = true;
     }
 
+    @Override
+    public void onBackPressed() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            releaseInstance ();
+        }
+        super.onBackPressed();
+    }
 
     @Override
     public void onPause() {
@@ -518,9 +527,13 @@ public class MessageActivity extends CustomActivity {
                                 if (task.isSuccessful()) {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                    Intent intent = getIntent();
-                                    finish();
-                                    startActivity(intent);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                        recreate();
+                                    } else {
+                                        Intent intent = getIntent();
+                                        finish();
+                                        startActivity(intent);
+                                    }
                                 } else {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
@@ -541,9 +554,13 @@ public class MessageActivity extends CustomActivity {
                                         if (task.isSuccessful()) {
                                             Snackbar.make(mCoordinatorLayout,
                                                     R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                            Intent intent = getIntent();
-                                            finish();
-                                            startActivity(intent);
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                                recreate();
+                                            } else {
+                                                Intent intent = getIntent();
+                                                finish();
+                                                startActivity(intent);
+                                            }
                                         } else {
                                             Snackbar.make(mCoordinatorLayout,
                                                     R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();

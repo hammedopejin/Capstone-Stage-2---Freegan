@@ -73,15 +73,15 @@
         android:paddingTop="@dimen/text_padding"
         android:paddingRight="@dimen/text_padding"
         android:paddingBottom="@dimen/text_padding"
-        android:maxLines="2"/>
+        android:maxLines="2"
+        android:background="@drawable/scrim"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:text="Contact"
         android:id="@+id/contact_button_view"
         android:contentDescription="@string/contact_giver_button"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin_bottom"
         android:layout_width="@dimen/fab_layout_width"
         android:layout_height="@dimen/fab_layout_height"
         android:elevation="@dimen/fab_elevation"

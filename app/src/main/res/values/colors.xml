@@ -37,4 +37,9 @@
     <color name="main_color_gray">#7d7d7d</color>
     <color name="gray_light">#e8e8e8</color>
 
+
+    <color name="scrim_text_startColor">#CC000000</color>
+    <color name="scrim_text_centerColor">#66000000</color>
+    <color name="scrim_text_endColor">#00000000</color>
+
 </resources>

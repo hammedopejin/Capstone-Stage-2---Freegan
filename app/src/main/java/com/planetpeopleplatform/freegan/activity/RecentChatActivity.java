@@ -511,6 +511,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == MESSAGE_ACTIVITY){
+            recreate();
             mAdapter.notifyDataSetChanged();
         }
     }
