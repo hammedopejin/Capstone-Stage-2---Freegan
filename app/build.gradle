@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 27
@@ -50,10 +52,10 @@ dependencies {
     implementation "com.android.support:support-v4:$androidSupportVersion"
     implementation "com.android.support:support-vector-drawable:$androidSupportVersion"
 
-    //pagin
+    // Pagination
     implementation "android.arch.paging:runtime:1.0.1"
 
-    //Views Binding
+    // Views Binding
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
@@ -70,6 +72,15 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.0.2'
     implementation 'com.google.firebase:firebase-storage:16.0.1'
     implementation 'com.google.firebase:firebase-messaging:17.3.2'
+
+    // Firebase analytics
+    implementation 'com.google.firebase:firebase-analytics:15.0.0'
+
+    // Crash reporting
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.7.1'
+
+    // App invites
+    implementation 'com.google.android.gms:play-services-appinvite:16.0.1'
 
     // Encryption
     implementation 'com.github.tgio:rncryptor-native:0.0.9'

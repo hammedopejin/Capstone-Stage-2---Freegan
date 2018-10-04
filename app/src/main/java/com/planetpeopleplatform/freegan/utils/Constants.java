@@ -123,4 +123,7 @@ public class Constants {
     //FirebaseMessagingService
     public static final String kINSTANCEID = "instanceId";
 
+    //Freegan URLs
+    public static final String FREEGAN_BASE_URL = "https://www.freegan.io";
+
 }

@@ -44,6 +44,7 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
+import static com.planetpeopleplatform.freegan.utils.Constants.FREEGAN_BASE_URL;
 import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
@@ -60,6 +61,7 @@ public class ProfileChildImagePagerFragment extends Fragment {
 
     private static final int EDIT_POST_REQUEST_CODE = 123;
     private static final int REPORT_USER_REQUEST_CODE = 234;
+    private static final int SHARE_POST = 345;
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final String KEY_POSER = "com.planetpeopleplatform.freegan.key.poster";
     private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.currentUser";
@@ -233,6 +235,8 @@ public class ProfileChildImagePagerFragment extends Fragment {
                 Snackbar.make(mCoordinatorLayout,
                         R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
 
+            } else if (requestCode == SHARE_POST){
+
             }
         }
     }
@@ -266,8 +270,8 @@ public class ProfileChildImagePagerFragment extends Fragment {
                         return true;
 
                     case R.id.action_share_post:
-                        Intent shareIntent = createShareForecastIntent();
-                        startActivity(shareIntent);
+                        Intent shareIntent = createShareFreeganIntent();
+                        startActivityForResult(shareIntent, SHARE_POST);
                         return true;
 
                     case R.id.action_delete_post:
@@ -336,12 +340,14 @@ public class ProfileChildImagePagerFragment extends Fragment {
 
     }
 
-    private Intent createShareForecastIntent() {
+    private Intent createShareFreeganIntent() {
         Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
                 .setType("text/plain")
-                .setText("" + "")
+                .setText(FREEGAN_BASE_URL + " This item if free! --> " + mPost.getDescription()
+                + ", posted by " + mPost.getUserName())
                 .getIntent();
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+
         return shareIntent;
     }
 

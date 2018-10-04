@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,6 +31,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     private static final String KEY_CURRENT_USER_ID = "com.planetpeopleplatform.freegan.key.currentUserUid";
     private static final String KEY_POSTER_ID = "com.planetpeopleplatform.freegan.key.posterUid";
 
+    private FirebaseAnalytics mFirebaseAnalytics;
     private User mPoster = null;
     private User mCurrentUser = null;
     private String mCurrentUserUid = null;
@@ -43,6 +45,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         mAuth = FirebaseAuth.getInstance();
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);

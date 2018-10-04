@@ -231,6 +231,10 @@
     <string name="empty_chat_message_text">Make an inquiry, ask!</string>
     <string name="post_image_description">Image of Freegan item</string>
     <string name="chat_options_image_description">Menu for chat options</string>
+    <string name="invitation_title">Freegan app Invite</string>
+    <string name="invitation_cta">Call to action</string>
+    <string name="invitation_message">Download Freegan for free stuffs!</string>
+    <string name="invite_menu_label">Invite</string>
 
 
 </resources>

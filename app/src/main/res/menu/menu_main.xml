@@ -31,4 +31,10 @@
         </menu>
     </item>
 
+    <item
+        android:id="@+id/invite_menu"
+        android:title="@string/invite_menu_label"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+
 </menu>
