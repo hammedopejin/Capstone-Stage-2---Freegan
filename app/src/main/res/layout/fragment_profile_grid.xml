@@ -96,7 +96,7 @@
         android:paddingRight="@dimen/list_side_margin"
         android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layoutManager="GridLayoutManager"
+        app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
         app:spanCount="@integer/grid_span_count"/>
 
     <!-- A progress bar that will be shown to users to indicate that profile data is loading -->

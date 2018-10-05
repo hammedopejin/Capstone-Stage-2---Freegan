@@ -21,6 +21,8 @@ import com.planetpeopleplatform.freegan.model.User;
 import java.util.HashMap;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
@@ -51,7 +53,8 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
             mCurrentUserUid = savedInstanceState.getString(KEY_CURRENT_USER_ID);
             mPosterId = savedInstanceState.getString(KEY_POSTER_ID);
-            // Return here to prevent adding additional GridFragments when changing orientation.
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+            mPoster = savedInstanceState.getParcelable(kPOSTER);
             return;
         }
 
@@ -66,6 +69,8 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
         outState.putInt(KEY_CURRENT_POSITION, currentPosition);
         outState.putString(KEY_CURRENT_USER_ID, mCurrentUserUid);
         outState.putString(KEY_POSTER_ID, mPosterId);
+        outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        outState.putParcelable(kPOSTER, mPoster);
         super.onSaveInstanceState(outState);
     }
 
@@ -117,7 +122,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
                 }
             };
-            firebase.child(kUSER).child(currentUserUid).addValueEventListener(mCurrentUserValueEventListener);
+            firebase.child(kUSER).child(currentUserUid).addListenerForSingleValueEvent(mCurrentUserValueEventListener);
         }
     }
 
@@ -142,7 +147,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
                 }
             };
-            firebase.child(kUSER).child(posterUserUid).addValueEventListener(mPosterValueEventListener);
+            firebase.child(kUSER).child(posterUserUid).addListenerForSingleValueEvent(mPosterValueEventListener);
         }
     }
 

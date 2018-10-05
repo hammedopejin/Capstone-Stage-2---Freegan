@@ -45,6 +45,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
@@ -59,6 +61,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,8 +93,11 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private User mCurrentUser = null;
     private FirebaseAuth mAuth;
     private MainGridAdapter mMainGridAdapter;
-    GeoQuery mGeoQuery;
+    private GeoQuery mGeoQuery;
     private GeoFire mGeoFire;
+    private ValueEventListener mValueEventListener;
+    private DatabaseReference postRef = firebase.child(kPOST);
+    private Query mDataBaseQuery;
     private FusedLocationProviderClient mFusedLocationClient;
     private static Boolean mSortByFavorite = false;
     private Cursor mCursor;
@@ -100,6 +106,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
     private static final int CURSOR_LOADER_ID = 0;
 
+    @BindView((R.id.searchView))
     SearchView mSearchView;
 
     @BindView(R.id.coordinator_layout)
@@ -135,10 +142,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         prepareTransitions();
         postponeEnterTransition();
 
-        mSearchView = getActivity().findViewById(R.id.searchView);
         mFragment = this;
-
-
 
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -374,8 +378,10 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private void checkPosts(){
         final ArrayList<String> postIds = new ArrayList<>();
         mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+
         mGeoQuery = mGeoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
                 mCurrentUser.getLongitude()), 50);
+
         mGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -409,7 +415,9 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         mListPosts.clear();
         for (String postId : postIds) {
 
-            firebase.child(kPOST).child(postId).addValueEventListener(new ValueEventListener() {
+            mDataBaseQuery = postRef.child(postId).limitToFirst(6);
+
+            mDataBaseQuery.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     try {

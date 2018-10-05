@@ -235,6 +235,9 @@
     <string name="invitation_cta">Call to action</string>
     <string name="invitation_message">Download Freegan for free stuffs!</string>
     <string name="invite_menu_label">Invite</string>
+    <string name="freegan_item_share_string"><![CDATA[This item if free! -->]]></string>
+    <string name="posted_by_string">, posted by</string>
+    <string name="mime_text_plain_string">text/plain</string>
 
 
 </resources>

@@ -171,7 +171,7 @@ public class MessageActivity extends CustomActivity {
         getSupportActionBar().setTitle(mPost.getDescription());
         Glide.with(this).load(mPost.getImageUrl().get(0)).into(mPostImage);
 
-        mMessagesDatabaseReference = firebase.child(kMESSAGE).child(mChatRoomId);
+        mMessagesDatabaseReference = chatRef.child(mChatRoomId);
         mDataBaseQuery = mMessagesDatabaseReference.limitToLast(30);
         mDataBaseQuery.keepSynced(true);
 

@@ -11,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.EditPostActivity;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
@@ -62,6 +66,7 @@ public class ProfileChildImagePagerFragment extends Fragment {
     private static final int EDIT_POST_REQUEST_CODE = 123;
     private static final int REPORT_USER_REQUEST_CODE = 234;
     private static final int SHARE_POST = 345;
+    private final int MESSAGE_ACTIVITY = 777;
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final String KEY_POSER = "com.planetpeopleplatform.freegan.key.poster";
     private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.currentUser";
@@ -199,18 +204,33 @@ public class ProfileChildImagePagerFragment extends Fragment {
 
                 final Intent intent = new Intent(getActivity(), MessageActivity.class);
 
-                            if (!(mPoster.getObjectId().equals(mCurrentUserUid))) {
+                firebase.child(kUSER).child(mPoster.getObjectId()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()) {
+                            User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                            if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
+
                                 if (mCurrentUser != null) {
-                                    mChatRoomId = Utils.startChat(mCurrentUser, mPoster, mPost.getPostId());
+                                    mChatRoomId = Utils.startChat(mCurrentUser, chatMate, mPost.getPostId());
 
                                     intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
                                     intent.putExtra(kCHATROOMID, mChatRoomId);
                                     intent.putExtra(kPOST, mPost);
-                                    intent.putExtra(kUSER, mPoster);
+                                    intent.putExtra(kUSER, chatMate);
 
-                                    startActivity(intent);
+                                    startActivityForResult(intent, MESSAGE_ACTIVITY);
                                 }
                             }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
 
@@ -222,22 +242,18 @@ public class ProfileChildImagePagerFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
+        if (requestCode == EDIT_POST_REQUEST_CODE && resultCode == RESULT_OK) {
+            getActivity().finish();
+            getActivity().getSupportFragmentManager().popBackStack();
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
+        } else if (requestCode == REPORT_USER_REQUEST_CODE && resultCode == RESULT_OK) {
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
+        } else if (requestCode == SHARE_POST){
 
-
-            if (requestCode == EDIT_POST_REQUEST_CODE) {
-                getActivity().finish();
-                getActivity().getSupportFragmentManager().popBackStack();
-                Snackbar.make(mCoordinatorLayout,
-                        R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
-
-            } else if (requestCode == REPORT_USER_REQUEST_CODE) {
-                Snackbar.make(mCoordinatorLayout,
-                        R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
-
-            } else if (requestCode == SHARE_POST){
-
-            }
+        } else if (requestCode == MESSAGE_ACTIVITY){
+            getActivity().recreate();
         }
     }
 
@@ -247,11 +263,7 @@ public class ProfileChildImagePagerFragment extends Fragment {
         if (mCurrentUserUid.equals(mPost.getPostUserObjectId())) {
             popup.inflate(R.menu.popup_post_settings);
         } else {
-            if (mPoster.getBlockedUsersList().contains(mCurrentUserUid)) {
-                popup.inflate(R.menu.popup_post_visitor_settings_unblock_option);
-            } else {
-                popup.inflate(R.menu.popup_post_visitor_settings);
-            }
+            popup.inflate(R.menu.popup_post_visitor_settings);
         }
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -300,6 +312,13 @@ public class ProfileChildImagePagerFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                        getActivity().recreate();
+                                    } else {
+                                        Intent intent = getActivity().getIntent();
+                                        getActivity().finish();
+                                        startActivity(intent);
+                                    }
                                 } else {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
@@ -320,6 +339,13 @@ public class ProfileChildImagePagerFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                        getActivity().recreate();
+                                    } else {
+                                        Intent intent = getActivity().getIntent();
+                                        getActivity().finish();
+                                        startActivity(intent);
+                                    }
                                 } else {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
@@ -342,9 +368,9 @@ public class ProfileChildImagePagerFragment extends Fragment {
 
     private Intent createShareFreeganIntent() {
         Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
-                .setType("text/plain")
-                .setText(FREEGAN_BASE_URL + " This item if free! --> " + mPost.getDescription()
-                + ", posted by " + mPost.getUserName())
+                .setType(getString(R.string.mime_text_plain_string))
+                .setText(FREEGAN_BASE_URL + getString(R.string.freegan_item_share_string) + mPost.getDescription()
+                + getString(R.string.posted_by_string) + mPost.getUserName())
                 .getIntent();
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
 

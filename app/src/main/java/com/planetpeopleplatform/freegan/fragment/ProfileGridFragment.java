@@ -2,6 +2,7 @@ package com.planetpeopleplatform.freegan.fragment;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,6 +35,7 @@ import com.planetpeopleplatform.freegan.activity.SettingsActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +50,9 @@ import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
@@ -109,12 +113,19 @@ public class ProfileGridFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_profile_grid, container, false);
         ButterKnife.bind(this, rootView);
 
-        Bundle arguments = getArguments();
-        if (arguments == null) {
-            closeOnError(mCoordinatorLayout, getActivity());
+        if (savedInstanceState != null) {
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+            mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
+            mPoster = savedInstanceState.getParcelable(kPOSTER);
+        } else {
+
+            Bundle arguments = getArguments();
+            if (arguments == null) {
+                closeOnError(mCoordinatorLayout, getActivity());
+            }
+            mPoster = arguments.getParcelable(KEY_POSTER);
+            mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
         }
-        mPoster = arguments.getParcelable(KEY_POSTER);
-        mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
 
         mFragment = this;
 
@@ -157,6 +168,26 @@ public class ProfileGridFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         scrollToPosition();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null && resultCode == RESULT_OK) {
+
+            if (requestCode == REPORT_USER_REQUEST_CODE) {
+                Snackbar.make(mCoordinatorLayout,
+                        R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        outState.putParcelableArrayList(kPOST, mListPosts);
+        outState.putParcelable(kPOSTER, mPoster);
+        super.onSaveInstanceState(outState);
     }
 
     /**
@@ -224,7 +255,7 @@ public class ProfileGridFragment extends Fragment {
     private void loadPosts(){
         showDataView();
         firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPoster.getObjectId())
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try{
@@ -252,76 +283,106 @@ public class ProfileGridFragment extends Fragment {
 
     }
 
-    private void showUserSettingsPopup(View view) {
-        PopupMenu popup = new PopupMenu(getContext(), view);
-        if (mPoster.getBlockedUsersList().contains(mCurrentUserUid)) {
-            popup.inflate(R.menu.popup_user_settings_unblock_option);
-        } else {
-            popup.inflate(R.menu.popup_user_settings);
-        }
+    private void showUserSettingsPopup(final View view) {
 
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        firebase.child(kUSER).child(mPoster.getObjectId()).addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.action_report_user:
-                        Intent reportUserIntent = new Intent(getContext(), ReportUserActivity.class);
-                        Bundle data = new Bundle();
-                        data.putParcelable(kCURRENTUSER, mCurrentUser);
-                        data.putParcelable(kPOSTER, mPoster);
-                        reportUserIntent.putExtra(kBUNDLE, data);
-                        startActivityForResult(reportUserIntent, REPORT_USER_REQUEST_CODE);
-                        return true;
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                    PopupMenu popup = new PopupMenu(getContext(), view);
+                    if (mCurrentUser.getBlockedUsersList().contains(mPoster.getObjectId())
+                            || mPoster.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
+                        popup.inflate(R.menu.popup_user_settings_unblock_option);
+                    } else {
+                        popup.inflate(R.menu.popup_user_settings_block_option);
+                    }
 
-                    case R.id.action_block_user:
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            switch (menuItem.getItemId()) {
+                                case R.id.action_report_user:
+                                    Intent reportUserIntent = new Intent(getContext(), ReportUserActivity.class);
+                                    Bundle data = new Bundle();
+                                    data.putParcelable(kCURRENTUSER, mCurrentUser);
+                                    data.putParcelable(kPOSTER, mPoster);
+                                    reportUserIntent.putExtra(kBUNDLE, data);
+                                    startActivityForResult(reportUserIntent, REPORT_USER_REQUEST_CODE);
+                                    return true;
 
-                        ArrayList<String> blockedList = mPoster.getBlockedUsersList();
-                        blockedList.add(mCurrentUserUid);
-                        mPoster.addBlockedUser(mCurrentUserUid);
-                        HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
-                        newBlockedUser.put(kBLOCKEDUSER, blockedList);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                } else {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
-                                }
+                                case R.id.action_block_user:
+
+                                    ArrayList<String> blockedList = mPoster.getBlockedUsersList();
+                                    blockedList.add(mCurrentUserUid);
+                                    mPoster.addBlockedUser(mCurrentUserUid);
+                                    HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
+                                    newBlockedUser.put(kBLOCKEDUSER, blockedList);
+                                    firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Snackbar.make(mCoordinatorLayout,
+                                                        R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                                    getActivity().recreate();
+                                                } else {
+                                                    Intent intent = getActivity().getIntent();
+                                                    getActivity().finish();
+                                                    startActivity(intent);
+                                                }
+                                            } else {
+                                                Snackbar.make(mCoordinatorLayout,
+                                                        R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+
+                                    return true;
+
+                                case R.id.action_unblock_user:
+
+                                    ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
+                                    int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
+                                    mPoster.removeBlockedUser(mCurrentUserUid);
+                                    firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Snackbar.make(mCoordinatorLayout,
+                                                                R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
+                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                                                            getActivity().recreate();
+                                                        } else {
+                                                            Intent intent = getActivity().getIntent();
+                                                            getActivity().finish();
+                                                            startActivity(intent);
+                                                        }
+                                                    } else {
+                                                        Snackbar.make(mCoordinatorLayout,
+                                                                R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+
+                                    return true;
+
+                                default:
+                                    return true;
                             }
-                        });
-
-                        return true;
-
-                    case R.id.action_unblock_user:
-
-                        ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
-                        int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
-                        mPoster.removeBlockedUser(mCurrentUserUid);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                } else {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-                        return true;
-
-                        default:
-                            return true;
+                        }
+                    });
+                    popup.show();
                 }
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
         });
-        popup.show();
     }
 
 
@@ -339,16 +400,4 @@ public class ProfileGridFragment extends Fragment {
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (data != null && resultCode == RESULT_OK) {
-
-            if (requestCode == REPORT_USER_REQUEST_CODE) {
-                Snackbar.make(mCoordinatorLayout,
-                        R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
-
-            }
-        }
-    }
 }

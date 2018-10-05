@@ -61,7 +61,8 @@ import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 public class MainChildImagePagerFragment extends Fragment {
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
-    private static final int RC_PROFILE_ACTIVITY = 777;
+    private static final int RC_PROFILE_ACTIVITY = 123;
+    private final int MESSAGE_ACTIVITY = 777;
     private String mChatMateId;
     private String mChatRoomId = null;
     private User mCurrentUser = null;
@@ -180,7 +181,7 @@ public class MainChildImagePagerFragment extends Fragment {
                 final Intent intent = new Intent(getActivity(), MessageActivity.class);
                 mChatMateId = mPost.getPostUserObjectId();
 
-                firebase.child(kUSER).child(mChatMateId).addValueEventListener(new ValueEventListener() {
+                firebase.child(kUSER).child(mChatMateId).addListenerForSingleValueEvent(new ValueEventListener() {
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -196,7 +197,7 @@ public class MainChildImagePagerFragment extends Fragment {
                                     intent.putExtra(kPOST, mPost);
                                     intent.putExtra(kUSER, chatMate);
 
-                                    startActivity(intent);
+                                    startActivityForResult(intent, MESSAGE_ACTIVITY);
                                 }
                             }
                         }
@@ -240,8 +241,11 @@ public class MainChildImagePagerFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == RC_PROFILE_ACTIVITY) {
 
+        } else if (requestCode == MESSAGE_ACTIVITY){
+            getActivity().recreate();
         }
     }
 

@@ -10,9 +10,5 @@
         android:title="@string/action_report_user"
         android:orderInCategory="100"
         app:showAsAction="never" />
-    <item android:id="@+id/action_block_user"
-        android:title="@string/action_block_user"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
 
 </menu>
