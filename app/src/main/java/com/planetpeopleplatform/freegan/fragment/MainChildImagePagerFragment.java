@@ -232,13 +232,6 @@ public class MainChildImagePagerFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
-        mToolbarContainer.setVisibility(View.GONE);
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 

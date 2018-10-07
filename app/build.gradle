@@ -55,6 +55,10 @@ dependencies {
     // Pagination
     implementation "android.arch.paging:runtime:1.0.1"
 
+    // architecture components
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    implementation "android.arch.persistence.room:compiler:1.1.1"
+
     // Views Binding
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

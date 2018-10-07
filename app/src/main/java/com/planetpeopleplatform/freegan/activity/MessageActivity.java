@@ -305,6 +305,10 @@ public class MessageActivity extends CustomActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void loadMore(){
+
+    }
+
     public void loadNextDataFromApi(int offset) {
 
         String[] array = {kAUDIO, kVIDEO, kTEXT, kLOCATION, kPICTURE};
