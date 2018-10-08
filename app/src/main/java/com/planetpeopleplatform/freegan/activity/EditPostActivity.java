@@ -32,8 +32,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
@@ -90,7 +88,6 @@ public class EditPostActivity extends AppCompatActivity
     private ArrayList<Uri> mSelectedImageUris = new ArrayList<>();
     private File destFile;
     private int mCurrentIndex;
-    private int mImageRefUploadCounter = 0;
 
     private Post mPost;
 
@@ -127,10 +124,12 @@ public class EditPostActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         destFile = getOutputMediaFile(this);
-        mSelectedImageUri = FileProvider.getUriForFile(
-                this,
-                "com.planetpeopleplatform.freegan.provider",
-                destFile);
+        if (destFile != null) {
+            mSelectedImageUri = FileProvider.getUriForFile(
+                    this,
+                    "com.planetpeopleplatform.freegan.provider",
+                    destFile);
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -140,12 +139,19 @@ public class EditPostActivity extends AppCompatActivity
         Bundle argument = getIntent().getBundleExtra(kBUNDLE);
         mCurrentUser = argument.getParcelable(kCURRENTUSER);
         mPost = argument.getParcelable(kPOST);
-        mItemDescriptionEditText.setText(mPost.getDescription());
+        if (mPost != null) {
+            mItemDescriptionEditText.setText(mPost.getDescription());
+        }
 
-        int photoSize = mPost.getImageUrl().size();
+        int photoSize = 0;
+        if (mPost != null) {
+            photoSize = mPost.getImageUrl().size();
+        }
 
         for (int i = photoSize; i < 4; i++) {
-            mPost.getImageUrl().add(i, "placeHolder");
+            if (mPost != null) {
+                mPost.getImageUrl().add(i, "placeHolder");
+            }
         }
         for (int j = 0; j < 4; j++){
             mNewImageSelected.add(false);
@@ -444,49 +450,37 @@ public class EditPostActivity extends AppCompatActivity
                 mImageRef.add(storageRef.child("post_pics/" + imagePath));
 
                     // Upload file to Firebase Storage
-                mImageRefUploadCounter = i;
-                    mImageRef.get(mImageRefUploadCounter).putFile(mSelectedImageUris.get(mImageRefUploadCounter))
+                final int finalI = i;
+                mImageRef.get(finalI).putFile(mSelectedImageUris.get(finalI))
                             .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                             if (!task.isSuccessful()) {
                                 throw task.getException();
                             }
-                            return mImageRef.get(mImageRefUploadCounter).getDownloadUrl();
+                            return mImageRef.get(finalI).getDownloadUrl();
                         }
-                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    })
+
+                        .addOnCompleteListener(new OnCompleteListener<Uri>() {
 
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful()) {
                                 mPostDownloadURLs.add(task.getResult().toString());
 
-                                if (mImageRefUploadCounter == (mSelectedImageUris.size() - 1)) {
+                                if (finalI == (mSelectedImageUris.size() - 1)) {
                                     postIt();
                                 }
-
                             } else {
                                 mLoadingIndicator.setVisibility(View.INVISIBLE);
                                 Snackbar.make(mCoordinatorLayout,
                                         R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
                             }
                         }
-                    }).addOnSuccessListener(this, new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            mPostDownloadURLs.add(uri.toString());
-
-                            if (mImageRefUploadCounter == (mSelectedImageUris.size() - 1)) {
-                                postIt();
-                            }
-                        }
-                    }).addOnFailureListener(this, new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: " + e.getLocalizedMessage());
-                        }
                     });
-                }
+
+            }
 
         } else {
             postIt();
