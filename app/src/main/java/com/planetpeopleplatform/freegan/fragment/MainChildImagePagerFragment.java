@@ -242,6 +242,13 @@ public class MainChildImagePagerFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
+        mToolbarContainer.setVisibility(View.INVISIBLE);
+    }
+
     private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
         firebase.child(kUSER).child(posterId).addValueEventListener(new ValueEventListener() {
             @Override

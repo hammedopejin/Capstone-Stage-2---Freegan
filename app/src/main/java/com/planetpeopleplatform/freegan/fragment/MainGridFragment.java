@@ -23,11 +23,16 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
@@ -51,10 +56,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
+import com.planetpeopleplatform.freegan.activity.RecentChatActivity;
+import com.planetpeopleplatform.freegan.activity.SettingsActivity;
 import com.planetpeopleplatform.freegan.adapter.MainGridAdapter;
 import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
+import com.planetpeopleplatform.freegan.utils.EndlessRecyclerViewScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,6 +82,7 @@ import static android.support.v4.content.ContextCompat.checkSelfPermission;
 import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLATITUDE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kLONGITUDE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
@@ -89,24 +98,29 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private static final String TAG = MainGridFragment.class.getSimpleName();
     private Fragment mFragment = null;
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
+    private ArrayList<String> mPostIds = new ArrayList<>();
     private String mCurrentUserUid = null;
     private User mCurrentUser = null;
     private FirebaseAuth mAuth;
     private MainGridAdapter mMainGridAdapter;
     private GeoQuery mGeoQuery;
     private GeoFire mGeoFire;
-    private ValueEventListener mValueEventListener;
     private DatabaseReference postRef = firebase.child(kPOST);
-    private Query mDataBaseQuery;
     private FusedLocationProviderClient mFusedLocationClient;
     private static Boolean mSortByFavorite = false;
     private Cursor mCursor;
+    private StaggeredGridLayoutManager mStaggeredGridLayoutManager = null;
+
+    // Store a member variable for the listener
+    private EndlessRecyclerViewScrollListener mScrollListener;
 
     private static final int RC_POST_ITEM = 1;
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 111;
     private static final int CURSOR_LOADER_ID = 0;
 
-    @BindView((R.id.searchView))
+    private final int PAGE_LOAD_SIZE = 10;
+    private int mTotalLoadSize = 0;
+
     SearchView mSearchView;
 
     @BindView(R.id.coordinator_layout)
@@ -131,6 +145,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
 
+        mSearchView = getActivity().findViewById(R.id.searchView);
+
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
@@ -138,6 +154,24 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
         }
+
+        mStaggeredGridLayoutManager = new StaggeredGridLayoutManager
+                (getResources().getInteger(R.integer.grid_span_count), GridLayoutManager.VERTICAL);
+
+        // Retain an instance so that you can call `resetState()` for fresh searches
+        mScrollListener = new EndlessRecyclerViewScrollListener(mStaggeredGridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                if (totalItemsCount > mTotalLoadSize) {
+                    if (PAGE_LOAD_SIZE < mPostIds.size()) {
+                        loadPosts(PAGE_LOAD_SIZE, totalItemsCount);
+                        mTotalLoadSize = mTotalLoadSize + PAGE_LOAD_SIZE;
+                    } else {
+                        loadPosts(mPostIds.size(), totalItemsCount);
+                    }
+                }
+            }
+        };
 
         prepareTransitions();
         postponeEnterTransition();
@@ -163,7 +197,9 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         });
 
         mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
+        mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
         mRecyclerView.setAdapter(mMainGridAdapter);
+        mRecyclerView.addOnScrollListener(mScrollListener);
 
         return rootView;
     }
@@ -245,6 +281,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             }
         });
 
+        mRecyclerView.addOnScrollListener(mScrollListener);
+
         setupSharedPreferences();
         showLoading();
         if (isNetworkAvailable()) {
@@ -255,6 +293,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                 firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                         if (dataSnapshot.exists()) {
                             mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
 
@@ -312,6 +351,12 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         PreferenceManager.getDefaultSharedPreferences(getContext())
                 .unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
+    }
+
+    @Override
+    public void onPause() {
+        mRecyclerView.removeOnScrollListener(mScrollListener);
+        super.onPause();
     }
 
     /**
@@ -376,16 +421,19 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void checkPosts(){
-        final ArrayList<String> postIds = new ArrayList<>();
         mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
 
         mGeoQuery = mGeoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
                 mCurrentUser.getLongitude()), 50);
 
+        mTotalLoadSize = 0;
+        mPostIds.clear();
+        mListPosts.clear();
+
         mGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                postIds.add(key);
+                mPostIds.add(key);
             }
 
             @Override
@@ -400,7 +448,11 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
 
             @Override
             public void onGeoQueryReady() {
-                loadPosts(postIds);
+                if (PAGE_LOAD_SIZE < mPostIds.size()) {
+                    loadPosts(PAGE_LOAD_SIZE, 0);
+                } else {
+                    loadPosts(mPostIds.size(), 0);
+                }
             }
 
             @Override
@@ -410,35 +462,40 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         });
     }
 
-    private void loadPosts(ArrayList<String> postIds){
+    private void loadPosts(int page_load_size, int offset){
         showDataView();
-        mListPosts.clear();
-        for (String postId : postIds) {
 
-            mDataBaseQuery = postRef.child(postId).limitToFirst(6);
+        int maxBoundary = page_load_size + offset;
+        if(maxBoundary > mPostIds.size()){
+            maxBoundary = mPostIds.size();
+        }
 
-            mDataBaseQuery.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    try {
-                        HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
-                        mListPosts.add(new Post(post));
+        for (int i = offset; i < maxBoundary; i++) {
 
-                        mMainGridAdapter.notifyDataSetChanged();
 
-                        if (mSwipeContainer.isRefreshing()) {
-                            mSwipeContainer.setRefreshing(false);
+                postRef.child(mPostIds.get(i)).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        try {
+                            HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
+                            mListPosts.add(new Post(post));
+
+                            mMainGridAdapter.notifyDataSetChanged();
+
+                            if (mSwipeContainer.isRefreshing()) {
+                                mSwipeContainer.setRefreshing(false);
+                            }
+                        } catch (Exception e) {
+                            Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                         }
-                    } catch (Exception e) {
-                        Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
-            });
+                    }
+                });
+
         }
 
     }

@@ -127,7 +127,7 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
     /**
      * ViewHolder for the grid's images.
      */
-     class ImageViewHolder extends RecyclerView.ViewHolder implements
+    class ImageViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener {
 
         private final ImageView mImage;

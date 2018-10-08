@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -108,13 +109,12 @@ public class MessageActivity extends CustomActivity {
     // Store a member variable for the listener
     private EndlessRecyclerViewScrollListener mScrollListener;
 
-    /** The current user object. */
-    /**
+    /** The current user object.
      * Allow access to the current user info
      */
     private User mCurrentUser = null;
     private String mCurrentUserUid = null;
-    private LinearLayoutManager linearLayoutManager = null;
+    private LinearLayoutManager mLinearLayoutManager = null;
 
     private Query mDataBaseQuery;
     private ArrayList mLastSeenKey = new ArrayList<String>();
@@ -175,7 +175,7 @@ public class MessageActivity extends CustomActivity {
         mDataBaseQuery = mMessagesDatabaseReference.limitToLast(30);
         mDataBaseQuery.keepSynced(true);
 
-        linearLayoutManager = new LinearLayoutManager(MessageActivity.this);
+        mLinearLayoutManager = new LinearLayoutManager(MessageActivity.this);
 
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
             @Override
@@ -184,9 +184,9 @@ public class MessageActivity extends CustomActivity {
                     mCurrentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
                     mMessageAdapter = new MessageAdapter(MessageActivity.this, mMessageList, mChatMate);
 
-                    linearLayoutManager.setSmoothScrollbarEnabled(true);
-                    linearLayoutManager.setReverseLayout(true);
-                    mMessageRecycler.setLayoutManager(linearLayoutManager);
+                    mLinearLayoutManager.setSmoothScrollbarEnabled(true);
+                    mLinearLayoutManager.setReverseLayout(true);
+                    mMessageRecycler.setLayoutManager(mLinearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
                     mMessageRecycler.setEmptyView(mEmptyTextView);
 
@@ -209,7 +209,7 @@ public class MessageActivity extends CustomActivity {
         });
 
         // Retain an instance so that you can call `resetState()` for fresh searches
-        mScrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+        mScrollListener = new EndlessRecyclerViewScrollListener(mLinearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if (totalItemsCount > 29) {
@@ -303,10 +303,6 @@ public class MessageActivity extends CustomActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void loadMore(){
-
     }
 
     public void loadNextDataFromApi(int offset) {
