@@ -8,39 +8,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-
-
-
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/main_content_swipe_refresh_layout"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <android.support.v7.widget.RecyclerView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/recycler_view"
-            android:scrollbarStyle="outsideOverlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingStart="@dimen/list_side_margin"
-            android:paddingEnd="@dimen/list_side_margin"
-            android:fitsSystemWindows="true"
-            android:clipToPadding="false"
-            android:paddingLeft="@dimen/list_side_margin"
-            android:paddingRight="@dimen/list_side_margin"
-            android:scrollbars="vertical"
-            android:fastScrollEnabled="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    </android.support.v4.widget.SwipeRefreshLayout>
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_item_button_view"
         android:layout_width="@dimen/fab_layout_width"

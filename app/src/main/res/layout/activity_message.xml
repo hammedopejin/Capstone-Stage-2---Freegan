@@ -64,8 +64,9 @@
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:gravity="center"
-                android:text="@string/empty_chat_message_text" />
-            <com.planetpeopleplatform.freegan.utils.EmptyStateRecyclerView
+                android:text="@string/empty_chat_message_text"
+                android:visibility="invisible"/>
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/reyclerview_message_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

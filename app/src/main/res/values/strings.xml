@@ -238,6 +238,7 @@
     <string name="freegan_item_share_string"><![CDATA[This item if free! -->]]></string>
     <string name="posted_by_string">, posted by</string>
     <string name="mime_text_plain_string">text/plain</string>
+    <string name="empty_freegen_text">No freegan posted in your area yet! go ahead, post one</string>
 
 
 </resources>

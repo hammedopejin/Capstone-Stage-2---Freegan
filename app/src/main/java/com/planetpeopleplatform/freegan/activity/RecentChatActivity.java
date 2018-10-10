@@ -25,6 +25,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -85,7 +86,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     ProgressBar mLoadingIndicator;
 
     @BindView(R.id.recent_recyclerview)
-    EmptyStateRecyclerView mRecentRecyclerView;
+    RecyclerView mRecentRecyclerView;
 
     @BindView(R.id.empty_recent_chat_text)
     TextView mEmptyTextView;
@@ -99,6 +100,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     private ArrayList mRecents = new ArrayList<HashMap<String, Object>>();
 
     private ArrayList mPostList = new ArrayList<Post>();
+    private FirebaseAuth mAuth;
 
     //Chat order participants
     private ArrayList mUserList = new ArrayList<User>();
@@ -124,9 +126,11 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.chats_title);
 
-        mLoadingIndicator.setVisibility(View.VISIBLE);
 
         mCurrentUserUid = getIntent().getStringExtra(kCURRENTUSERID);
+
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
         mRncryptor = new RNCryptorNative();
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
@@ -134,8 +138,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-                        updateUserStatus(true);
-                    }
+                    updateUserStatus(true);
+                }
             }
 
             @Override
@@ -145,6 +149,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         });
 
         mRecentsDatabaseReference = firebase.child(kRECENT);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         attachDatabaseReadListener();
     }
 
@@ -191,7 +196,6 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     };
 
     private void attachDatabaseReadListener() {
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
         if (mValueEventListener == null) {
             mValueEventListener = new ValueEventListener() {
                 @Override
@@ -220,12 +224,20 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
                             if((currentRecent.get(kTYPE)).equals(kPRIVATE)) {
 
-                                mWithUserIds.add(currentRecent.get(kWITHUSERUSERID));
-                                mPostIds.add(currentRecent.get(kPOSTID));
-                                mRecents.add(currentRecent);
-                                mChatRoomIDs.add(currentRecent.get(kCHATROOMID));
+                                    mWithUserIds.add(currentRecent.get(kWITHUSERUSERID));
+                                    mPostIds.add(currentRecent.get(kPOSTID));
+                                    mRecents.add(currentRecent);
+                                    mChatRoomIDs.add(currentRecent.get(kCHATROOMID));
 
-                                if(mChatRoomIDs.size() == map.size()) {
+                                if(mRecents.size() == map.size()) {
+                                    for (int i = 0; i < mRecents.size(); i ++){
+                                        if (((HashMap<String, Object>) mRecents.get(i)).get(kLASTMESSAGE).toString().isEmpty()){
+                                            mRecents.remove(i);
+                                            mPostIds.remove(i);
+                                            mWithUserIds.remove(i);
+                                            mChatRoomIDs.remove(i);
+                                        }
+                                    }
                                     loadUser(getApplicationContext(), mPostIds, mWithUserIds, mRecents, mChatRoomIDs);
                                 }
 
@@ -244,8 +256,6 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                         });
 
 
-
-
                             }
                         }
                     }catch(Exception e){
@@ -259,6 +269,22 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
             };
             mRecentsDatabaseReference.orderByChild(kUSERID).equalTo(mCurrentUserUid)
                     .addValueEventListener(mValueEventListener);
+
+            mRecentsDatabaseReference.orderByChild(kUSERID).equalTo(mCurrentUserUid)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                    if(!dataSnapshot.exists()){
+                        mEmptyTextView.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
     }
 
@@ -273,40 +299,41 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     public void loadPost(final Context context, final ArrayList<String> postIds,
                          final ArrayList<User> userList, final ArrayList<HashMap<String, Object>> recents,
                          final ArrayList<String> chatRoomIDs){
+
         final ArrayList postList = new ArrayList<Post>();
-        for (String postId : postIds)
-        firebase.child(kPOST).child(postId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        for (int i = 0; i < postIds.size(); i++) {
+            final int finalI = i;
+            firebase.child(kPOST).child(postIds.get(i))
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        if(dataSnapshot.exists()) {
+                            if (dataSnapshot.exists()) {
 
-                            Post post = new Post ((HashMap<String, Object>) dataSnapshot.getValue());
-                            postList.add(post);
+                                Post post = new Post((HashMap<String, Object>) dataSnapshot.getValue());
+                                postList.add(post);
 
-                            if (postList.size() == postIds.size()) {
+                                if (finalI == (postIds.size() - 1)) {
+                                    mAdapter = new PostAdapter(context, userList, postList, recents,
+                                            chatRoomIDs);
+                                    MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapter);
+                                    ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                                    touchHelper.attachToRecyclerView(mRecentRecyclerView);
+                                    mRecentRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                                    mRecentRecyclerView.hasFixedSize();
+                                    mRecentRecyclerView.setAdapter(mAdapter);
 
-                                mAdapter = new PostAdapter(context, userList, postList, recents,
-                                        chatRoomIDs);
-                                MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(mAdapter);
-                                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-                                touchHelper.attachToRecyclerView(mRecentRecyclerView);
-                                mRecentRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                                mRecentRecyclerView.hasFixedSize();
-                                mRecentRecyclerView.setAdapter(mAdapter);
-                                mRecentRecyclerView.setEmptyView(mEmptyTextView);
+                                }
 
                             }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
                         }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
+                    });
+        }
     }
 
     //Helper method for fetching user
@@ -324,7 +351,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                 User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
                                 mUserList.add(chatMate);
 
-                                if ((withUserIds.size() -1) == finalI) {
+                                if ((withUserIds.size() - 1) == finalI) {
                                     loadPost(context, postIds, mUserList, recents, chatRoomIDs);
                                 }
 
@@ -347,52 +374,52 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
     class Item extends RecyclerView.ViewHolder{
 
-                    public Item(View itemView) {
-                        super(itemView);
-                    }
+        public Item(View itemView) {
+            super(itemView);
+        }
 
-                    private void bindData(User user, Post post){
-
-
-                        TextView lbl = itemView.findViewById(R.id.tv_recent_name);
-                        lbl.setMaxLines(1);
-                        lbl.setText(user.getUserName());
+        private void bindData(User user, Post post){
 
 
-                        Glide.with(getApplicationContext())
-                                .load(user.getUserImgUrl())
-                                .listener(new RequestListener<Drawable>() {
-                                    @Override
-                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                            target, boolean isFirstResource) {
-                                        return false;
-                                    }
+            TextView lbl = itemView.findViewById(R.id.tv_recent_name);
+            lbl.setMaxLines(1);
+            lbl.setText(user.getUserName());
 
-                                    @Override
-                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                            target, DataSource dataSource, boolean isFirstResource) {
-                                        return false;
-                                    }
-                                })
-                                .into((de.hdodenhof.circleimageview.CircleImageView) itemView.findViewById(R.id.img_recent_user));
 
-                        Glide.with(getApplicationContext())
-                                .load(post.getImageUrl().get(0))
-                                .listener(new RequestListener<Drawable>() {
-                                    @Override
-                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
-                                            target, boolean isFirstResource) {
-                                        return false;
-                                    }
+            Glide.with(getApplicationContext())
+                    .load(user.getUserImgUrl())
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                target, boolean isFirstResource) {
+                            return false;
+                        }
 
-                                    @Override
-                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                            target, DataSource dataSource, boolean isFirstResource) {
-                                        return false;
-                                    }
-                                })
-                                .into((ImageView) itemView.findViewById(R.id.img_recent_post_item));
-                    }
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
+                    .into((de.hdodenhof.circleimageview.CircleImageView) itemView.findViewById(R.id.img_recent_user));
+
+            Glide.with(getApplicationContext())
+                    .load(post.getImageUrl().get(0))
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
+                                target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
+                    .into((ImageView) itemView.findViewById(R.id.img_recent_post_item));
+        }
     }
 
 
@@ -437,10 +464,10 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                                 .get().parse((String) ((HashMap<String, Object>) uRecents.get(position))
                                 .get(kDATE)).getTime(), DateUtils.SECOND_IN_MILLIS,
                         DateUtils.SECOND_IN_MILLIS,0));
-                } catch (ParseException e) {
+            } catch (ParseException e) {
                 e.printStackTrace();
-                }
-                lbl = holder.itemView.findViewById(R.id.tv_recent_message);
+            }
+            lbl = holder.itemView.findViewById(R.id.tv_recent_message);
             lbl.setMaxLines(1);
 
             String decrypted = mRncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position))
@@ -449,8 +476,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
             if(decrypted.equals(getString(R.string.error_decrypting_string))){
                 decrypted = "";
-                }
-                lbl.setText(decrypted);
+            }
+            lbl.setText(decrypted);
 
             lbl = holder.itemView.findViewById(R.id.tv_recent_counter);
             lbl.setText("");
@@ -462,17 +489,17 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
             }
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) { Intent intent =
-                                new Intent(getApplicationContext(), MessageActivity.class);
+                @Override
+                public void onClick(View view) { Intent intent =
+                        new Intent(getApplicationContext(), MessageActivity.class);
 
-                        intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
-                        intent.putExtra(kCHATROOMID, (String) uChatRoomIDs.get(position));
-                        intent.putExtra(kPOST, (Post) uPosts.get(position));
-                        intent.putExtra(kUSER, (User) uList.get(position));
+                    intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
+                    intent.putExtra(kCHATROOMID, (String) uChatRoomIDs.get(position));
+                    intent.putExtra(kPOST, (Post) uPosts.get(position));
+                    intent.putExtra(kUSER, (User) uList.get(position));
 
-                        startActivityForResult(intent, MESSAGE_ACTIVITY);
-                        }
+                    startActivityForResult(intent, MESSAGE_ACTIVITY);
+                }
             });
         }
 
@@ -484,7 +511,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         @Override
         public int getItemCount(){
-            return uRecents.size();
+            return uPosts.size();
         }
 
         @Override

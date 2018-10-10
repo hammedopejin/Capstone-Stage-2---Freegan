@@ -1,6 +1,5 @@
 package com.planetpeopleplatform.freegan.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -15,12 +14,9 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -30,6 +26,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -54,7 +51,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import tgio.rncryptor.RNCryptorNative;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
@@ -86,6 +82,7 @@ public class MessageActivity extends CustomActivity {
 
     private static final int REPORT_USER_REQUEST_CODE = 234;
 
+    private FirebaseAuth mAuth;
     private ChildEventListener mChildEventListener;
     private DatabaseReference mMessagesDatabaseReference;
     private DatabaseReference chatRef = firebase.child(kMESSAGE);
@@ -100,8 +97,6 @@ public class MessageActivity extends CustomActivity {
     /** The message adapter.  */
     private MessageAdapter mMessageAdapter = null;
 
-    /** The date of last message in conversation.  */
-    private Date lastMsgDate = null;
 
     /** Flag to hold if the activity is running or not.  */
     private Boolean isRunning = false;
@@ -145,7 +140,7 @@ public class MessageActivity extends CustomActivity {
     android.support.design.widget.TextInputEditText mChatMessageEdittext;
 
     @BindView(R.id.reyclerview_message_list)
-    EmptyStateRecyclerView mMessageRecycler;
+    RecyclerView mMessageRecycler;
 
     @BindView(R.id.empty_chat_message_text)
     TextView mEmptyTextView;
@@ -164,6 +159,9 @@ public class MessageActivity extends CustomActivity {
 
         mCurrentUserUid = getIntent().getStringExtra(kCURRENTUSERID);
         mChatRoomId = getIntent().getStringExtra(kCHATROOMID);
+
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserUid = mAuth.getCurrentUser().getUid();
 
         mPost = getIntent().getParcelableExtra(kPOST);
         mChatMate = getIntent().getParcelableExtra(kUSER);
@@ -188,7 +186,6 @@ public class MessageActivity extends CustomActivity {
                     mLinearLayoutManager.setReverseLayout(true);
                     mMessageRecycler.setLayoutManager(mLinearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
-                    mMessageRecycler.setEmptyView(mEmptyTextView);
 
 
                         if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
@@ -471,6 +468,9 @@ public class MessageActivity extends CustomActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
+                    if(!dataSnapshot.exists()){
+                        mEmptyTextView.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 @Override
@@ -583,6 +583,12 @@ public class MessageActivity extends CustomActivity {
     public void startProfileView(View view){
         Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
         profileIntent.putExtra(kPOSTERID, mPost.getPostUserObjectId());
+        startActivity(profileIntent);
+    }
+
+    public void startChatMateProfileView(View view){
+        Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
+        profileIntent.putExtra(kPOSTERID, mChatMate.getObjectId());
         startActivity(profileIntent);
     }
 }

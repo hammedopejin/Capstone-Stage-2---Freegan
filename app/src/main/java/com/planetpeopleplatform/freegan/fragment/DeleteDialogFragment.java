@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 
 
 import com.google.firebase.database.DataSnapshot;
@@ -16,6 +17,7 @@ import com.google.firebase.storage.StorageReference;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.Post;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
@@ -23,7 +25,9 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCHILDREF;
 import static com.planetpeopleplatform.freegan.utils.Constants.kKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSITION;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
+import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTLOCATION;
+import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
 import static com.planetpeopleplatform.freegan.utils.Constants.kTITLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.storage;
 
@@ -64,7 +68,7 @@ public class DeleteDialogFragment extends DialogFragment {
             alertDialogBuilder.setPositiveButton(R.string.capital_yes_string, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    firebase.child(kPOST).child(key).addValueEventListener(new ValueEventListener() {
+                    firebase.child(kPOST).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
@@ -75,7 +79,25 @@ public class DeleteDialogFragment extends DialogFragment {
                                 }
                                 firebase.child(kPOST).child(key).removeValue();
                                 firebase.child(kPOSTLOCATION).child(key).removeValue();
-                                mListener.onComplete(position);
+
+                                firebase.child(kRECENT).orderByChild(kPOSTID).equalTo(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                        HashMap<String, Object> snapshotValue = (HashMap<String, Object>) dataSnapshot.getValue();
+
+                                        for (String object : snapshotValue.keySet()){
+                                            Log.d("TAG", "onDataChange: recentKey : " + object);
+                                            firebase.child(kRECENT).child(object).removeValue();
+                                        }
+                                        mListener.onComplete(position);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
                             }
                         }
 

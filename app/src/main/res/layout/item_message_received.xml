@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginLeft="@dimen/pad_8dp"
         android:layout_marginStart="@dimen/pad_8dp"
-        android:onClick="startProfileView"
+        android:onClick="startChatMateProfileView"
         app:srcCompat="@drawable/ic_account_circle_black_24dp"
         app:layout_constraintLeft_toLeftOf="parent" />
 

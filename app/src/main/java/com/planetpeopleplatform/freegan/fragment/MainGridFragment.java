@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -121,22 +122,19 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private final int PAGE_LOAD_SIZE = 10;
     private int mTotalLoadSize = 0;
 
-    SearchView mSearchView;
+    private SwipeRefreshLayout mSwipeContainer;
+    private SearchView mSearchView;
+    private RecyclerView mRecyclerView;
+    private TextView mEmptyTextView;
 
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
-
-    @BindView(R.id.main_content_swipe_refresh_layout)
-    SwipeRefreshLayout mSwipeContainer;
 
     @BindView(R.id.new_item_button_view)
     android.support.design.widget.FloatingActionButton mPhotoPickerButton;
 
     @BindView(R.id.pb_loading_indicator)
     ProgressBar mLoadingIndicator;
-
-    @BindView(R.id.recycler_view)
-    RecyclerView mRecyclerView;
 
     @Nullable
     @Override
@@ -146,6 +144,9 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         ButterKnife.bind(this, rootView);
 
         mSearchView = getActivity().findViewById(R.id.searchView);
+        mSwipeContainer = getActivity().findViewById(R.id.main_content_swipe_refresh_layout);
+        mRecyclerView = getActivity().findViewById(R.id.recycler_view);
+        mEmptyTextView = getActivity().findViewById(R.id.empty_freegen_text);
 
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserUid = mAuth.getCurrentUser().getUid();
@@ -198,9 +199,11 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
 
         mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
         mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
+        mRecyclerView.hasFixedSize();
         mRecyclerView.setAdapter(mMainGridAdapter);
         mRecyclerView.addOnScrollListener(mScrollListener);
 
+        //mEmptyTextView.setVisibility(View.VISIBLE);
         return rootView;
     }
 
@@ -448,6 +451,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
 
             @Override
             public void onGeoQueryReady() {
+
                 if (PAGE_LOAD_SIZE < mPostIds.size()) {
                     loadPosts(PAGE_LOAD_SIZE, 0);
                 } else {
