@@ -70,6 +70,9 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
     @Override
     public int getItemCount() {
+        if (mListPosts == null){
+            return 0;
+        }
         return mListPosts.size();
     }
 
@@ -154,31 +157,36 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
         }
 
         void setImage(final int adapterPosition) {
-            // Load the image with Glide to prevent OOM error when the image drawables are very large.
-            mRequestManager
-                    .load(mListPosts.get(adapterPosition).getImageUrl().get(0))
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                                    Target<Drawable> target, boolean isFirstResource) {
-                            mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
-                            return false;
-                        }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                target, DataSource dataSource, boolean isFirstResource) {
-                            mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
-                            return false;
-                        }
-                    })
-                    .into(mImage);
+            if (mListPosts != null && mImage != null) {
+                // Load the image with Glide to prevent OOM error when the image drawables are very large.
+                mRequestManager
+                        .load(mListPosts.get(adapterPosition).getImageUrl().get(0))
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                        Target<Drawable> target, boolean isFirstResource) {
+                                mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                    target, DataSource dataSource, boolean isFirstResource) {
+                                mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
+                                return false;
+                            }
+                        })
+                        .into(mImage);
+            }
         }
 
         @Override
         public void onClick(View view) {
             // Let the listener start the ProfileImagePagerFragment.
-            mViewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
+            if (mListPosts != null) {
+                mViewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
+            }
         }
     }
 

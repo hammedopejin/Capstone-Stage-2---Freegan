@@ -10,22 +10,28 @@ import java.util.ArrayList;
 
 public class MainImagePagerAdapter extends FragmentStatePagerAdapter {
 
-    private ArrayList<Post> listPosts;
+    private ArrayList<Post> mListPosts;
 
     public MainImagePagerAdapter(Fragment fragment, ArrayList<Post> listPosts) {
         // Note: Initialize with the child fragment manager.
         super(fragment.getChildFragmentManager());
 
-        this.listPosts =  listPosts;
+        this.mListPosts =  listPosts;
     }
 
     @Override
     public int getCount() {
-        return listPosts.size();
+        if (mListPosts == null){
+            return 0;
+        }
+        return mListPosts.size();
     }
 
     @Override
     public Fragment getItem(int position) {
-        return MainChildImagePagerFragment.newInstance(listPosts.get(position));
+        if (mListPosts != null) {
+            return MainChildImagePagerFragment.newInstance(mListPosts.get(position));
+        }
+        return null;
     }
 }

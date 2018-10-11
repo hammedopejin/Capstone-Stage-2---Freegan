@@ -1,6 +1,5 @@
 package com.planetpeopleplatform.freegan.adapter;
 
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,36 +7,42 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.Post;
 
 public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.OnItemClickListener {
-    private final Post data;
-    private final ListView listView;
-    private OnItemClickListener listener;
+    private final Post mPost;
+    private final ListView mListView;
+    private OnItemClickListener mListener;
 
     private int currentSelected = 0;
 
-    public VerticalPagerTabAdapter(Post data, ListView listView, OnItemClickListener listener){
-        this.data = data;
-        this.listView = listView;
-        this.listener = listener;
+    public VerticalPagerTabAdapter(Post data,  ListView listView, OnItemClickListener listener){
+        this.mPost = data;
+        this.mListView = listView;
+        this.mListener = listener;
 
         listView.setOnItemClickListener(this);
     }
 
-    // Override other Adpter method here.
-
     @Override
     public int getCount() {
-        return data.getImageUrl().size();
+        if (mPost == null){
+            return 0;
+        }
+        if(mPost.getImageUrl().size() > 1) {
+            return mPost.getImageUrl().size();
+        }
+        return 0;
     }
 
     @Override
     public Object getItem(int i) {
-        return data.getImageUrl().get(i);
+        if (mPost == null){
+            return null;
+        }
+        return mPost.getImageUrl().get(i);
     }
 
     @Override
@@ -47,23 +52,21 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        // Currently not using viewHolder pattern cause there aren't too many tabs in the demo project.
+        // Currently not using viewHolder pattern cause there aren't too many tabs yet.
 
 
         if(view == null){
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_tab, viewGroup, false);
         }
 
-        ImageView tabTitle = (ImageView) view.findViewById(R.id.txt_tab_title);
-
+        ImageView tabTitle = (ImageView) view.findViewById(R.id.image_tab_icon);
 
         if(i == currentSelected){
             // change the appearance
-            tabTitle.setImageResource(R.drawable.tab_selector);
-
+            tabTitle.setImageResource((R.drawable.ic_brightness_1_custom_red_24dp));
         }else{
             // change the appearance
-
+            tabTitle.setImageResource((R.drawable.ic_brightness_1_dark_gray_24dp));
         }
 
         return view;
@@ -73,18 +76,18 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
     /**
      * Return item view at the given position or null if position is not visible.
      */
-    public View getViewByPosition(int pos) {
-        if(listView == null){
+    private View getViewByPosition(int pos) {
+        if(mListView == null){
             return  null;
         }
-        final int firstListItemPosition = listView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+        final int firstListItemPosition = mListView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + mListView.getChildCount() - 1;
 
         if (pos < firstListItemPosition || pos > lastListItemPosition ) {
             return null;
         } else {
             final int childIndex = pos - firstListItemPosition;
-            return listView.getChildAt(childIndex);
+            return mListView.getChildAt(childIndex);
         }
     }
 
@@ -97,11 +100,13 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
         View targetView = getViewByPosition(position);
         if(targetView != null) {
             // change the appearance
+            ((ImageView)(targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_custom_red_24dp));
+
 
         }
 
-        if(listener != null){
-            listener.selectItem(position);
+        if(mListener != null){
+            mListener.selectItem(position);
         }
 
         currentSelected = position;
@@ -113,6 +118,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
             View targetView = getViewByPosition(position);
             if(targetView != null) {
                 // change the appearance
+                ((ImageView)(targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_dark_gray_24dp));
 
             }
         }
@@ -130,7 +136,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
     }
 
     public void OnItemClickListener(VerticalPagerTabAdapter.OnItemClickListener listener){
-        this.listener = listener;
+        this.mListener = listener;
     }
 
     public void setCurrentSelected(int i) {

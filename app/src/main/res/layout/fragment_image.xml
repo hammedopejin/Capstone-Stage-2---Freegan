@@ -15,6 +15,4 @@
         android:contentDescription="@string/image_description"
         android:scaleType="fitXY"/>
 
-
-
 </FrameLayout>

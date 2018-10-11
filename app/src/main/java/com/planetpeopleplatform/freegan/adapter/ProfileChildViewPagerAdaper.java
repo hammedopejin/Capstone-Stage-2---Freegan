@@ -9,7 +9,7 @@ import com.planetpeopleplatform.freegan.model.Post;
 public class ProfileChildViewPagerAdaper extends FragmentPagerAdapter {
 
 
-    Post mPost;
+    private Post mPost;
 
     public ProfileChildViewPagerAdaper(Fragment fragment, Post post) {
         super(fragment.getChildFragmentManager());
@@ -18,12 +18,17 @@ public class ProfileChildViewPagerAdaper extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
+        if (mPost == null){
+            return 0;
+        }
         return mPost.getImageUrl().size();
     }
 
     @Override
     public Fragment getItem(int position) {
-
+        if (mPost == null){
+            return null;
+        }
         return ProfileImageFragment.newInstance(mPost.getImageUrl(), position);
 
     }

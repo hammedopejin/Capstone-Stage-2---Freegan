@@ -131,8 +131,12 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
         mMainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
         mNestedViewPager.setAdapter(mMainChildViewPagerAdapter);
-        mTabAdapter = new VerticalPagerTabAdapter(mPost, mListViewTabs,this);
-        mListViewTabs.setAdapter(mTabAdapter);
+        mNestedViewPager.setOnPageChangeListener(this);
+        if (mListViewTabs != null) {
+            mTabAdapter = new VerticalPagerTabAdapter(mPost, mListViewTabs, this);
+            mListViewTabs.setAdapter(mTabAdapter);
+            mListViewTabs.setDivider(null);
+        }
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override

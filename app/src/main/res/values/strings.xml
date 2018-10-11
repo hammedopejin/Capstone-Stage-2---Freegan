@@ -39,7 +39,7 @@
 
     <string name="action_settings">Settings</string>
 
-    <string name="image_description">Fragment Image</string>
+    <string name="image_description">Freegan Image</string>
     <string name="title_activity_settings">Settings</string>
 
 
@@ -245,6 +245,7 @@
     <string name="secdond_freegan_item_image">Optional second image for post item</string>
     <string name="forth_freegan_item_image">Optional forth image for post item</string>
     <string name="first_freegan_item_image">Mandatory image for post item</string>
+    <string name="image_holder_for_tab_indicator_string">Image holer for more images tab indicator to indicate that Freegan item has more than on image.</string>
 
 
 </resources>

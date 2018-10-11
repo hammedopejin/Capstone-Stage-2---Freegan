@@ -453,54 +453,58 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position){
 
-            ((Item) holder).bindData((User) uList.get(position), (Post) uPosts.get(position));
-            holder.itemView.setTag(position);
+            if (uList.size() != 0 && uPosts.size() != 0) {
 
-            TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
+                ((Item) holder).bindData((User) uList.get(position), (Post) uPosts.get(position));
+                holder.itemView.setTag(position);
 
-            try {
-                lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(),
-                        Utils.DateHelper.DF_SIMPLE_FORMAT
-                                .get().parse((String) ((HashMap<String, Object>) uRecents.get(position))
-                                .get(kDATE)).getTime(), DateUtils.SECOND_IN_MILLIS,
-                        DateUtils.SECOND_IN_MILLIS,0));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            lbl = holder.itemView.findViewById(R.id.tv_recent_message);
-            lbl.setMaxLines(1);
+                TextView lbl = holder.itemView.findViewById(R.id.tv_recent_message_date);
 
-            String decrypted = mRncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position))
-                            .get(kLASTMESSAGE),
-                    (String) ((HashMap<String, Object>) uRecents.get(position)).get(kCHATROOMID));
-
-            if(decrypted.equals(getString(R.string.error_decrypting_string))){
-                decrypted = "";
-            }
-            lbl.setText(decrypted);
-
-            lbl = holder.itemView.findViewById(R.id.tv_recent_counter);
-            lbl.setText("");
-
-            if( (long) ((HashMap<String, Object>) uRecents.get(position)).get(kCOUNTER)   > 0){
-
-                lbl.setText( ((HashMap<String, Object>) uRecents.get(position)).get(kCOUNTER)
-                        .toString() + " New  ");
-            }
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) { Intent intent =
-                        new Intent(getApplicationContext(), MessageActivity.class);
-
-                    intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
-                    intent.putExtra(kCHATROOMID, (String) uChatRoomIDs.get(position));
-                    intent.putExtra(kPOST, (Post) uPosts.get(position));
-                    intent.putExtra(kUSER, (User) uList.get(position));
-
-                    startActivityForResult(intent, MESSAGE_ACTIVITY);
+                try {
+                    lbl.setText(DateUtils.getRelativeDateTimeString(getApplicationContext(),
+                            Utils.DateHelper.DF_SIMPLE_FORMAT
+                                    .get().parse((String) ((HashMap<String, Object>) uRecents.get(position))
+                                    .get(kDATE)).getTime(), DateUtils.SECOND_IN_MILLIS,
+                            DateUtils.SECOND_IN_MILLIS, 0));
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
-            });
+                lbl = holder.itemView.findViewById(R.id.tv_recent_message);
+                lbl.setMaxLines(1);
+
+                String decrypted = mRncryptor.decrypt((String) ((HashMap<String, Object>) mRecents.get(position))
+                                .get(kLASTMESSAGE),
+                        (String) ((HashMap<String, Object>) uRecents.get(position)).get(kCHATROOMID));
+
+                if (decrypted.equals(getString(R.string.error_decrypting_string))) {
+                    decrypted = "";
+                }
+                lbl.setText(decrypted);
+
+                lbl = holder.itemView.findViewById(R.id.tv_recent_counter);
+                lbl.setText("");
+
+                if ((long) ((HashMap<String, Object>) uRecents.get(position)).get(kCOUNTER) > 0) {
+
+                    lbl.setText(((HashMap<String, Object>) uRecents.get(position)).get(kCOUNTER)
+                            .toString() + " New  ");
+                }
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent =
+                                new Intent(getApplicationContext(), MessageActivity.class);
+
+                        intent.putExtra(kCURRENTUSERID, mCurrentUserUid);
+                        intent.putExtra(kCHATROOMID, (String) uChatRoomIDs.get(position));
+                        intent.putExtra(kPOST, (Post) uPosts.get(position));
+                        intent.putExtra(kUSER, (User) uList.get(position));
+
+                        startActivityForResult(intent, MESSAGE_ACTIVITY);
+                    }
+                });
+            }
         }
 
 
@@ -511,6 +515,9 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
         @Override
         public int getItemCount(){
+            if(uPosts == null){
+                return 0;
+            }
             return uPosts.size();
         }
 

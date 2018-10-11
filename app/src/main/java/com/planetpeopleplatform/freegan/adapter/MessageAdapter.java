@@ -46,13 +46,11 @@ public class MessageAdapter extends RecyclerView.Adapter {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_message_sent, parent, false);
             return new SentMessageHolder(view);
-        } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED) {
+        } else {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_message_received, parent, false);
             return new ReceivedMessageHolder(view);
         }
-
-        return null;
     }
 
     @Override
@@ -107,20 +105,23 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
         void bind(Message message) {
 
-            messageText.setText(message.getMessage());
-            nameText.setText(message.getSenderName());
+            if (message != null) {
 
-            // Format the stored timestamp into a readable String using method.
-            try {
-                timeText.setText(DateUtils.getRelativeDateTimeString(mContext,
-                        Utils.DateHelper.DF_SIMPLE_FORMAT.get().parse(message.getDate()).getTime(), DateUtils.SECOND_IN_MILLIS,
-                        DateUtils.SECOND_IN_MILLIS, 0));
-            } catch (ParseException e) {
-                e.printStackTrace();
+                messageText.setText(message.getMessage());
+                nameText.setText(message.getSenderName());
+
+                // Format the stored timestamp into a readable String using method.
+                try {
+                    timeText.setText(DateUtils.getRelativeDateTimeString(mContext,
+                            Utils.DateHelper.DF_SIMPLE_FORMAT.get().parse(message.getDate()).getTime(), DateUtils.SECOND_IN_MILLIS,
+                            DateUtils.SECOND_IN_MILLIS, 0));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                // Insert the profile image from the URL into the ImageView.
+                Glide.with(mContext).load(mChatMate.getUserImgUrl()).into(profileImage);
             }
-
-            // Insert the profile image from the URL into the ImageView.
-            Glide.with(mContext).load(mChatMate.getUserImgUrl()).into(profileImage);
         }
     }
 
@@ -138,20 +139,22 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
 
         void bind(Message message) {
-            messageText.setText(message.getMessage());
-            if (message.getStatus().equals(Message.STATUS_DELIVERED)){
-                statusImage.setImageResource(R.drawable.ic_done_green_a700_24dp);
-            } else if (message.getStatus().equals(Message.STATUS_READ)){
-                statusImage.setImageResource(R.drawable.ic_done_all_green_a700_24dp);
-            }
+            if (message != null) {
+                messageText.setText(message.getMessage());
+                if (message.getStatus().equals(Message.STATUS_DELIVERED)) {
+                    statusImage.setImageResource(R.drawable.ic_done_green_a700_24dp);
+                } else if (message.getStatus().equals(Message.STATUS_READ)) {
+                    statusImage.setImageResource(R.drawable.ic_done_all_green_a700_24dp);
+                }
 
-            // Format the stored timestamp into a readable String using method.
-            try {
-                timeText.setText(DateUtils.getRelativeDateTimeString(mContext,
-                        Utils.DateHelper.DF_SIMPLE_FORMAT.get().parse(message.getDate()).getTime(), DateUtils.SECOND_IN_MILLIS,
-                        DateUtils.SECOND_IN_MILLIS, 0));
-            } catch (ParseException e) {
-                e.printStackTrace();
+                // Format the stored timestamp into a readable String using method.
+                try {
+                    timeText.setText(DateUtils.getRelativeDateTimeString(mContext,
+                            Utils.DateHelper.DF_SIMPLE_FORMAT.get().parse(message.getDate()).getTime(), DateUtils.SECOND_IN_MILLIS,
+                            DateUtils.SECOND_IN_MILLIS, 0));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -13,9 +13,11 @@
 
     <ListView
         android:id="@+id/lv_tabs"
-        android:layout_width="100dp"
+        android:layout_width="@dimen/pad_10dp"
         android:layout_height="match_parent"
-        app:tabBackground="@drawable/tab_selector"/>
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:layout_marginStart="@dimen/pad_8dp"
+        android:layout_marginLeft="@dimen/pad_8dp"/>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"

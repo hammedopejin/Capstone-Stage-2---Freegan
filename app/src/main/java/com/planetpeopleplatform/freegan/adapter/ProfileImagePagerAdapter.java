@@ -25,6 +25,9 @@ public class ProfileImagePagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
+        if (listPosts == null){
+            return 0;
+        }
         return listPosts.size();
     }
 

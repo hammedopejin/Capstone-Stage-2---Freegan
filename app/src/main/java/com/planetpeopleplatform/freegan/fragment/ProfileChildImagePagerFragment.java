@@ -11,6 +11,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -31,6 +33,7 @@ import com.planetpeopleplatform.freegan.activity.EditPostActivity;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
 import com.planetpeopleplatform.freegan.activity.ReportUserActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileChildViewPagerAdaper;
+import com.planetpeopleplatform.freegan.adapter.VerticalPagerTabAdapter;
 import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
@@ -61,7 +64,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
-public class ProfileChildImagePagerFragment extends Fragment {
+public class ProfileChildImagePagerFragment extends Fragment implements VerticalPagerTabAdapter.OnItemClickListener,
+        ViewPager.OnPageChangeListener  {
 
     private static final int EDIT_POST_REQUEST_CODE = 123;
     private static final int REPORT_USER_REQUEST_CODE = 234;
@@ -72,6 +76,7 @@ public class ProfileChildImagePagerFragment extends Fragment {
     private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.currentUser";
     private Post mPost = null;
     private User mPoster = null;
+    private VerticalPagerTabAdapter mTabAdapter;
 
     private String mChatRoomId = null;
     private User mCurrentUser = null;
@@ -97,6 +102,8 @@ public class ProfileChildImagePagerFragment extends Fragment {
 
     @BindView(R.id.contact_button_view)
     android.support.design.widget.FloatingActionButton mContactButtonView;
+    @BindView(R.id.lv_tabs)
+    ListView mListViewTabs;
 
     public ProfileChildImagePagerFragment() {
     }
@@ -134,6 +141,12 @@ public class ProfileChildImagePagerFragment extends Fragment {
         mOptionImageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_settings_white_24dp));
 
         mNestedViewPager.setAdapter(new ProfileChildViewPagerAdaper(this, mPost));
+        mNestedViewPager.setOnPageChangeListener(this);
+        if (mListViewTabs != null) {
+            mTabAdapter = new VerticalPagerTabAdapter(mPost, mListViewTabs, this);
+            mListViewTabs.setAdapter(mTabAdapter);
+            mListViewTabs.setDivider(null);
+        }
 
         mTextView.setText(postDescription);
         if (mPost.getPostUserObjectId().equals(mCurrentUserUid)) {
@@ -414,5 +427,27 @@ public class ProfileChildImagePagerFragment extends Fragment {
     private void deleteData(Uri uri){
         getActivity().getApplicationContext().getContentResolver().delete(uri,
                 null, null);
+    }
+
+    @Override
+    public void selectItem(int position) {
+        mNestedViewPager.setCurrentItem(position, true);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if(mTabAdapter != null){
+            mTabAdapter.setCurrentSelected(position);
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 }

@@ -66,6 +66,9 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
 
     @Override
     public int getItemCount() {
+        if (mListPosts == null){
+            return 0;
+        }
         return mListPosts.size();
     }
 
@@ -83,14 +86,16 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
 
         @Override
         public void onLoadCompleted(ImageView view, int position) {
-            // Call startPostponedEnterTransition only when the 'selected' image loading is completed.
-            if (MainActivity.currentPosition != position) {
-                return;
+            if (mFragment != null && mEnterTransitionStarted != null) {
+                // Call startPostponedEnterTransition only when the 'selected' image loading is completed.
+                if (MainActivity.currentPosition != position) {
+                    return;
+                }
+                if (mEnterTransitionStarted.getAndSet(true)) {
+                    return;
+                }
+                mFragment.startPostponedEnterTransition();
             }
-            if (mEnterTransitionStarted.getAndSet(true)) {
-                return;
-            }
-            mFragment.startPostponedEnterTransition();
         }
 
         /**
@@ -103,24 +108,26 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
          */
         @Override
         public void onItemClicked(View view, int position, ArrayList<Post> listPosts) {
-            // Update the position.
-            MainActivity.currentPosition = position;
+            if (mListPosts != null && mFragment != null) {
+                // Update the position.
+                MainActivity.currentPosition = position;
 
-            // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
-            // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-            ((TransitionSet) mFragment.getExitTransition()).excludeTarget(view, true);
+                // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
+                // instead of fading out with the rest to prevent an overlapping animation of fade and move).
+                ((TransitionSet) mFragment.getExitTransition()).excludeTarget(view, true);
 
-            ImageView transitioningView = view.findViewById(R.id.card_image);
+                ImageView transitioningView = view.findViewById(R.id.card_image);
 
 
-            mFragment.getFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true) // Optimize for shared element transition
-                    .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, MainImagePagerFragment.newInstance(mListPosts), MainImagePagerFragment.class
-                            .getSimpleName())
-                    .addToBackStack(null)
-                    .commit();
+                mFragment.getFragmentManager()
+                        .beginTransaction()
+                        .setReorderingAllowed(true) // Optimize for shared element transition
+                        .addSharedElement(transitioningView, transitioningView.getTransitionName())
+                        .replace(R.id.fragment_container, MainImagePagerFragment.newInstance(mListPosts), MainImagePagerFragment.class
+                                .getSimpleName())
+                        .addToBackStack(null)
+                        .commit();
+            }
         }
     }
 
@@ -150,39 +157,45 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
          * later.
          */
         void onBind() {
-            int adapterPosition = getAdapterPosition();
-            setImage(adapterPosition);
-            // Set the string value of the image resource as the unique transition name for the view.
-            mImage.setTransitionName(((mListPosts.get(adapterPosition).getImageUrl())).get(0));
+            if (mImage != null && mListPosts != null) {
+                int adapterPosition = getAdapterPosition();
+                setImage(adapterPosition);
+                // Set the string value of the image resource as the unique transition name for the view.
+                mImage.setTransitionName(((mListPosts.get(adapterPosition).getImageUrl())).get(0));
+            }
         }
 
         void setImage(final int adapterPosition) {
-            // Load the image with Glide to prevent OOM error when the image drawables are very large.
-            mRequestManager
-                    .load(mListPosts.get(adapterPosition).getImageUrl().get(0))
-                    //.error(R.drawable.person_icon)
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
-                                                    Target<Drawable> target, boolean isFirstResource) {
-                            mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
-                            return false;
-                        }
+            if (mRequestManager != null && mImage != null && mListPosts!= null && mViewHolderListener != null) {
+                // Load the image with Glide to prevent OOM error when the image drawables are very large.
+                mRequestManager
+                        .load(mListPosts.get(adapterPosition).getImageUrl().get(0))
+                        //.error(R.drawable.person_icon)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                        Target<Drawable> target, boolean isFirstResource) {
+                                mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
+                                return false;
+                            }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
-                                target, DataSource dataSource, boolean isFirstResource) {
-                            mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
-                            return false;
-                        }
-                    })
-                    .into(mImage);
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable>
+                                    target, DataSource dataSource, boolean isFirstResource) {
+                                mViewHolderListener.onLoadCompleted(mImage, adapterPosition);
+                                return false;
+                            }
+                        })
+                        .into(mImage);
+            }
         }
 
         @Override
         public void onClick(View view) {
-            // Let the listener start the MainImagePagerFragment.
-            mViewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
+            if (mViewHolderListener != null && mListPosts != null) {
+                // Let the listener start the MainImagePagerFragment.
+                mViewHolderListener.onItemClicked(view, getAdapterPosition(), mListPosts);
+            }
         }
     }
 
