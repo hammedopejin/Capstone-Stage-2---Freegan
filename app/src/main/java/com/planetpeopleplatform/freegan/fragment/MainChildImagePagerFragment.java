@@ -12,12 +12,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -33,6 +35,7 @@ import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.MessageActivity;
 import com.planetpeopleplatform.freegan.activity.ProfileActivity;
 import com.planetpeopleplatform.freegan.adapter.MainChildViewPagerAdapter;
+import com.planetpeopleplatform.freegan.adapter.VerticalPagerTabAdapter;
 import com.planetpeopleplatform.freegan.data.FreeganContract;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
@@ -58,7 +61,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
-public class MainChildImagePagerFragment extends Fragment {
+public class MainChildImagePagerFragment extends Fragment implements VerticalPagerTabAdapter.OnItemClickListener,
+        ViewPager.OnPageChangeListener {
 
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final int RC_PROFILE_ACTIVITY = 123;
@@ -70,6 +74,7 @@ public class MainChildImagePagerFragment extends Fragment {
     private FirebaseAuth mAuth;
     private Post mPost = null;
     private MainChildViewPagerAdapter mMainChildViewPagerAdapter;
+    private VerticalPagerTabAdapter mTabAdapter;
 
 
     @BindView(R.id.nestedViewPager)
@@ -92,6 +97,9 @@ public class MainChildImagePagerFragment extends Fragment {
 
     @BindView(R.id.contact_button_view)
     android.support.design.widget.FloatingActionButton mContactButtonView;
+
+    @BindView(R.id.lv_tabs)
+    ListView mListViewTabs;
 
 
     public MainChildImagePagerFragment() {
@@ -123,6 +131,8 @@ public class MainChildImagePagerFragment extends Fragment {
 
         mMainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
         mNestedViewPager.setAdapter(mMainChildViewPagerAdapter);
+        mTabAdapter = new VerticalPagerTabAdapter(mPost, mListViewTabs,this);
+        mListViewTabs.setAdapter(mTabAdapter);
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,5 +344,27 @@ public class MainChildImagePagerFragment extends Fragment {
     private void deleteData(Uri uri){
         getActivity().getApplicationContext().getContentResolver().delete(uri,
                 null, null);
+    }
+
+    @Override
+    public void selectItem(int position) {
+        mNestedViewPager.setCurrentItem(position, true);
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if(mTabAdapter != null){
+            mTabAdapter.setCurrentSelected(position);
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 }

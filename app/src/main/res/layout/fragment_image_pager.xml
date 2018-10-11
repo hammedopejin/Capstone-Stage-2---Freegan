@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -8,23 +9,29 @@
         android:id="@+id/nestedViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent" />
+        android:background="@color/transparent"/>
 
+    <ListView
+        android:id="@+id/lv_tabs"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        app:tabBackground="@drawable/tab_selector"/>
 
-    <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:layout_marginLeft="@dimen/list_toolbar_side_margin"
         android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="?android:attr/actionBarSize"
         android:background="@drawable/scrim"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <ImageButton
             android:id="@+id/back_arrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="?android:attr/actionBarSize"
+            android:layout_height="match_parent"
             android:src="@drawable/back_arrow"
             android:background="@color/transparent"
             android:contentDescription="@string/back_arrow_description_string" />
@@ -32,7 +39,7 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/poster_image_button"
-            android:layout_width="?actionBarSize"
+            android:layout_width="?android:attr/actionBarSize"
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
@@ -46,7 +53,7 @@
 
         <ImageView
             android:id="@+id/favorite_image"
-            android:layout_width="?actionBarSize"
+            android:layout_width="?android:attr/actionBarSize"
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"

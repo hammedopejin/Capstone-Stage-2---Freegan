@@ -32,7 +32,7 @@
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profile_image_view"
                     android:layout_width="wrap_content"
-                    android:layout_height="200dp"
+                    android:layout_height="@dimen/profile_image_height"
                     android:layout_marginBottom="@dimen/general_layout_margin"
                     android:layout_marginEnd="@dimen/general_layout_margin"
                     android:layout_marginLeft="@dimen/general_layout_margin"
@@ -52,7 +52,7 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
+                android:layout_height="?android:attr/actionBarSize"
                 android:layout_gravity="top"
                 android:layout_marginLeft="@dimen/list_toolbar_side_margin"
                 android:layout_marginRight="@dimen/list_toolbar_side_margin"
@@ -61,20 +61,22 @@
 
                 <ImageButton
                     android:id="@+id/back_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="?android:attr/actionBarSize"
+                    android:layout_height="match_parent"
                     android:background="@color/transparent"
-                    android:src="@drawable/back_arrow" />
+                    android:src="@drawable/back_arrow"
+                    android:contentDescription="@string/back_arrow_description_string" />
 
                 <ImageButton
                     android:id="@+id/settings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="?android:attr/actionBarSize"
+                    android:layout_height="match_parent"
                     android:background="@color/transparent"
                     android:layout_gravity="end"
                     app:srcCompat="@drawable/ic_settings_white_24dp"
                     android:paddingEnd="@dimen/general_padding"
-                    android:paddingStart="@dimen/general_padding"/>
+                    android:paddingStart="@dimen/general_padding"
+                    android:contentDescription="@string/settings_option_image_button_string" />
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>

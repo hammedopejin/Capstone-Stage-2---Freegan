@@ -1,4 +1,5 @@
 <resources>
+
     <!-- detail -->
     <bool name="detail_is_card">true</bool>
 

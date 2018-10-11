@@ -174,6 +174,7 @@ public class MessageActivity extends CustomActivity {
         mDataBaseQuery.keepSynced(true);
 
         mLinearLayoutManager = new LinearLayoutManager(MessageActivity.this);
+        mLinearLayoutManager.setStackFromEnd(true);
 
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
             @Override

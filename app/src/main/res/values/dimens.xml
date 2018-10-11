@@ -26,6 +26,11 @@
     <dimen name="txt_18sp">18sp</dimen>
     <dimen name="txt_20sp">20sp</dimen>
 
+    <!-- main activity -->
+    <dimen name="search_view_height">40dp</dimen>
+    <dimen name="card_view_image_size">200dp</dimen>
+    <dimen name="recent_message_user_img_size">40dp</dimen>
+
     <!-- detail -->
     <dimen name="detail_title_text_size">22sp</dimen>
     <dimen name="detail_body_text_size">18sp</dimen>
@@ -40,6 +45,9 @@
     <dimen name="app_bar_layout_elevation">4dp</dimen>
 
     <integer name="grid_span_count">2</integer>
+
+    <!-- profile activity -->
+    <dimen name="profile_image_height">200dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
@@ -58,8 +66,10 @@
     <dimen name="button_height">@dimen/button_size</dimen>
     <dimen name="button_width">200dp</dimen>
     <dimen name="post_activity_edit_text_margin_top">400dp</dimen>
-    <dimen name="card_view_image_size">200dp</dimen>
-    <dimen name="recent_message_user_img_size">40dp</dimen>
+
+    <!-- edit post -->
+    <dimen name="edit_post_picture_size">100dp</dimen>
+
 
     <!--
 Refer to App Widget Documentation for margin information
@@ -67,6 +77,8 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="fab_margin_bottom">80dp</dimen>
+
+
 
 
 </resources>

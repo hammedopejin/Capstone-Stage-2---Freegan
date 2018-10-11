@@ -1,15 +1,56 @@
 <resources>
-    <!-- detail -->
-    <dimen name="detail_title_text_size">40sp</dimen>
-    <dimen name="detail_body_text_size">36sp</dimen>
-    <dimen name="text_padding">32dp</dimen>
-    <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.3</item>
+    <!-- main activity -->
+    <integer name="grid_span_count">3</integer>
+    <dimen name="card_view_image_size">280dp</dimen>
+    <dimen name="recent_message_user_img_size">60dp</dimen>
 
     <dimen name="fab_margin">80dp</dimen>
     <dimen name="fab_layout_height">92dp</dimen>
     <dimen name="fab_layout_width">92dp</dimen>
 
+    <!-- detail activity -->
+    <dimen name="detail_title_text_size">40sp</dimen>
+    <dimen name="detail_body_text_size">36sp</dimen>
 
+    <item name="detail_body_line_spacing_multiplier" format="float" type="fraction">1.3</item>
+
+
+
+    <!-- edit post activity -->
     <dimen name="post_activity_edit_text_margin_top">600dp</dimen>
     <dimen name="fab_margin_bottom">120dp</dimen>
+    <dimen name="edit_post_picture_size">200dp</dimen>
+
+    <!-- general-->
+    <dimen name="text_padding">32dp</dimen>
+    <dimen name="min_margin">4dp</dimen>
+    <dimen name="general_padding">16dp</dimen>
+
+    <!-- chat pad -->
+    <dimen name="pad_0dp">0dp</dimen>
+    <dimen name="pad_2dp">4dp</dimen>
+    <dimen name="pad_4dp">6dp</dimen>
+    <dimen name="pad_5dp">8dp</dimen>
+    <dimen name="pad_8dp">12dp</dimen>
+    <dimen name="pad_10dp">15dp</dimen>
+    <dimen name="pad_15dp">22dp</dimen>
+    <dimen name="pad_16dp">28dp</dimen>
+    <dimen name="pad_20dp">32dp</dimen>
+    <dimen name="pad_30dp">45dp</dimen>
+    <dimen name="pad_40dp">60dp</dimen>
+    <dimen name="pad_chat_item">80dp</dimen>
+    <dimen name="pad_chat_item1">16dp</dimen>
+
+    <!-- chat text -->
+    <dimen name="txt_7sp">14sp</dimen>
+    <dimen name="txt_10sp">20sp</dimen>
+    <dimen name="txt_12sp">24sp</dimen>
+    <dimen name="txt_13sp">26sp</dimen>
+    <dimen name="txt_14sp">28sp</dimen>
+    <dimen name="txt_15sp">30sp</dimen>
+    <dimen name="txt_16sp">32sp</dimen>
+    <dimen name="txt_18sp">36sp</dimen>
+    <dimen name="txt_20sp">40sp</dimen>
+    <dimen name="profile_image_height">320dp</dimen>
+
 </resources>

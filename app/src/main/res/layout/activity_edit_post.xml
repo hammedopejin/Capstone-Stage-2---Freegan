@@ -13,20 +13,21 @@
         android:layout_marginLeft="@dimen/list_toolbar_side_margin"
         android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="?android:attr/actionBarSize"
         android:background="@color/Primary"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <ImageView
-            android:id="@+id/post_Image"
-            android:layout_width="?actionBarSize"
+            android:id="@+id/setting_Image"
+            android:layout_width="?android:attr/actionBarSize"
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
             android:padding="@dimen/pad_8dp"
             app:srcCompat="@drawable/ic_settings_white_24dp"
-            android:focusable="true" />
+            android:focusable="true"
+            android:contentDescription="@string/settings_option_image_button_string" />
     </android.support.v7.widget.Toolbar>
 
     <android.support.constraint.ConstraintLayout
@@ -35,83 +36,92 @@
 
         <ImageView
             android:id="@+id/item_photo_frame2"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/edit_post_picture_size"
+            android:layout_height="@dimen/edit_post_picture_size"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
+            android:layout_marginTop="@dimen/pad_16dp"
             android:background="@color/cardview_dark_background"
-            android:layout_marginLeft="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
+            android:contentDescription="@string/secdond_freegan_item_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.388"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame1"
-            android:contentDescription="TODO" />
+            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame1" />
 
         <ImageView
             android:id="@+id/item_photo_frame4"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/edit_post_picture_size"
+            android:layout_height="@dimen/edit_post_picture_size"
+            android:layout_marginLeft="@dimen/pad_16dp"
+            android:layout_marginStart="@dimen/pad_16dp"
+            android:layout_marginTop="@dimen/pad_16dp"
             android:background="@color/cardview_dark_background"
-            android:layout_marginEnd="32dp"
-            android:layout_marginRight="32dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame3"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/forth_freegan_item_image"
+            app:layout_constraintStart_toEndOf="@+id/item_photo_frame2"
+            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame3" />
 
         <ImageView
             android:id="@+id/item_photo_frame1"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginLeft="32dp"
-            android:layout_marginStart="32dp"
+            android:layout_width="@dimen/edit_post_picture_size"
+            android:layout_height="@dimen/edit_post_picture_size"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
             android:layout_marginTop="84dp"
             android:background="@color/cardview_dark_background"
+            android:contentDescription="@string/first_freegan_item_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.388"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="TODO" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/item_photo_frame3"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginRight="32dp"
+            android:layout_width="@dimen/edit_post_picture_size"
+            android:layout_height="@dimen/edit_post_picture_size"
+            android:layout_marginLeft="@dimen/pad_16dp"
+            android:layout_marginStart="@dimen/pad_16dp"
             android:layout_marginTop="84dp"
             android:background="@color/cardview_dark_background"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/third_freegan_item_image"
+            app:layout_constraintStart_toEndOf="@+id/item_photo_frame1"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/item_description_edit_text"
             android:layout_width="wrap_content"
-            android:layout_height="150dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="24dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/pad_16dp"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
             android:ems="10"
+            android:hint="@string/enter_item_description"
             android:inputType="textMultiLine"
+            app:layout_constraintBottom_toTopOf="@+id/item_post_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.503"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame2" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/item_post_button"
             android:layout_width="@dimen/button_width"
             android:layout_height="@dimen/button_height"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginBottom="@dimen/pad_16dp"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
+            android:background="@drawable/round_corner_button"
             android:text="@string/save_changes_string"
             android:textColor="@color/white"
-            android:background="@drawable/round_corner_button"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_description_edit_text" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 
@@ -122,6 +132,7 @@
         android:layout_height="@dimen/progressbar_size"
         android:layout_gravity="center"
         android:visibility="invisible" />
+
 
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- main activity -->
+    <integer name="grid_span_count">4</integer>
+    <dimen name="card_view_image_size">320dp</dimen>
+    <dimen name="recent_message_user_img_size">80dp</dimen>
+
+
+    <!-- chat pad -->
+    <dimen name="pad_0dp">0dp</dimen>
+    <dimen name="pad_2dp">4dp</dimen>
+    <dimen name="pad_4dp">8dp</dimen>
+    <dimen name="pad_5dp">10dp</dimen>
+    <dimen name="pad_8dp">16dp</dimen>
+    <dimen name="pad_10dp">20dp</dimen>
+    <dimen name="pad_15dp">30dp</dimen>
+    <dimen name="pad_16dp">32dp</dimen>
+    <dimen name="pad_20dp">40dp</dimen>
+    <dimen name="pad_30dp">60dp</dimen>
+    <dimen name="pad_40dp">80dp</dimen>
+    <dimen name="pad_chat_item">96dp</dimen>
+    <dimen name="pad_chat_item1">20dp</dimen>
+
+    <!-- chat text -->
+    <dimen name="txt_7sp">14sp</dimen>
+    <dimen name="txt_10sp">20sp</dimen>
+    <dimen name="txt_12sp">24sp</dimen>
+    <dimen name="txt_13sp">26sp</dimen>
+    <dimen name="txt_14sp">28sp</dimen>
+    <dimen name="txt_15sp">30sp</dimen>
+    <dimen name="txt_16sp">32sp</dimen>
+    <dimen name="txt_18sp">36sp</dimen>
+    <dimen name="txt_20sp">40sp</dimen>
+    <dimen name="profile_image_height">400dp</dimen>
+</resources>

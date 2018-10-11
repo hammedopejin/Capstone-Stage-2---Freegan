@@ -6,7 +6,9 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -66,6 +68,11 @@ public class ReportUserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_report_user);
         ButterKnife.bind(this);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mPoster = savedInstanceState.getParcelable(kPOSTER);
@@ -99,6 +106,17 @@ public class ReportUserActivity extends AppCompatActivity {
         outState.putParcelable(kCURRENTUSER, mCurrentUser);
         outState.putParcelable(kPOSTER, mPoster);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void postToFirebase() {

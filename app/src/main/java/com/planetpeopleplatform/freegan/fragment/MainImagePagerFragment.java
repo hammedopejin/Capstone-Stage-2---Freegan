@@ -2,6 +2,7 @@ package com.planetpeopleplatform.freegan.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
@@ -55,6 +56,9 @@ public class MainImagePagerFragment extends Fragment {
 
         mMainImagePagerAdapter = new MainImagePagerAdapter(this, mListPosts);
         mViewPager.setAdapter(mMainImagePagerAdapter);
+
+        TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(mViewPager, true);
 
         // Set the current position and add a listener that will update the selection coordinator when
         // paging the images.
