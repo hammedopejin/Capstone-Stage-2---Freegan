@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -289,7 +290,10 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
                             .into(mPosterImageButton);
 
 
-                }catch (Exception ex){}
+                }catch (Exception ex){
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
+                            Snackbar.LENGTH_SHORT).show();
+                }
             }
 
             @Override

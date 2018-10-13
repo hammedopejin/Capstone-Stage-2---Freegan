@@ -29,7 +29,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.transition.TransitionInflater;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
@@ -486,7 +485,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                             }
 
                         } catch (Exception e) {
-                            Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
+                            Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
+                                    Snackbar.LENGTH_SHORT).show();
                         }
                     }
 
@@ -534,11 +534,11 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d(TAG, "Location updated");
                     showDataView();
 
                 } else {
-                    Log.d(TAG, "Error location not updated");
+                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_your_location_string),
+                            Snackbar.LENGTH_SHORT).show();
                 }
             }
         });

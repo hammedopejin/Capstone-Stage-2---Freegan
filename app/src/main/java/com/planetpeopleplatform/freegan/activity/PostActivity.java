@@ -16,7 +16,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -188,7 +187,7 @@ public class PostActivity extends AppCompatActivity {
                     destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
                 } catch (NullPointerException e){
-                    Log.d(TAG, "onActivityResult: Image from unrecognized source!!");
+                    Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -216,8 +215,6 @@ public class PostActivity extends AppCompatActivity {
 
             mItemPhotoFrame.setBackgroundResource(R.color.transparent);
             mImageSelected = true;
-
-
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
 
@@ -253,9 +250,6 @@ public class PostActivity extends AppCompatActivity {
         }
     }
 
-
-
-
     private void postToFirebase() {
 
         if (mCurrentUser.getLatitude() == null){
@@ -268,7 +262,7 @@ public class PostActivity extends AppCompatActivity {
             File compressedImageFile = new Compressor(this).compressToFile(destFile);
             mSelectedImageUri = Uri.fromFile(compressedImageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            Snackbar.make(mCoordinatorLayout, R.string.err_image_compression_string, Snackbar.LENGTH_SHORT).show();
         }
 
 
@@ -328,9 +322,6 @@ public class PostActivity extends AppCompatActivity {
                                 if (error != null) {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
-                                    Log.d(TAG, "There was an error saving the location to GeoFire: " + error);
-                                } else {
-                                    Log.d(TAG, "Location saved on server successfully!");
                                 }
                             }
                         });
@@ -430,5 +421,4 @@ public class PostActivity extends AppCompatActivity {
             break;
         }
     }
-
 }

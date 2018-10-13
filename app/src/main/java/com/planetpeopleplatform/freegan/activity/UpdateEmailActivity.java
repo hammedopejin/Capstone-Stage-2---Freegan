@@ -6,7 +6,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -92,7 +91,6 @@ public class UpdateEmailActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Log.d(TAG, "Email updated");
                     firebase.child(kUSER).child(mCurrentUserUid).child(kEMAIL).setValue(newEmail)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
@@ -109,7 +107,6 @@ public class UpdateEmailActivity extends AppCompatActivity {
                                 }
                             });
                 } else {
-                    Log.d(TAG, "Error email not updated");
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_email_failed_to_update_string, Snackbar.LENGTH_SHORT).show();

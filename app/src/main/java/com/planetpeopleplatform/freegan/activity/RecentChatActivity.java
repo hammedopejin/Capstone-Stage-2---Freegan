@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -81,6 +83,9 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
     @BindView(R.id.empty_recent_chat_text)
     TextView mEmptyTextView;
 
+    @BindView(R.id.fragment_container)
+    CoordinatorLayout mCoordinatorLayout;
+
     private final int MESSAGE_ACTIVITY = 777;
 
     private String mCurrentUserUid;
@@ -149,7 +154,6 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                 d1 = sdf.parse((String) ord1.get(kDATE));
                 d2 = sdf.parse((String) ord2.get(kDATE));
             } catch (ParseException e) {
-
                 e.printStackTrace();
             }
             return (d1.getTime() > d2.getTime() ? -1 : 1);     //descending
@@ -221,6 +225,7 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                             }
                         }
                     }catch(Exception e){
+                        Snackbar.make(mCoordinatorLayout, R.string.error_fetching_data_string, Snackbar.LENGTH_SHORT).show();
                     }
                 }
 

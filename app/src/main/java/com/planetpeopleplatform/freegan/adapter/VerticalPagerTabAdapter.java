@@ -141,5 +141,4 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
     public interface OnItemClickListener{
         void selectItem(int position);
     }
-
 }

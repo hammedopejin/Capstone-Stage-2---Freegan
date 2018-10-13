@@ -14,6 +14,6 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_privacy_policy);
         WebView myWebView = new WebView(this);
         setContentView(myWebView);
-        myWebView.loadUrl("https://policies.google.com/privacy");
+        myWebView.loadUrl(getString(R.string.google_privacy_policies_url_string));
     }
 }

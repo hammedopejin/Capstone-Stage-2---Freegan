@@ -42,5 +42,4 @@ public class FreeganDBHelper extends SQLiteOpenHelper {
 
             onCreate(sqLiteDatabase);
         }
-
 }

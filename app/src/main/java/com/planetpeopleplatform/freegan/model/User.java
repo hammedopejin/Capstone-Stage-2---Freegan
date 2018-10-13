@@ -123,8 +123,6 @@ public class User implements Parcelable{
 
     }
 
-
-
     public String getObjectId () {
         return objectId;
     }

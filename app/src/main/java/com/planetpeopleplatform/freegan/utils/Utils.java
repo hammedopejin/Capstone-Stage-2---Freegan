@@ -13,7 +13,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -336,10 +335,8 @@ public class Utils {
                 }
             } catch (IllegalArgumentException e) {
                 // Nothing we can do
-                Log.d(TAG, "IllegalArgumentException");
                 e.printStackTrace();
             } catch (SecurityException ignored) {
-                Log.d(TAG, "SecurityException");
                 // Nothing we can do
                 ignored.printStackTrace();
             } finally {

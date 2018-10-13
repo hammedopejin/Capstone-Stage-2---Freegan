@@ -11,7 +11,6 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
-import android.util.Log;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -53,6 +52,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     private static final int PLACE_PICKER_REQUEST_CODE = 300;
     private User mCurrentUser;
     private String mCurrentUserUid;
+    private CoordinatorLayout mCoordinatorLayout;
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -114,6 +114,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        mCoordinatorLayout = getActivity().findViewById(R.id.fragment_container);
 
         firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
             @Override
@@ -264,7 +265,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if(requestCode == PLACE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(getContext(), data);
             if (place == null) {
-                Log.i(TAG, "No place selected");
                 return;
             }
             updateUserLocation(place);
@@ -279,11 +279,11 @@ public class SettingsFragment extends PreferenceFragmentCompat
             Intent i = builder.build(getActivity());
             startActivityForResult(i, PLACE_PICKER_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
-            Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
+            Snackbar.make(mCoordinatorLayout, R.string.err_google_play_service_error_string, Snackbar.LENGTH_SHORT).show();
         } catch (GooglePlayServicesNotAvailableException e) {
-            Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
+            Snackbar.make(mCoordinatorLayout, R.string.err_google_play_service_error_string, Snackbar.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Log.e(TAG, String.format("PlacePicker Exception: %s", e.getMessage()));
+            Snackbar.make(mCoordinatorLayout, R.string.err_google_play_service_error_string, Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -301,16 +301,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
             public void onComplete(@NonNull Task<Void> task) {
                 CoordinatorLayout coordinatorLayout = getActivity().findViewById(R.id.fragment_container);
                 if (task.isSuccessful()) {
-                    Log.d(TAG, "Location updated");
                     Snackbar.make(coordinatorLayout,
                             R.string.alert_location_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
                 } else {
-                    Log.d(TAG, "Error location not updated");
                     Snackbar.make(coordinatorLayout,
                             R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
 }

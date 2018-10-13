@@ -318,50 +318,6 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
                         startActivityForResult(reportUserIntent, REPORT_USER_REQUEST_CODE);
                         return true;
 
-                    case R.id.action_block_user:
-
-                        ArrayList<String> blockedList = mPoster.getBlockedUsersList();
-                        blockedList.add(mCurrentUserUid);
-                        mPoster.addBlockedUser(mCurrentUserUid);
-                        HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
-                        newBlockedUser.put(kBLOCKEDUSER, blockedList);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                    getActivity().recreate();
-                                } else {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-                        return true;
-
-                    case R.id.action_unblock_user:
-                        ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
-                        int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
-                        mPoster.removeBlockedUser(mCurrentUserUid);
-                        firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                    getActivity().recreate();
-                                } else {
-                                    Snackbar.make(mCoordinatorLayout,
-                                            R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-                        return true;
-
                     default:
 
                         return false;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:drawable="@color/whiteback"/>
+
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/freegan_logo_transparent"/>
+    </item>
+
+</layer-list>

@@ -7,7 +7,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -79,13 +78,8 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    Log.d("TAG", "createUserWithEmail: success");
-
                     saveUserAndLogIn();
-
-                }else
-                {
-                    Log.d("TAG", "createUserWithEmail: Failed");
+                } else {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_registration_failed_string, Snackbar.LENGTH_SHORT).show();
                     showDataView();

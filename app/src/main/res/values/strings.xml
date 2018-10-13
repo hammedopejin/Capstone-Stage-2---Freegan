@@ -206,6 +206,7 @@
     <string name="err_upload_failed_string">upload failed</string>
     <string name="err_password_failed_to_update_string">Password failed to update!</string>
     <string name="error_decrypting_string">error decrypting</string>
+    <string name="error_fetching_data_string">Error fetching data!</string>
 
     <string name="err_image_source_unrecognized_string">Image from unrecognized source!</string>
     <string name="err_image_compression_string">Error compressing image!</string>
@@ -253,12 +254,20 @@
     <string name="image_holder_for_tab_indicator_string">Image holer for more images tab indicator to indicate that Freegan item has more than on image.</string>
     <string name="file_provider_authority">com.planetpeopleplatform.freegan.provider</string>
     <string name="place_holder_string">placeHolder</string>
-    <string name="date_format_decending_with_details">yyyy-MM-dd hh:mm:ss a</string>
-    <string name="date_format_decending">yyyy-MM-dd</string>
-    <string name="time_format_decending">ddMMyyHHmmss</string>
-    <string name="google_map_platform_terms_url_string">https://cloud.google.com/maps-platform/terms/</string>
+
+
     <string name="alert_invitation_sent">Invitation sent successfully!</string>
     <string name="err_invitation_failed">Failed to send invitation!</string>
 
+
+    <!-- Url link Strings -->
+    <string name="google_privacy_policies_url_string">https://policies.google.com/privacy</string>
+    <string name="google_map_platform_terms_url_string">https://cloud.google.com/maps-platform/terms/</string>
+
+    <!-- Strings formatting Strings -->
+    <string name="date_format_decending_with_details">yyyy-MM-dd hh:mm:ss a</string>
+    <string name="date_format_decending">yyyy-MM-dd</string>
+    <string name="time_format_decending">ddMMyyHHmmss</string>
+    <string name="error_fetching_your_location_string">Error retrieving your current location!</string>
 
 </resources>

@@ -67,8 +67,6 @@ import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 public class EditPostActivity extends AppCompatActivity
         implements ChoosePictureSourceDialogFragment.OnCompleteListener {
 
-    private static final String TAG = EditPostActivity.class.getSimpleName();
-
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
     private static final int RC_TAKE_CAMERA_PHOTO_CODE = 100;

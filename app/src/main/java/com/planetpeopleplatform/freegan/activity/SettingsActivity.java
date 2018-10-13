@@ -15,7 +15,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -139,7 +138,7 @@ public class SettingsActivity extends AppCompatActivity
                     destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
                 } catch (NullPointerException e){
-                    Log.d(TAG, "onActivityResult: Image from unrecognized source!!");
+                    Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -213,7 +212,7 @@ public class SettingsActivity extends AppCompatActivity
             File compressedImageFile = new Compressor(this).compressToFile(destFile);
             mSelectedImageUri = Uri.fromFile(compressedImageFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            Snackbar.make(mCoordinatorLayout, R.string.err_image_compression_string, Snackbar.LENGTH_SHORT).show();
         }
 
         SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));

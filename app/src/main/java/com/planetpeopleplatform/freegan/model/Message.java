@@ -10,16 +10,16 @@ public class Message implements Parcelable {
     public final static String STATUS_FAILED = "Failed";
 
     //String sender = null
-    private String message = "";
-    private String senderId = "";
-    private String receiverId = "";
-    private String messageId = "";
-    private String chatRoomId = "";
-    private String senderName = "";
-    private String date = "";
-    private String status = "";
-    private String type = "";
-    private String postId = "";
+    private String message;
+    private String senderId;
+    private String receiverId;
+    private String messageId;
+    private String chatRoomId;
+    private String senderName;
+    private String date;
+    private String status;
+    private String type;
+    private String postId;
 
     public Message(String message, String date, String messageId, String senderId, String receiverId,
                    String chatRoomId, String senderName, String status, String type,
@@ -35,7 +35,6 @@ public class Message implements Parcelable {
         this.type = type;
         this.postId = postId;
     }
-
 
     protected Message(Parcel in) {
         message = in.readString();

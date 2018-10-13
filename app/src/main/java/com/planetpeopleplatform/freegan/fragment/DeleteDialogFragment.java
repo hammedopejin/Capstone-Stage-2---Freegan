@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 
 
 import com.google.firebase.database.DataSnapshot;
@@ -103,7 +102,6 @@ public class DeleteDialogFragment extends DialogFragment {
 
                                             if (snapshotValue != null) {
                                                 for (String object : snapshotValue.keySet()){
-                                                    Log.d("TAG", "onDataChange: recentKey : " + object);
                                                     firebase.child(kRECENT).child(object).removeValue();
                                                 }
                                             }
