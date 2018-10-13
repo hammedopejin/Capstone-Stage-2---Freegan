@@ -32,4 +32,7 @@
     <dimen name="txt_18sp">36sp</dimen>
     <dimen name="txt_20sp">40sp</dimen>
     <dimen name="profile_image_height">400dp</dimen>
+
+    <!-- edit post activity -->
+    <dimen name="edit_post_picture_size">240dp</dimen>
 </resources>

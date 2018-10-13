@@ -34,61 +34,58 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/item_photo_frame2"
-            android:layout_width="@dimen/edit_post_picture_size"
-            android:layout_height="@dimen/edit_post_picture_size"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="@dimen/edit_post_picture_size"
             android:layout_marginEnd="@dimen/pad_8dp"
             android:layout_marginLeft="@dimen/pad_8dp"
             android:layout_marginRight="@dimen/pad_8dp"
             android:layout_marginStart="@dimen/pad_8dp"
-            android:layout_marginTop="@dimen/pad_16dp"
-            android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/secdond_freegan_item_image"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.388"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame1" />
-
-        <ImageView
-            android:id="@+id/item_photo_frame4"
-            android:layout_width="@dimen/edit_post_picture_size"
-            android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_marginLeft="@dimen/pad_16dp"
-            android:layout_marginStart="@dimen/pad_16dp"
-            android:layout_marginTop="@dimen/pad_16dp"
-            android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/forth_freegan_item_image"
-            app:layout_constraintStart_toEndOf="@+id/item_photo_frame2"
-            app:layout_constraintTop_toBottomOf="@+id/item_photo_frame3" />
+            app:layout_constraintTop_toTopOf="parent" >
 
         <ImageView
             android:id="@+id/item_photo_frame1"
             android:layout_width="@dimen/edit_post_picture_size"
             android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_marginEnd="@dimen/pad_8dp"
-            android:layout_marginLeft="@dimen/pad_8dp"
-            android:layout_marginRight="@dimen/pad_8dp"
-            android:layout_marginStart="@dimen/pad_8dp"
-            android:layout_marginTop="84dp"
+            android:layout_weight="1"
             android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/first_freegan_item_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.388"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:contentDescription="@string/secdond_freegan_item_image" />
+
+        <ImageView
+            android:id="@+id/item_photo_frame4"
+            android:layout_width="@dimen/edit_post_picture_size"
+            android:layout_height="@dimen/edit_post_picture_size"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
+            android:layout_weight="1"
+            android:background="@color/cardview_dark_background"
+            android:contentDescription="@string/forth_freegan_item_image" />
+
+        <ImageView
+            android:id="@+id/item_photo_frame2"
+            android:layout_width="@dimen/edit_post_picture_size"
+            android:layout_height="@dimen/edit_post_picture_size"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
+            android:layout_weight="1"
+            android:background="@color/cardview_dark_background"
+            android:contentDescription="@string/first_freegan_item_image" />
 
         <ImageView
             android:id="@+id/item_photo_frame3"
             android:layout_width="@dimen/edit_post_picture_size"
             android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_marginLeft="@dimen/pad_16dp"
-            android:layout_marginStart="@dimen/pad_16dp"
-            android:layout_marginTop="84dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/third_freegan_item_image"
-            app:layout_constraintStart_toEndOf="@+id/item_photo_frame1"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:contentDescription="@string/third_freegan_item_image" />
+
+        </LinearLayout>
 
         <EditText
             android:id="@+id/item_description_edit_text"

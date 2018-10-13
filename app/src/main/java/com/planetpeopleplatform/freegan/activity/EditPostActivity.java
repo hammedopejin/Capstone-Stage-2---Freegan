@@ -77,13 +77,11 @@ public class EditPostActivity extends AppCompatActivity
     private static final int FLAG_DELETE = 1000;
     private static final int FLAG_NEW_PIC = 2000;
 
-    private  ArrayList<Boolean> mNewImageSelected = new ArrayList<>();
     private User mCurrentUser;
 
     private ArrayList<StorageReference> mImageRef = new ArrayList<>();
     private ArrayList mPostDownloadURLs = new ArrayList<String>(4);
     private ArrayList mToDeletePostDownloadURLs = new ArrayList<String>();
-    private File mCompressedImageFile = null;
     private Uri mSelectedImageUri = null;
     private ArrayList<Uri> mSelectedImageUris = new ArrayList<>();
     private File destFile;
@@ -127,7 +125,7 @@ public class EditPostActivity extends AppCompatActivity
         if (destFile != null) {
             mSelectedImageUri = FileProvider.getUriForFile(
                     this,
-                    "com.planetpeopleplatform.freegan.provider",
+                    getString(R.string.file_provider_authority),
                     destFile);
         }
 
@@ -150,30 +148,27 @@ public class EditPostActivity extends AppCompatActivity
 
         for (int i = photoSize; i < 4; i++) {
             if (mPost != null) {
-                mPost.getImageUrl().add(i, "placeHolder");
+                mPost.getImageUrl().add(i, getString(R.string.place_holder_string));
             }
-        }
-        for (int j = 0; j < 4; j++){
-            mNewImageSelected.add(false);
         }
 
         Glide.with(this).load(mPost.getImageUrl().get(0)).into(mItemPhotoFrame1);
         mPostDownloadURLs.add(0, mPost.getImageUrl().get(0));
-        if(!(mPost.getImageUrl().get(1).equals("placeHolder"))) {
+        if(!(mPost.getImageUrl().get(1).equals(getString(R.string.place_holder_string)))) {
             Glide.with(this).load(mPost.getImageUrl().get(1)).into(mItemPhotoFrame2);
             mPostDownloadURLs.add(1, mPost.getImageUrl().get(1));
         }
-        if(!(mPost.getImageUrl().get(2).equals("placeHolder"))) {
+        if(!(mPost.getImageUrl().get(2).equals(getString(R.string.place_holder_string)))) {
             Glide.with(this).load(mPost.getImageUrl().get(2)).into(mItemPhotoFrame3);
             mPostDownloadURLs.add(2, mPost.getImageUrl().get(2));
         }
-        if(!(mPost.getImageUrl().get(3).equals("placeHolder"))) {
+        if(!(mPost.getImageUrl().get(3).equals(getString(R.string.place_holder_string)))) {
             Glide.with(this).load(mPost.getImageUrl().get(3)).into(mItemPhotoFrame4);
             mPostDownloadURLs.add(3, mPost.getImageUrl().get(3));
         }
 
-
-        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
+        mItemDescriptionEditText.clearFocus();
+        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(80)});
 
         // ImagePickerButton shows an image picker to upload a image
         mItemPhotoFrame1.setOnClickListener(new View.OnClickListener() {
@@ -182,13 +177,9 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame1;
                 mCurrentIndex = 0;
                 if (mTempImg.getDrawable() == null){
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, false);
                     editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
                     if (mPost.getImageUrl().size() > 1) {
-                        mNewImageSelected.remove(mCurrentIndex);
-                        mNewImageSelected.add(mCurrentIndex, true);
                         mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
                         editPostPicture(String.valueOf(0), FLAG_DELETE);
                     } else {
@@ -204,12 +195,8 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame2;
                 mCurrentIndex = 1;
                 if (mTempImg.getDrawable() == null){
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, false);
                     editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, true);
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
                     editPostPicture(String.valueOf(1), FLAG_DELETE );
                 }
@@ -222,12 +209,8 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame3;
                 mCurrentIndex = 2;
                 if (mTempImg.getDrawable() == null){
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, false);
                     editPostPicture(String.valueOf(2),  FLAG_NEW_PIC);
                 } else {
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, true);
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
                     editPostPicture(String.valueOf(2), FLAG_DELETE );
                 }
@@ -240,12 +223,8 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame4;
                 mCurrentIndex = 3;
                 if (mTempImg.getDrawable() == null){
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, false);
                     editPostPicture(String.valueOf(3), FLAG_NEW_PIC);
                 } else {
-                    mNewImageSelected.remove(mCurrentIndex);
-                    mNewImageSelected.add(mCurrentIndex, true);
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
                     editPostPicture(String.valueOf(3), FLAG_DELETE );
                 }
@@ -270,6 +249,7 @@ public class EditPostActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
 
@@ -286,8 +266,8 @@ public class EditPostActivity extends AppCompatActivity
             }
 
             try {
-                mCompressedImageFile = new Compressor(this).compressToFile(destFile);
-                mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+                File compressedImageFile = new Compressor(this).compressToFile(destFile);
+                mSelectedImageUri = Uri.fromFile(compressedImageFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -322,8 +302,8 @@ public class EditPostActivity extends AppCompatActivity
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
 
             try {
-                mCompressedImageFile = new Compressor(this).compressToFile(destFile);
-                mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+                File compressedImageFile = new Compressor(this).compressToFile(destFile);
+                mSelectedImageUri = Uri.fromFile(compressedImageFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -351,10 +331,6 @@ public class EditPostActivity extends AppCompatActivity
 
             mTempImg.setBackgroundResource(R.color.transparent);
 
-        } else if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
-            if (resultCode == RESULT_CANCELED) {
-
-            }
         }
     }
 
@@ -362,7 +338,7 @@ public class EditPostActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
                 permissions, grantResults);
 
@@ -414,6 +390,8 @@ public class EditPostActivity extends AppCompatActivity
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+
+            //Crash Point for 2nd camerra in roll
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
     }
@@ -437,7 +415,7 @@ public class EditPostActivity extends AppCompatActivity
     private void postToFirebase() {
         mLoadingIndicator.setVisibility(View.VISIBLE);
         mItemPostButton.setVisibility(View.INVISIBLE);
-        SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
+        SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));
 
         if (mSelectedImageUris.size() > 0) {
 
@@ -507,7 +485,7 @@ public class EditPostActivity extends AppCompatActivity
             toDelete.delete();
         }
 
-        SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sfd = new SimpleDateFormat(getString(R.string.date_format_decending));
         DatabaseReference reference = firebase.child(kPOST).child(mPost.getPostId());
         DatabaseReference imagesReference = firebase.child(kPOST).child(mPost.getPostId()).child(kIMAGEURL);
         HashMap<String, Object> post = new HashMap<String, Object>();
@@ -536,8 +514,7 @@ public class EditPostActivity extends AppCompatActivity
 
     private void editPostPicture(String position, int flag) {
 
-        ChoosePictureSourceDialogFragment dialogFragment = ChoosePictureSourceDialogFragment.newInstance(position,
-                mPost.getPostId(), kPOST, flag);
+        ChoosePictureSourceDialogFragment dialogFragment = ChoosePictureSourceDialogFragment.newInstance(flag);
         dialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
 
     }

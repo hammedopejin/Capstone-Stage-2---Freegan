@@ -26,9 +26,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 
 public class UpdateUserNameActivity extends AppCompatActivity {
 
-    private String mCurrentUserName = null;
     private String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
 
     @BindView(R.id.fragment_container)
     CoordinatorLayout mCoordinatorLayout;
@@ -52,12 +50,12 @@ public class UpdateUserNameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_update_user_name);
         ButterKnife.bind(this);
 
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mCurrentUserUid = auth.getCurrentUser().getUid();
 
-        mCurrentUserName = getIntent().getStringExtra(kUSERNAME);
+        String currentUserName = getIntent().getStringExtra(kUSERNAME);
         mUserNameEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(18)});
-        mUserNameEditText.setText(mCurrentUserName);
+        mUserNameEditText.setText(currentUserName);
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override

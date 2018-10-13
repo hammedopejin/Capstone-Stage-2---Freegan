@@ -2,6 +2,7 @@ package com.planetpeopleplatform.freegan.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import com.planetpeopleplatform.freegan.model.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,10 +33,6 @@ public class ProfileImagePagerFragment extends Fragment {
     private static final String KEY_ARRAY_LIST = "com.planetpeopleplatform.freegan.key.listPostArray";
     private static final String KEY_POSTER = "com.planetpeopleplatform.freegan.key.poster";
     private static final String KEY_CURRENT_USER = "com.planetpeopleplatform.freegan.key.current_user";
-    private ArrayList<Post> mListPosts =  new ArrayList<Post>();
-    private User mPoster;
-    private User mCurrentUser;
-    private ProfileImagePagerAdapter mProfileImagePagerAdapter;
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
 
@@ -50,18 +48,27 @@ public class ProfileImagePagerFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View rootView  = inflater.inflate(R.layout.fragment_pager, container, false);
         ButterKnife.bind(this, rootView);
 
         Bundle arguments = getArguments();
-        mListPosts = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
-        mPoster = arguments.getParcelable(KEY_POSTER);
-        mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
+        ArrayList<Post> listPosts = null;
+        if (arguments != null) {
+            listPosts = arguments.getParcelableArrayList(KEY_ARRAY_LIST);
+        }
+        User poster = null;
+        if (arguments != null) {
+            poster = arguments.getParcelable(KEY_POSTER);
+        }
+        User currentUser = null;
+        if (arguments != null) {
+            currentUser = arguments.getParcelable(KEY_CURRENT_USER);
+        }
 
-        mProfileImagePagerAdapter = new ProfileImagePagerAdapter(this, mListPosts, mPoster, mCurrentUser);
-        mViewPager.setAdapter(mProfileImagePagerAdapter);
+        ProfileImagePagerAdapter profileImagePagerAdapter = new ProfileImagePagerAdapter(this, listPosts, poster, currentUser);
+        mViewPager.setAdapter(profileImagePagerAdapter);
 
         TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(mViewPager, true);
@@ -101,8 +108,11 @@ public class ProfileImagePagerFragment extends Fragment {
      */
     private void prepareSharedElementTransition() {
         Transition transition =
-                TransitionInflater.from(getContext())
-                        .inflateTransition(R.transition.image_shared_element_transition);
+                null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            transition = TransitionInflater.from(getContext())
+                    .inflateTransition(R.transition.image_shared_element_transition);
+        }
         setSharedElementEnterTransition(transition);
 
         // A similar mapping is set at the ProfileGridFragment with a setExitSharedElementCallback.
@@ -114,9 +124,15 @@ public class ProfileImagePagerFragment extends Fragment {
                         // visible). To locate the fragment, call instantiateItem with the selection position.
                         // At this stage, the method will simply return the fragment at the position and will
                         // not create a new one.
-                        Fragment currentFragment = (Fragment) mViewPager.getAdapter()
-                                .instantiateItem(mViewPager, ProfileActivity.currentPosition);
-                        View view = currentFragment.getView();
+                        Fragment currentFragment = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                            currentFragment = (Fragment) Objects.requireNonNull(mViewPager.getAdapter())
+                                    .instantiateItem(mViewPager, ProfileActivity.currentPosition);
+                        }
+                        View view = null;
+                        if (currentFragment != null) {
+                            view = currentFragment.getView();
+                        }
                         if (view == null) {
                             return;
                         }

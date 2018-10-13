@@ -8,6 +8,6 @@
         android:startColor="@color/scrim_text_startColor"
         android:centerColor="@color/scrim_text_centerColor"
         android:endColor="@color/scrim_text_endColor"
-        android:type="linear"/>
+        android:type="sweep"/>
 
 </shape>

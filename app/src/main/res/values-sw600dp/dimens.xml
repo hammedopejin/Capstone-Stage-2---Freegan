@@ -19,7 +19,7 @@
     <!-- edit post activity -->
     <dimen name="post_activity_edit_text_margin_top">600dp</dimen>
     <dimen name="fab_margin_bottom">120dp</dimen>
-    <dimen name="edit_post_picture_size">200dp</dimen>
+    <dimen name="edit_post_picture_size">160dp</dimen>
 
     <!-- general-->
     <dimen name="text_padding">32dp</dimen>

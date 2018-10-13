@@ -59,7 +59,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_tab, viewGroup, false);
         }
 
-        ImageView tabTitle = (ImageView) view.findViewById(R.id.image_tab_icon);
+        ImageView tabTitle = view.findViewById(R.id.image_tab_icon);
 
         if(i == currentSelected){
             // change the appearance
@@ -101,8 +101,6 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
         if(targetView != null) {
             // change the appearance
             ((ImageView)(targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_custom_red_24dp));
-
-
         }
 
         if(mListener != null){
@@ -126,10 +124,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
         currentSelected = -1;
     }
 
-
     // OnClick Events
-
-
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         select(i);

@@ -35,7 +35,6 @@ import com.planetpeopleplatform.freegan.activity.SettingsActivity;
 import com.planetpeopleplatform.freegan.adapter.ProfileGridAdapter;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
-import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,12 +49,9 @@ import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
-import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTUSEROBJECTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
@@ -123,8 +119,12 @@ public class ProfileGridFragment extends Fragment {
             if (arguments == null) {
                 closeOnError(mCoordinatorLayout, getActivity());
             }
-            mPoster = arguments.getParcelable(KEY_POSTER);
-            mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
+            if (arguments != null) {
+                mPoster = arguments.getParcelable(KEY_POSTER);
+            }
+            if (arguments != null) {
+                mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
+            }
         }
 
         mFragment = this;
@@ -229,8 +229,10 @@ public class ProfileGridFragment extends Fragment {
      * that affect the flow.
      */
     private void prepareTransitions() {
-        setExitTransition(TransitionInflater.from(getContext())
-                .inflateTransition(R.transition.grid_exit_transition));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setExitTransition(TransitionInflater.from(getContext())
+                    .inflateTransition(R.transition.grid_exit_transition));
+        }
 
 
         setExitSharedElementCallback(
@@ -255,7 +257,7 @@ public class ProfileGridFragment extends Fragment {
     private void loadPosts(){
         showDataView();
         firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPoster.getObjectId())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try{
@@ -263,9 +265,11 @@ public class ProfileGridFragment extends Fragment {
 
                     HashMap<String, Object> postData= (HashMap<String, Object>) dataSnapshot.getValue();
 
-                    for (String key : postData.keySet()){
-                        HashMap<String, Object> post = (HashMap<String, Object>) postData.get(key);
-                        mListPosts.add(new Post(post));
+                    if (postData != null) {
+                        for (String key : postData.keySet()){
+                            HashMap<String, Object> post = (HashMap<String, Object>) postData.get(key);
+                            mListPosts.add(new Post(post));
+                        }
                     }
 
                     mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster, mCurrentUser));
@@ -323,15 +327,9 @@ public class ProfileGridFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
+                                                getActivity().recreate();
                                                 Snackbar.make(mCoordinatorLayout,
                                                         R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                                    getActivity().recreate();
-                                                } else {
-                                                    Intent intent = getActivity().getIntent();
-                                                    getActivity().finish();
-                                                    startActivity(intent);
-                                                }
                                             } else {
                                                 Snackbar.make(mCoordinatorLayout,
                                                         R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
@@ -351,15 +349,9 @@ public class ProfileGridFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
+                                                        getActivity().recreate();
                                                         Snackbar.make(mCoordinatorLayout,
                                                                 R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                                            getActivity().recreate();
-                                                        } else {
-                                                            Intent intent = getActivity().getIntent();
-                                                            getActivity().finish();
-                                                            startActivity(intent);
-                                                        }
                                                     } else {
                                                         Snackbar.make(mCoordinatorLayout,
                                                                 R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();

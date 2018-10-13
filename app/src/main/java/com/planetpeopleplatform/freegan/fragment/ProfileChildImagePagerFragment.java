@@ -12,7 +12,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -120,7 +119,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_image_pager, container, false);
         ButterKnife.bind(this, rootView);
@@ -130,14 +129,21 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
             closeOnError(mCoordinatorLayout, getActivity());
         }
 
-        mPoster = arguments.getParcelable(KEY_POSER);
-        mPost = arguments.getParcelable(KEY_POST_RES);
-        mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
-        mCurrentUserUid = mCurrentUser.getObjectId();
+        if (arguments != null) {
+            mPoster = arguments.getParcelable(KEY_POSER);
+        }
+        if (arguments != null) {
+            mPost = arguments.getParcelable(KEY_POST_RES);
+        }
+        if (arguments != null) {
+            mCurrentUser = arguments.getParcelable(KEY_CURRENT_USER);
+        }
+        if (mCurrentUser != null) {
+            mCurrentUserUid = mCurrentUser.getObjectId();
+        }
 
         String postDescription = mPost.getDescription();
 
-        //        mOptionImageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_share));
         mOptionImageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_settings_white_24dp));
 
         mNestedViewPager.setAdapter(new ProfileChildViewPagerAdaper(this, mPost));
@@ -264,7 +270,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
         } else if (requestCode == SHARE_POST){
-
+            Snackbar.make(mCoordinatorLayout, R.string.alert_freegen_successfully_shared_string, Snackbar.LENGTH_SHORT).show();
         } else if (requestCode == MESSAGE_ACTIVITY){
             getActivity().recreate();
         }
@@ -325,13 +331,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
                                 if (task.isSuccessful()) {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                        getActivity().recreate();
-                                    } else {
-                                        Intent intent = getActivity().getIntent();
-                                        getActivity().finish();
-                                        startActivity(intent);
-                                    }
+                                    getActivity().recreate();
                                 } else {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.err_user_block_failed_string, Snackbar.LENGTH_SHORT).show();
@@ -352,13 +352,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
                                 if (task.isSuccessful()) {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                        getActivity().recreate();
-                                    } else {
-                                        Intent intent = getActivity().getIntent();
-                                        getActivity().finish();
-                                        startActivity(intent);
-                                    }
+                                    getActivity().recreate();
                                 } else {
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.err_user_unblock_failed_string, Snackbar.LENGTH_SHORT).show();
@@ -385,7 +379,9 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
                 .setText(FREEGAN_BASE_URL + getString(R.string.freegan_item_share_string) + mPost.getDescription()
                 + getString(R.string.posted_by_string) + mPost.getUserName())
                 .getIntent();
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        }
 
         return shareIntent;
     }

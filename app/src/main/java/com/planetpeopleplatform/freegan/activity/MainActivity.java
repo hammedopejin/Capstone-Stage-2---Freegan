@@ -3,6 +3,7 @@ package com.planetpeopleplatform.freegan.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,11 +35,7 @@ public class MainActivity extends AppCompatActivity implements ChoosePictureSour
     public static int currentPosition;
     public static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
     private String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
-    private FirebaseAnalytics mFirebaseAnalytics;
-
-
-
+    Fragment mFragment;
 
 
     @Override
@@ -49,23 +46,31 @@ public class MainActivity extends AppCompatActivity implements ChoosePictureSour
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         if (savedInstanceState != null) {
             mCurrentUserUid = savedInstanceState.getString(kCURRENTUSERID);
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
             // Return here to prevent adding additional GridFragments when changing orientation.
+            if (mFragment == null){
+                mFragment = new MainGridFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, mFragment, MainGridFragment.class.getSimpleName())
+                        .commit();
+            }
             return;
         }
 
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mCurrentUserUid = auth.getCurrentUser().getUid();
 
-
+        mFragment = new MainGridFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_container, new MainGridFragment(), MainGridFragment.class.getSimpleName())
+                .replace(R.id.fragment_container, mFragment, MainGridFragment.class.getSimpleName())
                 .commit();
 
 

@@ -1,6 +1,7 @@
 package com.planetpeopleplatform.freegan.adapter;
 
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,6 +25,7 @@ import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.ImageViewHolder> {
@@ -108,19 +110,23 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
             // Exclude the clicked card from the exit transition (e.g. the card will disappear immediately
             // instead of fading out with the rest to prevent an overlapping animation of fade and move).
-            ((TransitionSet) mFragment.getExitTransition()).excludeTarget(view, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                ((TransitionSet) Objects.requireNonNull(mFragment.getExitTransition())).excludeTarget(view, true);
+            }
 
             ImageView transitioningView = view.findViewById(R.id.card_image);
 
 
-            mFragment.getFragmentManager()
-                    .beginTransaction()
-                    .setReorderingAllowed(true) // Optimize for shared element transition
-                    .addSharedElement(transitioningView, transitioningView.getTransitionName())
-                    .replace(R.id.fragment_container, ProfileImagePagerFragment.newInstance(mListPosts, mPoster, mCurrentUser), ProfileImagePagerFragment.class
-                            .getSimpleName())
-                    .addToBackStack(null)
-                    .commit();
+            if (mFragment.getFragmentManager() != null) {
+                mFragment.getFragmentManager()
+                        .beginTransaction()
+                        .setReorderingAllowed(true) // Optimize for shared element transition
+                        .addSharedElement(transitioningView, transitioningView.getTransitionName())
+                        .replace(R.id.fragment_container, ProfileImagePagerFragment.newInstance(mListPosts, mPoster, mCurrentUser), ProfileImagePagerFragment.class
+                                .getSimpleName())
+                        .addToBackStack(null)
+                        .commit();
+            }
         }
     }
 
@@ -153,7 +159,9 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
             int adapterPosition = getAdapterPosition();
             setImage(adapterPosition);
             // Set the string value of the image resource as the unique transition name for the view.
-            mImage.setTransitionName(((mListPosts.get(adapterPosition).getImageUrl())).get(0));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mImage.setTransitionName(((mListPosts.get(adapterPosition).getImageUrl())).get(0));
+            }
         }
 
         void setImage(final int adapterPosition) {

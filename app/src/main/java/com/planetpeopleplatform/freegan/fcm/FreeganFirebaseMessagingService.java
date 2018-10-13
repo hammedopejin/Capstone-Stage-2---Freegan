@@ -1,7 +1,5 @@
 package com.planetpeopleplatform.freegan.fcm;
 
-import android.util.Log;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -15,7 +13,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kINSTANCEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEDATE;
-import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECEIVERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
@@ -23,8 +20,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 
 public class FreeganFirebaseMessagingService extends FirebaseMessagingService {
-
-    private static final String TAG = FreeganFirebaseMessagingService.class.getSimpleName();
 
     /**
      * Called if InstanceID token is updated. This may occur if the security of

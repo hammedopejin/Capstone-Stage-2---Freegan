@@ -33,12 +33,10 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     private static final String KEY_CURRENT_USER_ID = "com.planetpeopleplatform.freegan.key.currentUserUid";
     private static final String KEY_POSTER_ID = "com.planetpeopleplatform.freegan.key.posterUid";
 
-    private FirebaseAnalytics mFirebaseAnalytics;
     private User mPoster = null;
     private User mCurrentUser = null;
     private String mCurrentUserUid = null;
     private String mPosterId;
-    private FirebaseAuth mAuth;
     private ValueEventListener mPosterValueEventListener;
     private ValueEventListener mCurrentUserValueEventListener;
 
@@ -46,8 +44,8 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        mAuth = FirebaseAuth.getInstance();
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
@@ -58,8 +56,10 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
             return;
         }
 
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
-        mPosterId = getIntent().getStringExtra(kPOSTERID);
+        mCurrentUserUid = auth.getCurrentUser().getUid();
+        if (getIntent() != null) {
+            mPosterId = getIntent().getStringExtra(kPOSTERID);
+        }
         getCurrentUser(mCurrentUserUid);
 
     }

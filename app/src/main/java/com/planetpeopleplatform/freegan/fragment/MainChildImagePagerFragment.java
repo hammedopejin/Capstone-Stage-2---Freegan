@@ -10,10 +10,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,9 +69,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     private String mChatRoomId = null;
     private User mCurrentUser = null;
     public String mCurrentUserUid = null;
-    private FirebaseAuth mAuth;
     private Post mPost = null;
-    private MainChildViewPagerAdapter mMainChildViewPagerAdapter;
     private VerticalPagerTabAdapter mTabAdapter;
 
 
@@ -115,22 +111,27 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_image_pager, container, false);
         ButterKnife.bind(this, rootView);
 
-        mAuth= FirebaseAuth.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
 
         Bundle arguments = getArguments();
 
         if (arguments == null) {
             closeOnError(mCoordinatorLayout, getActivity());
         }
-        mPost = arguments.getParcelable(KEY_POST_RES);
-        String postDescription = mPost.getDescription();
+        if (arguments != null) {
+            mPost = arguments.getParcelable(KEY_POST_RES);
+        }
+        String postDescription = null;
+        if (mPost != null) {
+            postDescription = mPost.getDescription();
+        }
 
-        mMainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
-        mNestedViewPager.setAdapter(mMainChildViewPagerAdapter);
+        MainChildViewPagerAdapter mainChildViewPagerAdapter = new MainChildViewPagerAdapter(this, mPost);
+        mNestedViewPager.setAdapter(mainChildViewPagerAdapter);
         mNestedViewPager.setOnPageChangeListener(this);
         if (mListViewTabs != null) {
             mTabAdapter = new VerticalPagerTabAdapter(mPost, mListViewTabs, this);
@@ -235,7 +236,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
         });
 
         mTextView.setText(postDescription);
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        mCurrentUserUid = auth.getCurrentUser().getUid();
         loadUserProfilePicture(rootView, this, mPost.getPostUserObjectId());
         if (mPost.getPostUserObjectId().equals(mCurrentUserUid)) {
             mContactButtonView.setVisibility(View.GONE);
@@ -249,9 +250,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_PROFILE_ACTIVITY) {
-
-        } else if (requestCode == MESSAGE_ACTIVITY){
+        if (requestCode == MESSAGE_ACTIVITY){
             getActivity().recreate();
         }
     }

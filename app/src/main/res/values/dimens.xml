@@ -68,7 +68,7 @@
     <dimen name="post_activity_edit_text_margin_top">400dp</dimen>
 
     <!-- edit post -->
-    <dimen name="edit_post_picture_size">100dp</dimen>
+    <dimen name="edit_post_picture_size">80dp</dimen>
 
 
     <!--

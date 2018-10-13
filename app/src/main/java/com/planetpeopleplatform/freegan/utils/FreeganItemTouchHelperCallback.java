@@ -3,11 +3,11 @@ package com.planetpeopleplatform.freegan.utils;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-public class MyItemTouchHelperCallback extends ItemTouchHelper.Callback {
+public class FreeganItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     private ItemTouchHelperAdapter mAdapter;
 
-    public MyItemTouchHelperCallback( ItemTouchHelperAdapter adapter){
+    public FreeganItemTouchHelperCallback(ItemTouchHelperAdapter adapter){
         mAdapter = adapter;
     }
 

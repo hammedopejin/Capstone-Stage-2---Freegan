@@ -15,7 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -69,7 +68,10 @@ public class PushNotifications {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {
                     HashMap<String, Object> map = (HashMap<String, Object>) dataSnapshot.getValue();
-                    Post post = (new Post(map));
+                    Post post = null;
+                    if (map != null) {
+                        post = (new Post(map));
+                    }
                     loadUser(context, messageDate, chatMateId, message, userName, post, chatRoomId, currentUserUid);
                 } catch (Exception e) {
                 }
@@ -142,7 +144,9 @@ public class PushNotifications {
                     MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID,
                     context.getString(R.string.main_notification_channel_name),
                     NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(mChannel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(mChannel);
+            }
         }
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, MESSAGE_RECEIVED_NOTIFICATION_CHANNEL_ID)
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
@@ -162,7 +166,9 @@ public class PushNotifications {
         }
 
         if (!isAppOnForeground(context)) {
-            notificationManager.notify(CHAT_MESSAGE_NOTIFICATION_ID, notificationBuilder.build());
+            if (notificationManager != null) {
+                notificationManager.notify(CHAT_MESSAGE_NOTIFICATION_ID, notificationBuilder.build());
+            }
         }
 
     }
@@ -170,12 +176,17 @@ public class PushNotifications {
     public static void clearNotifications(Context context) {
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(CHAT_MESSAGE_NOTIFICATION_ID);
+        if (notificationManager != null) {
+            notificationManager.cancel(CHAT_MESSAGE_NOTIFICATION_ID);
+        }
     }
 
     private static boolean isAppOnForeground(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = null;
+        if (activityManager != null) {
+            appProcesses = activityManager.getRunningAppProcesses();
+        }
         if (appProcesses == null) {
             return false;
         }
@@ -191,7 +202,9 @@ public class PushNotifications {
     public static void clearAllNotifications(Context context) {
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancelAll();
+        if (notificationManager != null) {
+            notificationManager.cancelAll();
+        }
     }
 
     private static PendingIntent contentIntent(Context context, String currentUserUid,
@@ -255,5 +268,4 @@ public class PushNotifications {
         });
 
     }
-
 }

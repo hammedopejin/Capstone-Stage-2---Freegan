@@ -14,6 +14,6 @@ public class TermsAndConditionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_terms_and_conditions);
         WebView myWebView = new WebView(this);
         setContentView(myWebView);
-        myWebView.loadUrl("https://cloud.google.com/maps-platform/terms/");
+        myWebView.loadUrl(getString(R.string.google_map_platform_terms_url_string));
     }
 }

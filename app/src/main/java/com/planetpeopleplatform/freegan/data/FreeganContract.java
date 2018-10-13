@@ -9,7 +9,7 @@ public class FreeganContract {
 
 
     public static final String CONTENT_AUTHORITY = "com.planetpeopleplatform.freegan";
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final String FREEGAN_PATH = "freegans";
 
@@ -51,5 +51,4 @@ public class FreeganContract {
         public static final String _ID = "_id";
 
     }
-
 }

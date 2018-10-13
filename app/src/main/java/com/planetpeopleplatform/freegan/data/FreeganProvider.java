@@ -39,7 +39,7 @@ public class FreeganProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         // Get readable database
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
 
@@ -65,16 +65,14 @@ public class FreeganProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
-
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
         // Return the cursor
         return cursor;
     }
 
-
     @Override
-    public String getType( Uri uri) {
+    public String getType(@NonNull Uri uri) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case FREEGAN:

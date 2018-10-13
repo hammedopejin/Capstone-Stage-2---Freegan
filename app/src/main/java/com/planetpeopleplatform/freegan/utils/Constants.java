@@ -126,4 +126,10 @@ public class Constants {
     //Freegan URLs
     public static final String FREEGAN_BASE_URL = "https://www.freegan.io";
 
+    //Fragment
+    public static final String kFRAGMENT = "fragment";
+
+    //ChatMate
+    public static final String kCHATMATEID = "chatMateId";
+
 }

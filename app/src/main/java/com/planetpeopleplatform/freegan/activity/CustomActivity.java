@@ -14,11 +14,7 @@ import static android.view.View.*;
  */
 public class CustomActivity extends AppCompatActivity implements OnClickListener {
 
-
-
          OnTouchListener TOUCH;
-
-
 
         @Override
         public void setContentView(int layoutResID) {
@@ -38,11 +34,10 @@ public class CustomActivity extends AppCompatActivity implements OnClickListener
         }
 
 
-        View setTouchNClick(int id) {
+        void setTouchNClick(int id) {
             View v = setClick(id);
             if (v != null)
                 v.setOnTouchListener(TOUCH);
-            return v;
         }
 
 

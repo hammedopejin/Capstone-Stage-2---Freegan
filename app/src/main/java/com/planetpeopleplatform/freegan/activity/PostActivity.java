@@ -45,7 +45,6 @@ import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,7 +55,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import id.zelory.compressor.Compressor;
 
-import static butterknife.internal.Utils.arrayOf;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kDESCRIPTION;
@@ -102,10 +100,8 @@ public class PostActivity extends AppCompatActivity {
     private boolean mImageSelected;
     private ArrayList<String> mPostDownloadURL = new ArrayList<>();
     private Uri mSelectedImageUri = null;
-    private File mCompressedImageFile = null;
     private GeoFire mGeoFire;
     private File destFile;
-    private FileOutputStream mFileOutputStream;
 
 
     @Override
@@ -115,10 +111,12 @@ public class PostActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         destFile = getOutputMediaFile(this);
-        mSelectedImageUri = FileProvider.getUriForFile(
-                this,
-                "com.planetpeopleplatform.freegan.provider",
-                destFile);
+        if (destFile != null) {
+            mSelectedImageUri = FileProvider.getUriForFile(
+                    this,
+                    getString(R.string.file_provider_authority),
+                    destFile);
+        }
 
         int source = getIntent().getIntExtra(getString(R.string.source_string), 1);
         if (source == 1){
@@ -148,8 +146,8 @@ public class PostActivity extends AppCompatActivity {
                 }
             });
         }
-
-        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)});
+        mItemDescriptionEditText.clearFocus();
+        mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(80)});
         mItemPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -267,15 +265,15 @@ public class PostActivity extends AppCompatActivity {
         }
 
         try {
-            mCompressedImageFile = new Compressor(this).compressToFile(destFile);
-            mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+            File compressedImageFile = new Compressor(this).compressToFile(destFile);
+            mSelectedImageUri = Uri.fromFile(compressedImageFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
-        final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
+        final SimpleDateFormat sfd = new SimpleDateFormat(getString(R.string.date_format_decending));
+        SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));
         final Date dataobj= new Date();
 
         String imagePath = SplitString(mCurrentUser.getEmail()) + "."+ df.format(dataobj)+ ".jpg";
@@ -322,19 +320,21 @@ public class PostActivity extends AppCompatActivity {
 
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-                    mGeoFire.setLocation(postId, new GeoLocation(mCurrentUser.getLatitude(),
-                            mCurrentUser.getLongitude()), new GeoFire.CompletionListener() {
-                        @Override
-                        public void onComplete(String key, DatabaseError error) {
-                            if (error != null) {
-                                Snackbar.make(mCoordinatorLayout,
-                                        R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
-                                Log.d(TAG, "There was an error saving the location to GeoFire: " + error);
-                            } else {
-                                Log.d(TAG, "Location saved on server successfully!");
+                    if (postId != null) {
+                        mGeoFire.setLocation(postId, new GeoLocation(mCurrentUser.getLatitude(),
+                                mCurrentUser.getLongitude()), new GeoFire.CompletionListener() {
+                            @Override
+                            public void onComplete(String key, DatabaseError error) {
+                                if (error != null) {
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
+                                    Log.d(TAG, "There was an error saving the location to GeoFire: " + error);
+                                } else {
+                                    Log.d(TAG, "Location saved on server successfully!");
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                     Snackbar.make(mCoordinatorLayout,
                             R.string.alert_post_upload_successful, Snackbar.LENGTH_SHORT).show();
                     finish();
@@ -390,7 +390,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
                 permissions, grantResults);
         switch (requestCode) {

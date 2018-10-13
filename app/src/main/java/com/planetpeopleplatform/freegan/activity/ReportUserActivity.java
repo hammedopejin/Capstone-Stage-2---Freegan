@@ -1,6 +1,5 @@
 package com.planetpeopleplatform.freegan.activity;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -32,11 +31,9 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERNAME;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kREPORTDATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kREPORTMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kSENDERID;
@@ -82,11 +79,16 @@ public class ReportUserActivity extends AppCompatActivity {
             if (argument == null) {
                 closeOnError(mCoordinatorLayout, this);
             }
-            mCurrentUser = argument.getParcelable(kCURRENTUSER);
-            mPoster = argument.getParcelable(kPOSTER);
+            if (argument != null) {
+                mCurrentUser = argument.getParcelable(kCURRENTUSER);
+            }
+            if (argument != null) {
+                mPoster = argument.getParcelable(kPOSTER);
+            }
         }
 
-        mReportDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(120)});
+        mReportDescriptionEditText.clearFocus();
+        mReportDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(200)});
         mReportUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -97,7 +96,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveUserAndLogIn() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        User.registerUserWith(currentUser.getEmail(), currentUser.getUid(), mUserName);
+        if (currentUser != null) {
+            User.registerUserWith(currentUser.getEmail(), currentUser.getUid(), mUserName);
+        }
         Intent intent = new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivityForResult(intent, RC_REGISTER);
     }

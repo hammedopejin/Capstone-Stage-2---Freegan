@@ -29,10 +29,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 public class UpdateEmailActivity extends AppCompatActivity {
 
     private static final String TAG = UpdateEmailActivity.class.getSimpleName();
-    private FirebaseAuth mAuth;
     private FirebaseUser mUser;
     private String mCurrentUserUid = null;
-    private String mCurrentUserEmail = null;
 
     @BindView(R.id.fragment_container)
     CoordinatorLayout mCoordinatorLayout;
@@ -55,12 +53,12 @@ public class UpdateEmailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_update_email);
         ButterKnife.bind(this);
 
-        mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mUser = auth.getCurrentUser();
         mCurrentUserUid = mUser.getUid();
-        mCurrentUserEmail = getIntent().getStringExtra(kEMAIL);
+        String currentUserEmail = getIntent().getStringExtra(kEMAIL);
         mEmailEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
-        mEmailEditText.setText(mCurrentUserEmail);
+        mEmailEditText.setText(currentUserEmail);
 
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override

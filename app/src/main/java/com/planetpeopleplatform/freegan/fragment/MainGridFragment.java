@@ -10,6 +10,7 @@ import android.database.DatabaseUtils;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -89,7 +90,6 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String TAG = MainGridFragment.class.getSimpleName();
-    private Fragment mFragment = null;
     private ArrayList<Post> mListPosts = new ArrayList<Post>();
     private ArrayList<String> mPostIds = new ArrayList<>();
     private String mCurrentUserUid = null;
@@ -97,12 +97,10 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private FirebaseAuth mAuth;
     private MainGridAdapter mMainGridAdapter;
     private GeoQuery mGeoQuery;
-    private GeoFire mGeoFire;
     private DatabaseReference postRef = firebase.child(kPOST);
     private FusedLocationProviderClient mFusedLocationClient;
     private static Boolean mSortByFavorite = false;
     private Cursor mCursor;
-    private StaggeredGridLayoutManager mStaggeredGridLayoutManager = null;
 
     // Store a member variable for the listener
     private EndlessRecyclerViewScrollListener mScrollListener;
@@ -148,11 +146,11 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
         }
 
-        mStaggeredGridLayoutManager = new StaggeredGridLayoutManager
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager
                 (getResources().getInteger(R.integer.grid_span_count), GridLayoutManager.VERTICAL);
 
         // Retain an instance so that you can call `resetState()` for fresh searches
-        mScrollListener = new EndlessRecyclerViewScrollListener(mStaggeredGridLayoutManager) {
+        mScrollListener = new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if (totalItemsCount > mTotalLoadSize) {
@@ -169,7 +167,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         prepareTransitions();
         postponeEnterTransition();
 
-        mFragment = this;
+        Fragment fragment = this;
 
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -177,7 +175,9 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             public void onClick(View view) {
                 ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
                         = new ChoosePictureSourceDialogFragment();
-                choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                if (getFragmentManager() != null) {
+                    choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                }
             }
         });
 
@@ -189,8 +189,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             }
         });
 
-        mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
-        mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
+        mMainGridAdapter = new MainGridAdapter(fragment, mListPosts);
+        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
         mRecyclerView.hasFixedSize();
         mRecyclerView.setAdapter(mMainGridAdapter);
         mRecyclerView.addOnScrollListener(mScrollListener);
@@ -216,7 +216,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -393,8 +393,10 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
      * that affect the flow.
      */
     private void prepareTransitions() {
-        setExitTransition(TransitionInflater.from(getContext())
-                .inflateTransition(R.transition.grid_exit_transition));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setExitTransition(TransitionInflater.from(getContext())
+                    .inflateTransition(R.transition.grid_exit_transition));
+        }
 
         // A similar mapping is set at the MainImagePagerFragment with a setEnterSharedElementCallback.
         setExitSharedElementCallback(
@@ -416,9 +418,9 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void checkPosts(){
-        mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+        GeoFire geoFire = new GeoFire(firebase.child(kPOSTLOCATION));
 
-        mGeoQuery = mGeoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
+        mGeoQuery = geoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
                 mCurrentUser.getLongitude()), 50);
 
         mTotalLoadSize = 0;
@@ -474,13 +476,15 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         try {
                             HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
-                            mListPosts.add(new Post(post));
+                            if (post != null) {
+                                mListPosts.add(new Post(post));
+                                mMainGridAdapter.notifyDataSetChanged();
 
-                            mMainGridAdapter.notifyDataSetChanged();
-
-                            if (mSwipeContainer.isRefreshing()) {
-                                mSwipeContainer.setRefreshing(false);
+                                if (mSwipeContainer.isRefreshing()) {
+                                    mSwipeContainer.setRefreshing(false);
+                                }
                             }
+
                         } catch (Exception e) {
                             Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                         }
@@ -499,7 +503,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private Boolean searchFeed(String newText) {
         if (newText != null && newText.length() > 0) {
             filter(newText);
-        } else if (newText.isEmpty()){
+        } else {
             onResume();
         }
         return true;
@@ -619,10 +623,15 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            JSONArray items =  json.optJSONArray(JSONARRAYKEY);
-            for (int j = 0; j < items.length(); j++) {
-                String value = items.optString(j);
-                imageUrls.add(value);
+            JSONArray items = null;
+            if (json != null) {
+                items = json.optJSONArray(JSONARRAYKEY);
+            }
+            if (items != null) {
+                for (int j = 0; j < items.length(); j++) {
+                    String value = items.optString(j);
+                    imageUrls.add(value);
+                }
             }
 
             mListPosts.add(new Post (postId, postUserObjectId, description, imageUrls, profileImgUrl, userName, postDate));
@@ -639,13 +648,13 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private boolean isNetworkAvailable() {
         // Using ConnectivityManager to check for Network Connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
-                .getSystemService(getActivity().CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager
-                .getActiveNetworkInfo();
-        if(activeNetworkInfo != null ){
-            return  activeNetworkInfo.isConnected();
+                .getSystemService(getContext().CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = null;
+        if (connectivityManager != null) {
+            activeNetworkInfo = connectivityManager
+                    .getActiveNetworkInfo();
         }
-        return activeNetworkInfo != null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public void loadFavorite() {

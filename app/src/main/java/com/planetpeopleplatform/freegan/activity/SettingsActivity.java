@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.StrictMode;
-import android.preference.PreferenceActivity;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,7 +45,6 @@ import id.zelory.compressor.Compressor;
 
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
-import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
@@ -58,17 +54,6 @@ import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
 import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
 public class SettingsActivity extends AppCompatActivity
         implements ChoosePictureSourceDialogFragment.OnCompleteListener {
 
@@ -81,10 +66,7 @@ public class SettingsActivity extends AppCompatActivity
 
     private String mPostDownloadURL;
     private Uri mSelectedImageUri = null;
-    private File mCompressedImageFile = null;
     private User mCurrentUser;
-    private String mCurrentUserUid;
-    private FirebaseAuth mAuth;
     private File destFile;
 
     @BindView(R.id.fragment_container)
@@ -102,22 +84,22 @@ public class SettingsActivity extends AppCompatActivity
         destFile = getOutputMediaFile(this);
         mSelectedImageUri = FileProvider.getUriForFile(
                 this,
-                "com.planetpeopleplatform.freegan.provider",
+                getString(R.string.file_provider_authority),
                 destFile);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String currentUserUid = auth.getCurrentUser().getUid();
 
         if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
         } else {
 
-            firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
+            firebase.child(kUSER).child(currentUserUid).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
@@ -177,7 +159,7 @@ public class SettingsActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
                 permissions, grantResults);
 
@@ -228,13 +210,13 @@ public class SettingsActivity extends AppCompatActivity
     private void postPictureToFirebase() {
 
         try {
-            mCompressedImageFile = new Compressor(this).compressToFile(destFile);
-            mSelectedImageUri = Uri.fromFile(mCompressedImageFile);
+            File compressedImageFile = new Compressor(this).compressToFile(destFile);
+            mSelectedImageUri = Uri.fromFile(compressedImageFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        SimpleDateFormat df = new SimpleDateFormat("ddMMyyHHmmss");
+        SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));
         final Date dataobj= new Date();
 
         String imagePath = SplitString(mCurrentUser.getEmail()) + "."+ df.format(dataobj)+ ".jpg";

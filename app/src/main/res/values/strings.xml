@@ -246,6 +246,13 @@
     <string name="forth_freegan_item_image">Optional forth image for post item</string>
     <string name="first_freegan_item_image">Mandatory image for post item</string>
     <string name="image_holder_for_tab_indicator_string">Image holer for more images tab indicator to indicate that Freegan item has more than on image.</string>
+    <string name="file_provider_authority">com.planetpeopleplatform.freegan.provider</string>
+    <string name="place_holder_string">placeHolder</string>
+    <string name="date_format_decending_with_details">yyyy-MM-dd hh:mm:ss a</string>
+    <string name="date_format_decending">yyyy-MM-dd</string>
+    <string name="time_format_decending">ddMMyyHHmmss</string>
+    <string name="google_map_platform_terms_url_string">https://cloud.google.com/maps-platform/terms/</string>
+    <string name="alert_freegen_successfully_shared_string">Freegan successfully shared with contact!</string>
 
 
 </resources>

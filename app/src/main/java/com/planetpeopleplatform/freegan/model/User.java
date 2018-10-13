@@ -18,6 +18,8 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 
 public class User implements Parcelable{
 
+    private static final String PLACE_HOLDER = "placeHolder";
+
     private String objectId;
     private String pushId;
     private String createdAt;
@@ -46,7 +48,7 @@ public class User implements Parcelable{
         this.userImgUrl = _userimgurl;
 
         this.loginMethod = _loginMethod;
-        this.blockedUsersList.add("placeHolder");
+        this.blockedUsersList.add(PLACE_HOLDER);
     }
 
     public User (HashMap<String, Object> dictionary){
@@ -64,8 +66,8 @@ public class User implements Parcelable{
         blockedUsersList = (ArrayList<String>) dictionary.get(kBLOCKEDUSER);
     }
 
-    static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-    static Date dataobj= new Date();
+    private static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
+    private static Date dataobj= new Date();
 
 
     protected User(Parcel in) {

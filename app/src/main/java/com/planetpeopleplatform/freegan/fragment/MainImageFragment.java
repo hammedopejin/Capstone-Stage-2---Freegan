@@ -1,6 +1,7 @@
 package com.planetpeopleplatform.freegan.fragment;
 
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,9 +25,6 @@ public class MainImageFragment extends Fragment {
     private static final String KEY_POST_RES = "com.planetpeopleplatform.freegan.key.postRes";
     private static final String KEY_POST_IMAGE_POSITION = "com.planetpeopleplatform.freegan.key.postImagePosition";
 
-    private Post mPost = null;
-    private int mPosition;
-
     public static MainImageFragment newInstance(Post post, int position) {
         MainImageFragment fragment = new MainImageFragment();
         Bundle argument = new Bundle();
@@ -44,13 +42,24 @@ public class MainImageFragment extends Fragment {
 
 
         Bundle arguments = getArguments();
-        mPost = arguments.getParcelable(KEY_POST_RES);
-        mPosition = arguments.getInt(KEY_POST_IMAGE_POSITION, 0);
-        String postImage = mPost.getImageUrl().get(mPosition);
+        Post post = null;
+        if (arguments != null) {
+            post = arguments.getParcelable(KEY_POST_RES);
+        }
+        int position = 0;
+        if (arguments != null) {
+            position = arguments.getInt(KEY_POST_IMAGE_POSITION, 0);
+        }
+        String postImage = null;
+        if (post != null) {
+            postImage = post.getImageUrl().get(position);
+        }
 
         // Just like we do when binding views at the grid, we set the transition name to be the string
         // value of the image res.
-        view.findViewById(R.id.image).setTransitionName(String.valueOf(postImage));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.findViewById(R.id.image).setTransitionName(String.valueOf(postImage));
+        }
 
         // Load the image with Glide to prevent OOM error when the image drawables are very large.
         Glide.with(this)
@@ -62,7 +71,11 @@ public class MainImageFragment extends Fragment {
                         // The postponeEnterTransition is called on the parent MainImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going in case of a failure.
-                        getParentFragment().getParentFragment().startPostponedEnterTransition();
+                        if (getParentFragment() != null) {
+                            if (getParentFragment().getParentFragment() != null) {
+                                getParentFragment().getParentFragment().startPostponedEnterTransition();
+                            }
+                        }
                         return false;
                     }
 
@@ -72,7 +85,11 @@ public class MainImageFragment extends Fragment {
                         // The postponeEnterTransition is called on the parent MainImagePagerFragment, so the
                         // startPostponedEnterTransition() should also be called on it to get the transition
                         // going when the image is ready.
-                        getParentFragment().getParentFragment().startPostponedEnterTransition();
+                        if (getParentFragment() != null) {
+                            if (getParentFragment().getParentFragment() != null) {
+                                getParentFragment().getParentFragment().startPostponedEnterTransition();
+                            }
+                        }
                         return false;
                     }
                 })

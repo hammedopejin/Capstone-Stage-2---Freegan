@@ -147,7 +147,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             public boolean onPreferenceClick(Preference preference) {
                 ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
                         = new ChoosePictureSourceDialogFragment();
-                choosePictureSourceDialogFragment.show(getFragmentManager(),getString(R.string.choose_fragment_alert_tag));
+                if (getFragmentManager() != null) {
+                    choosePictureSourceDialogFragment.show(getFragmentManager(),getString(R.string.choose_fragment_alert_tag));
+                }
                 return true;
             }
         });
@@ -236,7 +238,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
                 permissions, grantResults);
 

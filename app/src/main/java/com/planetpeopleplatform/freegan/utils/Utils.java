@@ -22,7 +22,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.model.Message;
-import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 
 import java.io.Closeable;
@@ -34,7 +33,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +47,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kLASTMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMEMBERS;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kMESSAGEID;
-import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPRIVATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kRECENT;
@@ -65,6 +62,8 @@ public class Utils {
     private static final String SCHEME_FILE = "file";
     private static final String SCHEME_CONTENT = "content";
     private static final String TAG = Utils.class.getSimpleName();
+    public final static String DF_SIMPLE_STRING_WITH_DETAILS = "yyyy-MM-dd hh:mm:ss a";
+    public final static String DF_SIMPLE_STRING= "yyyyMMdd_HHmmss";
 
     public static String startChat(User user1, User user2, String postId) {
 
@@ -98,9 +97,9 @@ public class Utils {
 
     }
 
-    public static void createRecent(final String userId, final String chatRoomId, final List<String> members,
-                                    final String withUserUserId, final String withUserUsername,
-                                    final String postId, final String type) {
+    private static void createRecent(final String userId, final String chatRoomId, final List<String> members,
+                                     final String withUserUserId, final String withUserUsername,
+                                     final String postId, final String type) {
 
         firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo(chatRoomId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -144,13 +143,13 @@ public class Utils {
 
     }
 
-    public static void createRecentItem(String userId, String chatRoomId, List<String> members, String withUserUserId,
-                                String withUserUsername, String postId, String type) {
+    private static void createRecentItem(String userId, String chatRoomId, List<String> members, String withUserUserId,
+                                         String withUserUsername, String postId, String type) {
 
         DatabaseReference reference = firebase.child(kRECENT).push();
 
         String recentId = reference.getKey();
-        SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+        SimpleDateFormat sfd = new SimpleDateFormat(DF_SIMPLE_STRING_WITH_DETAILS);
         String date = sfd.format(new Date());
 
         HashMap<String, Object> recent = new HashMap<String, Object>();
@@ -170,11 +169,10 @@ public class Utils {
     }
 
     public static class DateHelper{
-        final static String DF_SIMPLE_STRING = "yyyy-MM-dd hh:mm:ss a";
         public static ThreadLocal<DateFormat> DF_SIMPLE_FORMAT = new ThreadLocal<DateFormat>() {
             @Override
             protected DateFormat initialValue()  {
-                return new SimpleDateFormat(DF_SIMPLE_STRING, Locale.US);
+                return new SimpleDateFormat(DF_SIMPLE_STRING_WITH_DETAILS, Locale.US);
             }
         };
     }
@@ -205,7 +203,7 @@ public class Utils {
 
     private static void updateRecentItem(HashMap<String, Object> recent, String lastMessage) {
 
-        SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+        SimpleDateFormat sfd = new SimpleDateFormat(DF_SIMPLE_STRING_WITH_DETAILS);
         String date = sfd.format(new Date());
 
         Long counter = (Long) recent.get(kCOUNTER);
@@ -250,7 +248,7 @@ public class Utils {
 
     }
 
-    public static void clearRecentCounterItem(HashMap<String, Object> recent) {
+    private static void clearRecentCounterItem(HashMap<String, Object> recent) {
 
         firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).child(kCOUNTER).setValue(0);
 
@@ -296,7 +294,9 @@ public class Utils {
 
         try {
             FileOutputStream out = new FileOutputStream(f);
-            b.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            if (b != null) {
+                b.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            }
             out.flush();
             out.close();
 
@@ -308,9 +308,6 @@ public class Utils {
 
     /**
      * This is useful when an image is available in sdcard physically.
-     *
-     * @param uriPhoto
-     * @return
      */
     public static String getPathFromUri(Uri uriPhoto, Context context) {
         if (uriPhoto == null)
@@ -361,16 +358,23 @@ public class Utils {
         FileOutputStream output = null;
         try {
             ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uriPhoto, "r");
-            FileDescriptor fd = pfd.getFileDescriptor();
-            input = new FileInputStream(fd);
+            FileDescriptor fd = null;
+            if (pfd != null) {
+                fd = pfd.getFileDescriptor();
+            }
+            if (fd != null) {
+                input = new FileInputStream(fd);
+            }
 
             String tempFilename = getTempFilename(context);
             output = new FileOutputStream(tempFilename);
 
             int read;
             byte[] bytes = new byte[4096];
-            while ((read = input.read(bytes)) != -1) {
-                output.write(bytes, 0, read);
+            if (input != null) {
+                while ((read = input.read(bytes)) != -1) {
+                    output.write(bytes, 0, read);
+                }
             }
             return tempFilename;
         } catch (IOException ignored) {
@@ -382,7 +386,7 @@ public class Utils {
         return null;
     }
 
-    public static void closeSilently(Closeable c) {
+    private static void closeSilently(Closeable c) {
         if (c == null)
             return;
         try {
@@ -413,7 +417,7 @@ public class Utils {
             }
         }
 
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat(DF_SIMPLE_STRING).format(new Date());
         return new File(mediaStorageDir.getPath() + File.separator +
                 "IMG_"+ timeStamp + ".jpg");
     }
@@ -422,5 +426,4 @@ public class Utils {
         Snackbar.make(coordinatorLayout, R.string.err_data_not_available_string, Snackbar.LENGTH_SHORT).show();
         activity.finish();
     }
-
 }
