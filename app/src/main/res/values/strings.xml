@@ -186,6 +186,7 @@
     <string name="alert_email_successfully_updated_string">Email successfully updated!</string>
     <string name="alert_password_successfully_updated_string">Password successfully updated!</string>
     <string name="alert_username_successfully_updated_string">Username successfully updated!</string>
+    <string name="alert_freegen_successfully_shared_string">Freegan successfully shared with contact!</string>
     <string name="choose_fragment_alert_tag">Choose fragment alert</string>
     <string name="delete_fragment_alert_tag">Delete fragment alert</string>
 
@@ -205,6 +206,10 @@
     <string name="err_upload_failed_string">upload failed</string>
     <string name="err_password_failed_to_update_string">Password failed to update!</string>
     <string name="error_decrypting_string">error decrypting</string>
+
+    <string name="err_image_source_unrecognized_string">Image from unrecognized source!</string>
+    <string name="err_image_compression_string">Error compressing image!</string>
+    <string name="err_google_play_service_error_string">Google Play Services error, please check your internet connection</string>
 
 
     <!-- Message and Notification Strings -->
@@ -235,7 +240,7 @@
     <string name="invitation_cta">Call to action</string>
     <string name="invitation_message">Download Freegan for free stuffs!</string>
     <string name="invite_menu_label">Invite</string>
-    <string name="freegan_item_share_string"><![CDATA[This item if free! -->]]></string>
+    <string name="freegan_item_share_string"><![CDATA[This item if free! —>]]></string>
     <string name="posted_by_string">, posted by</string>
     <string name="mime_text_plain_string">text/plain</string>
     <string name="empty_freegen_text">No freegan posted in your area yet! go ahead, post one</string>
@@ -252,7 +257,8 @@
     <string name="date_format_decending">yyyy-MM-dd</string>
     <string name="time_format_decending">ddMMyyHHmmss</string>
     <string name="google_map_platform_terms_url_string">https://cloud.google.com/maps-platform/terms/</string>
-    <string name="alert_freegen_successfully_shared_string">Freegan successfully shared with contact!</string>
+    <string name="alert_invitation_sent">Invitation sent successfully!</string>
+    <string name="err_invitation_failed">Failed to send invitation!</string>
 
 
 </resources>

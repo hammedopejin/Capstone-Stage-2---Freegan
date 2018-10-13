@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -257,11 +256,10 @@ public class EditPostActivity extends AppCompatActivity
                 destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
             } catch (NullPointerException ex){
                 try {
-                    Log.d(TAG, "onActivityResult: Image not from google photos, check sdCard!!");
                     destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
                 } catch (NullPointerException e){
-                    Log.d(TAG, "onActivityResult: Image from unrecognized source!!");
+                    Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -269,7 +267,7 @@ public class EditPostActivity extends AppCompatActivity
                 File compressedImageFile = new Compressor(this).compressToFile(destFile);
                 mSelectedImageUri = Uri.fromFile(compressedImageFile);
             } catch (IOException e) {
-                e.printStackTrace();
+                Snackbar.make(mCoordinatorLayout, R.string.err_image_compression_string, Snackbar.LENGTH_SHORT).show();
             }
 
             mSelectedImageUris.add(mSelectedImageUri);
@@ -294,10 +292,7 @@ public class EditPostActivity extends AppCompatActivity
                     })
                     .into(mTempImg);
 
-
             mTempImg.setBackgroundResource(R.color.transparent);
-
-
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
 
@@ -305,7 +300,7 @@ public class EditPostActivity extends AppCompatActivity
                 File compressedImageFile = new Compressor(this).compressToFile(destFile);
                 mSelectedImageUri = Uri.fromFile(compressedImageFile);
             } catch (IOException e) {
-                e.printStackTrace();
+                Snackbar.make(mCoordinatorLayout, R.string.err_image_compression_string, Snackbar.LENGTH_SHORT).show();
             }
 
             mSelectedImageUris.add(mSelectedImageUri);
@@ -330,7 +325,6 @@ public class EditPostActivity extends AppCompatActivity
                     .into(mTempImg);
 
             mTempImg.setBackgroundResource(R.color.transparent);
-
         }
     }
 
@@ -423,8 +417,6 @@ public class EditPostActivity extends AppCompatActivity
 
                 String imagePath = SplitString(mCurrentUser.getEmail()) + String.valueOf(i) + "." + df.format(new Date()) + ".jpg";
 
-                //final StorageReference imageRef = storageRef.child("post_pics/" + imagePath);
-
                 mImageRef.add(storageRef.child("post_pics/" + imagePath));
 
                     // Upload file to Firebase Storage
@@ -509,7 +501,6 @@ public class EditPostActivity extends AppCompatActivity
                 R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
 
         finish();
-
     }
 
     private void editPostPicture(String position, int flag) {

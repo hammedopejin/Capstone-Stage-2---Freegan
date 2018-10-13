@@ -53,4 +53,3 @@ public class CustomActivity extends AppCompatActivity implements OnClickListener
 
         }
 }
-

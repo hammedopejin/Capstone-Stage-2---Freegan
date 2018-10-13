@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.design.widget.CoordinatorLayout
+<android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator_layout"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
@@ -18,72 +19,100 @@
 
         <EditText
             android:id="@+id/email_edit_text"
-            android:layout_width="200dp"
-            android:layout_height="39dp"
+            android:layout_width="@dimen/profile_image_height"
+            android:layout_height="@dimen/pad_40dp"
+            android:layout_marginBottom="@dimen/pad_8dp"
             android:layout_marginEnd="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
-            android:layout_marginTop="180dp"
             android:ems="10"
             android:hint="@string/enter_email_edit_text"
             android:inputType="textEmailAddress"
             android:textColor="@color/black"
+            android:textSize="@dimen/txt_18sp"
             android:textColorHint="@color/whitebackground"
+            app:layout_constraintBottom_toTopOf="@+id/password_edit_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/password_edit_text"
-            android:layout_width="200dp"
-            android:layout_height="39dp"
+            android:layout_width="@dimen/profile_image_height"
+            android:layout_height="@dimen/pad_40dp"
+            android:layout_marginBottom="@dimen/pad_8dp"
             android:layout_marginEnd="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
-            android:layout_marginTop="@dimen/general_layout_margin"
             android:ems="10"
             android:hint="@string/enter_password_edit_text"
+            android:textSize="@dimen/txt_18sp"
             android:inputType="textPassword"
             android:textColor="@color/black"
             android:textColorHint="@color/whitebackground"
+            app:layout_constraintBottom_toTopOf="@+id/sign_in_tapped"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/email_edit_text" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/sign_in_tapped"
-            android:layout_width="200dp"
-            android:layout_height="30dp"
+            android:layout_width="@dimen/profile_image_height"
+            android:layout_height="@dimen/pad_40dp"
+            android:layout_marginBottom="@dimen/pad_8dp"
             android:layout_marginEnd="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
-            android:layout_marginTop="40dp"
             android:background="@drawable/round_corner_button"
             android:onClick="signInTapped"
             android:text="@string/sign_in_button_text"
+            android:textSize="@dimen/txt_14sp"
             android:textColor="@android:color/background_light"
+            app:layout_constraintBottom_toTopOf="@+id/go_to_register_text_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/password_edit_text" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/go_to_register_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="60dp"
             android:layout_marginEnd="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
-            android:layout_marginTop="16dp"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_horizontal"
+            android:onClick="goToRegister"
             android:text="@string/sign_up_text_view"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault"
             android:textColor="@color/Secondary"
             android:textIsSelectable="false"
-            android:textSize="18sp"
+            android:textSize="@dimen/txt_18sp"
             android:textStyle="normal"
             android:visibility="visible"
-            android:onClick="goToRegister"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/profile_image_height"
+            android:background="@color/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sign_in_tapped" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/profile_image_height"
+            android:layout_height="@dimen/profile_image_height"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginStart="@dimen/pad_8dp"
+            app:layout_constraintEnd_toEndOf="@+id/view"
+            app:layout_constraintHorizontal_bias="0.650"
+            app:layout_constraintStart_toStartOf="@+id/view"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/freegan_logo_transparent"
+            android:contentDescription="@string/freegan_logo_string" />
 
     </android.support.constraint.ConstraintLayout>
 
