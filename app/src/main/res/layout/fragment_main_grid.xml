@@ -19,7 +19,7 @@
         android:src="@drawable/freegan_logo_transparent"
         android:contentDescription="@string/give_button"
         android:elevation="@dimen/fab_elevation"
-         />
+        />
 
     <!-- A progress bar that will be shown to users to indicate that post data is loading -->
     <ProgressBar

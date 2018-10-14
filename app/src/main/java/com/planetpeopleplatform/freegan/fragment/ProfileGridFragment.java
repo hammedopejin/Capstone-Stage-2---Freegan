@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -57,6 +58,7 @@ import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class ProfileGridFragment extends Fragment {
 
+    private static final String TAG = ProfileGridFragment.class.getSimpleName();
     private static final int REPORT_USER_REQUEST_CODE = 234;
 
     private Fragment mFragment = null;
@@ -137,8 +139,7 @@ public class ProfileGridFragment extends Fragment {
         mCollapsingToolbarLayout.setTitle(mPoster.getUserName());
         mCollapsingToolbarLayout.setExpandedTitleGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         mCollapsingToolbarLayout.setExpandedTitleTextAppearance(R.style.collapsing_tool_bar_layout_textview);
-        showLoading();
-        loadPosts();
+
         mBackArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -157,6 +158,8 @@ public class ProfileGridFragment extends Fragment {
                 }
             }
         });
+        showLoading();
+        loadPosts();
 
         return rootView;
     }
@@ -273,8 +276,7 @@ public class ProfileGridFragment extends Fragment {
                     mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster, mCurrentUser));
 
                 }catch (Exception e){
-                    Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
-                            Snackbar.LENGTH_SHORT).show();
+                    Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                 }
             }
 
@@ -390,4 +392,5 @@ public class ProfileGridFragment extends Fragment {
         /* Finally, show the loading indicator */
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
+
 }

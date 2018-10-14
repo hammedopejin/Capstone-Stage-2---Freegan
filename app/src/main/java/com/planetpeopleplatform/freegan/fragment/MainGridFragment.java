@@ -50,7 +50,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.MainActivity;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.adapter.MainGridAdapter;
@@ -73,6 +72,7 @@ import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 import static android.support.v4.content.ContextCompat.checkSelfPermission;
+import static com.planetpeopleplatform.freegan.activity.MainActivity.KEY_CURRENT_POSITION;
 import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
@@ -88,18 +88,17 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 public class MainGridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener{
 
-    private static final String TAG = MainGridFragment.class.getSimpleName();
-    private ArrayList<Post> mListPosts = new ArrayList<Post>();
+    private ArrayList<Post> mListPosts = new ArrayList<>();
     private ArrayList<String> mPostIds = new ArrayList<>();
     private String mCurrentUserUid = null;
     private User mCurrentUser = null;
-    private FirebaseAuth mAuth;
     private MainGridAdapter mMainGridAdapter;
     private GeoQuery mGeoQuery;
     private DatabaseReference postRef = firebase.child(kPOST);
     private FusedLocationProviderClient mFusedLocationClient;
     private static Boolean mSortByFavorite = false;
     private Cursor mCursor;
+    private Boolean mAskLocationFlag = false;
 
     // Store a member variable for the listener
     private EndlessRecyclerViewScrollListener mScrollListener;
@@ -115,6 +114,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private SearchView mSearchView;
     private RecyclerView mRecyclerView;
     private TextView mEmptyTextView;
+    Fragment mFragment;
+    StaggeredGridLayoutManager mStaggeredGridLayoutManager;
 
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
@@ -131,25 +132,22 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
+        setRetainInstance(true);
 
         mSearchView = getActivity().findViewById(R.id.searchView);
         mSwipeContainer = getActivity().findViewById(R.id.main_content_swipe_refresh_layout);
         mRecyclerView = getActivity().findViewById(R.id.recycler_view);
         mEmptyTextView = getActivity().findViewById(R.id.empty_freegen_text);
 
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserUid = mAuth.getCurrentUser().getUid();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mCurrentUserUid = auth.getCurrentUser().getUid();
 
-        if (savedInstanceState != null) {
-            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
-            mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
-        }
-
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager
+        mStaggeredGridLayoutManager = new StaggeredGridLayoutManager
                 (getResources().getInteger(R.integer.grid_span_count), GridLayoutManager.VERTICAL);
+        mFragment = this;
 
         // Retain an instance so that you can call `resetState()` for fresh searches
-        mScrollListener = new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
+        mScrollListener = new EndlessRecyclerViewScrollListener(mStaggeredGridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if (totalItemsCount > mTotalLoadSize) {
@@ -166,16 +164,18 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         prepareTransitions();
         postponeEnterTransition();
 
-        Fragment fragment = this;
-
         // ImagePickerButton shows an image picker to upload a image
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                        = new ChoosePictureSourceDialogFragment();
-                if (getFragmentManager() != null) {
-                    choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                if (mCurrentUser.getLatitude() == null) {
+                    checkPosts();
+                } else {
+                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
+                            = new ChoosePictureSourceDialogFragment();
+                    if (getFragmentManager() != null) {
+                        choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                    }
                 }
             }
         });
@@ -188,16 +188,20 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             }
         });
 
-        mMainGridAdapter = new MainGridAdapter(fragment, mListPosts);
-        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+        if (savedInstanceState != null) {
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+            mListPosts = savedInstanceState.getParcelableArrayList(kPOST);
+            MainActivity.currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
+        }
+
+        mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
+        mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
         mRecyclerView.hasFixedSize();
         mRecyclerView.setAdapter(mMainGridAdapter);
         mRecyclerView.addOnScrollListener(mScrollListener);
 
-        //mEmptyTextView.setVisibility(View.VISIBLE);
         return rootView;
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -218,38 +222,28 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_FINE_LOCATION: {
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    if (!(ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                             != PackageManager.PERMISSION_GRANTED &&
                             ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                                    != PackageManager.PERMISSION_GRANTED) {
-                        Snackbar.make(mCoordinatorLayout,
-                                R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
-                        showDataView();
-
-                        mAuth.signOut();
-                        startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                        return;
-                    }
-                    mFusedLocationClient.getLastLocation()
-                            .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                                @Override
-                                public void onSuccess(Location location) {
-                                    // Got last known location. In some rare situations this can be null.
-                                    if (location != null) {
-                                        updateUserLocation(location);
+                                    != PackageManager.PERMISSION_GRANTED)) {
+                        mFusedLocationClient.getLastLocation()
+                                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                                    @Override
+                                    public void onSuccess(Location location) {
+                                        // Got last known location. In some rare situations this can be null.
+                                        if (location != null) {
+                                            updateUserLocation(location);
+                                        }
                                     }
-                                }
-                            });
-
+                                });
+                    }
                 } else {
-                    Snackbar.make(mCoordinatorLayout,
-                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
-                    mAuth.signOut();
-                    startActivity(new Intent(getActivity(), LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    mAskLocationFlag = true;
                 }
             }
 
@@ -284,32 +278,19 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                 loadFavorite();
             } else {
 
-                firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
+                firebase.child(kUSER).child(mCurrentUserUid).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                         if (dataSnapshot.exists()) {
                             mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
 
-                            if (mCurrentUser.getLatitude() == null) {
-                                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
+                            if (mCurrentUser.getLatitude() == null && !mAskLocationFlag) {
                                 if (checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                                         != PackageManager.PERMISSION_GRANTED) {
                                     requestPermissions(
                                             new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                             PERMISSIONS_REQUEST_FINE_LOCATION);
-                                } else {
-                                    mFusedLocationClient.getLastLocation()
-                                            .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                                                @Override
-                                                public void onSuccess(Location location) {
-                                                    // Got last known location. In some rare situations this can be null.
-                                                    if (location != null) {
-                                                        updateUserLocation(location);
-                                                    }
-                                                }
-                                            });
                                 }
                             } else {
                                 checkPosts();
@@ -333,6 +314,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelable(kCURRENTUSER, mCurrentUser);
         outState.putParcelableArrayList(kPOST, mListPosts);
+        outState.putInt(KEY_CURRENT_POSITION, mRecyclerView.getChildLayoutPosition(mRecyclerView.getFocusedChild()));
         super.onSaveInstanceState(outState);
     }
 
@@ -419,6 +401,15 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private void checkPosts(){
         GeoFire geoFire = new GeoFire(firebase.child(kPOSTLOCATION));
 
+        if (mCurrentUser.getLatitude() == null || mCurrentUser.getLongitude() == null){
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.alert_permission_needed_to_post_and_view_freegan_string, Snackbar.LENGTH_LONG).show();
+            showDataView();
+            if (mSwipeContainer.isRefreshing()) {
+                mSwipeContainer.setRefreshing(false);
+            }
+            return;
+        }
         mGeoQuery = geoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
                 mCurrentUser.getLongitude()), 50);
 
@@ -496,6 +487,21 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                     }
                 });
 
+                postRef.child(mPostIds.get(i))
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            mLoadingIndicator.setVisibility(View.INVISIBLE);
+                            if (!dataSnapshot.exists()) {
+                                mEmptyTextView.setVisibility(View.VISIBLE);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
         }
 
     }
@@ -524,8 +530,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     /* Update Geofire */
     private void updateUserLocation(Location location) {
 
-
-        HashMap<String, Object> newLocation = new HashMap<String, Object>();
+        HashMap<String, Object> newLocation = new HashMap();
         newLocation.put(kLATITUDE, location.getLatitude());
         newLocation.put(kLONGITUDE, location.getLongitude());
 
@@ -534,8 +539,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    showDataView();
-
+                    onResume();
                 } else {
                     Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_your_location_string),
                             Snackbar.LENGTH_SHORT).show();

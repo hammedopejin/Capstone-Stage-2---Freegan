@@ -57,15 +57,6 @@ public class MainActivity extends AppCompatActivity implements ChoosePictureSour
         if (savedInstanceState != null) {
             mCurrentUserUid = savedInstanceState.getString(kCURRENTUSERID);
             currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
-            // Return here to prevent adding additional GridFragments when changing orientation.
-            if (mFragment == null){
-                mFragment = new MainGridFragment();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, mFragment, MainGridFragment.class.getSimpleName())
-                        .commit();
-            }
             return;
         }
 

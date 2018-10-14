@@ -269,5 +269,6 @@
     <string name="date_format_decending">yyyy-MM-dd</string>
     <string name="time_format_decending">ddMMyyHHmmss</string>
     <string name="error_fetching_your_location_string">Error retrieving your current location!</string>
+    <string name="alert_permission_needed_to_post_and_view_freegan_string">Location needed for app to function properly, you can set your location at Settings!</string>
 
 </resources>

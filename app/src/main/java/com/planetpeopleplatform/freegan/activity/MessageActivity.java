@@ -190,7 +190,6 @@ public class MessageActivity extends CustomActivity {
                     mMessageRecycler.setLayoutManager(mLinearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
 
-
                         if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
                             || mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
                             mChatLayout.setVisibility(View.GONE);

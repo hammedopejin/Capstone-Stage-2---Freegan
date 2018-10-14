@@ -223,8 +223,10 @@ public class SettingsActivity extends AppCompatActivity
         final StorageReference imageRef = storageRef.child("user_images/"+imagePath );
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
-        StorageReference toReplace = storage.getReferenceFromUrl(mCurrentUser.getUserImgUrl());
-        toReplace.delete();
+        if (mCurrentUser.getUserImgUrl() != null && !mCurrentUser.getUserImgUrl().isEmpty()) {
+            StorageReference toReplace = storage.getReferenceFromUrl(mCurrentUser.getUserImgUrl());
+            toReplace.delete();
+        }
 
         // Upload file to Firebase Storage
         imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {

@@ -112,7 +112,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_image_pager, container, false);
         ButterKnife.bind(this, rootView);
 
@@ -144,6 +144,9 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
             @Override
             public void onClick(View view) {
                 getActivity().onBackPressed();
+                if (savedInstanceState != null) {
+                    getActivity().recreate();
+                }
             }
         });
 
