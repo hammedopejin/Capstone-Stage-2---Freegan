@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -130,7 +131,8 @@ public class PushNotifications {
 
         //Now update all widgets
         updateFreeganWidgets(context, appWidgetManager,
-                appWidgetIds,  userName,  decrypted,
+                appWidgetIds,  userName,
+                 decrypted, messageDate,
                  currentUserUid,
                  chatRoomId,
                  post,  chatMate, counter);
@@ -249,10 +251,9 @@ public class PushNotifications {
 
                         if (resultCounter[0] == recents.size()) {
                             // Send a notification that you got a new message
-                            sendNotification(context, messageDate, post, chatMate,
-                                    message, userName, chatRoomId, currentUserUid, counter[0]);
+                            new SendNotification(context, messageDate, post, chatMate,
+                                    message, userName, chatRoomId, currentUserUid, counter[0]).execute();
                         }
-
 
                     }
 
@@ -265,5 +266,42 @@ public class PushNotifications {
             }
         });
 
+    }
+
+
+    private static class SendNotification extends AsyncTask<Void, Void, Void> {
+
+        private final Context mContext;
+        private final String mMessageDate;
+        private final Post mPost;
+        private final User mChatMate;
+        private final String mMessage;
+        private final String mUserName;
+        private final String mChatRoomId;
+        private final String mCurrentUserUid;
+        private final int mCounter;
+
+        SendNotification(Context context, String messageDate,
+                         Post post, User chatMate,
+                         String message, String userName, String chatRoomId, String currentUserUid,
+                         int counter){
+            mContext = context;
+            mMessageDate = messageDate;
+            mPost = post;
+            mChatMate = chatMate;
+            mMessage = message;
+            mUserName = userName;
+            mChatRoomId = chatRoomId;
+            mCurrentUserUid = currentUserUid;
+            mCounter = counter;
+        }
+
+        @Override
+        protected Void doInBackground(final Void... params) {
+            // Send a notification that you got a new message
+            sendNotification(mContext, mMessageDate, mPost, mChatMate,
+                    mMessage, mUserName, mChatRoomId, mCurrentUserUid, mCounter);
+            return null;
+        }
     }
 }

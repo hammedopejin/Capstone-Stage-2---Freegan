@@ -24,6 +24,7 @@ public class FreeganAppWidget extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId, String userName, String message,
+                                String date,
                                 String currentUserUid,
                                 String chatRoomId,
                                 Post post, User chatMate,
@@ -35,6 +36,7 @@ public class FreeganAppWidget extends AppWidgetProvider {
 
         views.setTextViewText(R.id.appwidget_user_name_text, userName);
         views.setTextViewText(R.id.appwidget_message_text, message);
+        views.setTextViewText(R.id.appwidget_date_text, date);
         String numberOfUnreadMessages;
         if (counter < 0){
             counter = 0;
@@ -73,13 +75,14 @@ public class FreeganAppWidget extends AppWidgetProvider {
     public static void updateFreeganWidgets(Context context, AppWidgetManager appWidgetManager,
                                             int[] appWidgetIds,
                                             String userName, String message,
+                                            String date,
                                             String currentUserUid,
                                             String chatRoomId,
                                             Post post, User chatMate,
                                             int counter) {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId, userName, message,
-                    currentUserUid, chatRoomId, post, chatMate, counter);
+                    date, currentUserUid, chatRoomId, post, chatMate, counter);
         }
     }
 

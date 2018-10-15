@@ -29,6 +29,7 @@ allprojects {
 
     ext {
         androidSupportVersion = "27.1.1"
+        rootDir = "/Users/hammedopejin/Downloads/Capstone-Stage-2---Freegan"
     }
 }
 

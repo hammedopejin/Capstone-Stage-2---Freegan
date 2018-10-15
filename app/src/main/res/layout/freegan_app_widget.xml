@@ -58,7 +58,7 @@
                 android:textAlignment="textEnd"
                 android:gravity="end"
                 android:textSize="@dimen/txt_12sp"
-                android:text="@string/from_sting"
+                android:text="@string/from_string"
                 android:textColor="@color/white"
                 />
             <TextView
@@ -87,12 +87,42 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
-                android:text="@string/message_sting"
+                android:text="@string/message_string"
                 android:textColor="@color/white"
                 android:textSize="@dimen/txt_12sp"
                 android:gravity="end" />
             <TextView
                 android:id="@+id/appwidget_message_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:contentDescription="@string/appwidget_text"
+                android:text="@string/appwidget_text"
+                android:textColor="@color/white"
+                android:textSize="@dimen/txt_12sp"
+                android:textStyle="bold|italic"
+                android:layout_marginLeft="@dimen/pad_8dp"
+                android:layout_marginStart="@dimen/pad_8dp"
+                android:layout_marginRight="@dimen/pad_8dp"
+                android:layout_marginEnd="@dimen/pad_8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textAlignment="textEnd"
+                android:text="@string/date_string"
+                android:textColor="@color/white"
+                android:textSize="@dimen/txt_12sp"
+                android:gravity="end" />
+            <TextView
+                android:id="@+id/appwidget_date_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
