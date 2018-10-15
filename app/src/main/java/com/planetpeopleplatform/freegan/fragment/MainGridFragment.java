@@ -256,6 +256,9 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         super.onResume();
         android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
         mToolbarContainer.setVisibility(View.VISIBLE);
+        if (mSwipeContainer.isRefreshing()) {
+            mSwipeContainer.setRefreshing(false);
+        }
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -436,10 +439,16 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onGeoQueryReady() {
 
-                if (PAGE_LOAD_SIZE < mPostIds.size()) {
-                    loadPosts(PAGE_LOAD_SIZE, 0);
+                if (!(mPostIds.size() > 0)){
+                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                    mEmptyTextView.setVisibility(View.VISIBLE);
                 } else {
-                    loadPosts(mPostIds.size(), 0);
+                    mEmptyTextView.setVisibility(View.INVISIBLE);
+                    if (PAGE_LOAD_SIZE < mPostIds.size()) {
+                        loadPosts(PAGE_LOAD_SIZE, 0);
+                    } else {
+                        loadPosts(mPostIds.size(), 0);
+                    }
                 }
             }
 
@@ -639,6 +648,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             }
 
             mListPosts.add(new Post (postId, postUserObjectId, description, imageUrls, profileImgUrl, userName, postDate));
+            mMainGridAdapter.notifyDataSetChanged();
 
             mCursor.moveToNext();
         }

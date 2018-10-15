@@ -254,7 +254,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == MESSAGE_ACTIVITY){
+        if (requestCode == MESSAGE_ACTIVITY || requestCode == RC_PROFILE_ACTIVITY){
             getActivity().recreate();
         }
     }
@@ -267,7 +267,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     }
 
     private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
-        firebase.child(kUSER).child(posterId).addValueEventListener(new ValueEventListener() {
+        firebase.child(kUSER).child(posterId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try {

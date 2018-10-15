@@ -81,7 +81,7 @@ public class EditPostActivity extends AppCompatActivity
     private ArrayList mToDeletePostDownloadURLs = new ArrayList<String>();
     private Uri mSelectedImageUri = null;
     private ArrayList<Uri> mSelectedImageUris = new ArrayList<>();
-    private File destFile;
+    private File mDestFile;
     private int mCurrentIndex;
 
     private Post mPost;
@@ -118,12 +118,12 @@ public class EditPostActivity extends AppCompatActivity
         setContentView(R.layout.activity_edit_post);
         ButterKnife.bind(this);
 
-        destFile = getOutputMediaFile(this);
-        if (destFile != null) {
+        mDestFile = getOutputMediaFile(this);
+        if (mDestFile != null) {
             mSelectedImageUri = FileProvider.getUriForFile(
                     this,
                     getString(R.string.file_provider_authority),
-                    destFile);
+                    mDestFile);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -248,13 +248,14 @@ public class EditPostActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
+
             mSelectedImageUri = data.getData();
 
             try {
-                destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
+                mDestFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
             } catch (NullPointerException ex){
                 try {
-                    destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
+                    mDestFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
                 } catch (NullPointerException e){
                     Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
@@ -262,7 +263,7 @@ public class EditPostActivity extends AppCompatActivity
             }
 
             try {
-                File compressedImageFile = new Compressor(this).compressToFile(destFile);
+                File compressedImageFile = new Compressor(this).compressToFile(mDestFile);
                 mSelectedImageUri = Uri.fromFile(compressedImageFile);
             } catch (IOException e) {
                 Snackbar.make(mCoordinatorLayout, R.string.err_image_compression_string, Snackbar.LENGTH_SHORT).show();
@@ -291,11 +292,12 @@ public class EditPostActivity extends AppCompatActivity
                     .into(mTempImg);
 
             mTempImg.setBackgroundResource(R.color.transparent);
+            mTempImg.setEnabled(false);
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
 
             try {
-                File compressedImageFile = new Compressor(this).compressToFile(destFile);
+                File compressedImageFile = new Compressor(this).compressToFile(mDestFile);
                 mSelectedImageUri = Uri.fromFile(compressedImageFile);
             } catch (IOException e) {
                 Snackbar.make(mCoordinatorLayout, R.string.err_image_compression_string, Snackbar.LENGTH_SHORT).show();
@@ -323,6 +325,7 @@ public class EditPostActivity extends AppCompatActivity
                     .into(mTempImg);
 
             mTempImg.setBackgroundResource(R.color.transparent);
+            mTempImg.setEnabled(false);
         }
     }
 
@@ -340,9 +343,18 @@ public class EditPostActivity extends AppCompatActivity
                         ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
+                    mDestFile = getOutputMediaFile(this);
+                    if (mDestFile != null) {
+                        mSelectedImageUri = FileProvider.getUriForFile(
+                                this,
+                                getString(R.string.file_provider_authority),
+                                mDestFile);
+                    }
+
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivityForResult(intent, RC_TAKE_CAMERA_PHOTO_CODE);
 
                 } else {
@@ -378,12 +390,19 @@ public class EditPostActivity extends AppCompatActivity
                     new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
         }else {
 
+            mDestFile = getOutputMediaFile(this);
+            if (mDestFile != null) {
+                mSelectedImageUri = FileProvider.getUriForFile(
+                        this,
+                        getString(R.string.file_provider_authority),
+                        mDestFile);
+            }
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
             intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
 
-            //Crash Point for 2nd camerra in roll
+            intentCamera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
         }
     }
@@ -407,6 +426,8 @@ public class EditPostActivity extends AppCompatActivity
     private void postToFirebase() {
         mLoadingIndicator.setVisibility(View.VISIBLE);
         mItemPostButton.setVisibility(View.INVISIBLE);
+        mItemDescriptionEditText.clearFocus();
+        mItemDescriptionEditText.setVisibility(View.INVISIBLE);
         SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));
 
         if (mSelectedImageUris.size() > 0) {
@@ -463,6 +484,7 @@ public class EditPostActivity extends AppCompatActivity
         if (mPostDownloadURLs.size() < 1) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
             mItemPostButton.setVisibility(View.VISIBLE);
+            mItemDescriptionEditText.setVisibility(View.VISIBLE);
             Snackbar.make(mCoordinatorLayout, R.string.alert_at_least_one_image_needed_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
@@ -486,8 +508,6 @@ public class EditPostActivity extends AppCompatActivity
         reference.updateChildren(post);
         imagesReference.setValue(mPostDownloadURLs);
 
-        mItemDescriptionEditText.getText().clear();
-        mItemDescriptionEditText.clearFocus();
         mPostDownloadURLs.clear();
         mToDeletePostDownloadURLs.clear();
 

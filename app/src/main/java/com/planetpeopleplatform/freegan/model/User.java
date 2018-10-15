@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 import com.planetpeopleplatform.freegan.utils.Constants;
 
-import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSERSLIST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 
@@ -63,7 +63,7 @@ public class User implements Parcelable{
         loginMethod = (String) dictionary.get(Constants.kLOGINMETHOD);
         latitude = (Double) dictionary.get(Constants.kLATITUDE);
         longitude = (Double) dictionary.get(Constants.kLONGITUDE);
-        blockedUsersList = (ArrayList<String>) dictionary.get(kBLOCKEDUSER);
+        blockedUsersList = (ArrayList<String>) dictionary.get(kBLOCKEDUSERSLIST);
     }
 
     private static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");

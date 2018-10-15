@@ -52,9 +52,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import tgio.rncryptor.RNCryptorNative;
 
+import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kAUDIO;
-import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSERSLIST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATMATEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
@@ -170,7 +171,8 @@ public class MessageActivity extends CustomActivity {
         mCurrentUserUid = auth.getCurrentUser().getUid();
 
         getSupportActionBar().setTitle(mPost.getDescription());
-        Glide.with(this).load(mPost.getImageUrl().get(0)).into(mPostImage);
+        Glide.with(this).load(mPost.getImageUrl().get(0)).apply(centerInsideTransform()
+                .placeholder(R.drawable.ic_account_circle_black_24dp)).into(mPostImage);
 
         mMessagesDatabaseReference = chatRef.child(mChatRoomId);
         mDataBaseQuery = mMessagesDatabaseReference.limitToLast(INITIAL_MASSAGES_LOAD_SIZE);
@@ -544,8 +546,7 @@ public class MessageActivity extends CustomActivity {
 
         PopupMenu popup = new PopupMenu(this, view);
 
-            if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
-                    || mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
+            if (mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
                 popup.inflate(R.menu.popup_chat_visitor_settings_unblock_option);
             } else {
                 popup.inflate(R.menu.popup_chat_visitor_settings);
@@ -573,7 +574,7 @@ public class MessageActivity extends CustomActivity {
                         blockedList.add(mCurrentUserUid);
                         mChatMate.addBlockedUser(mCurrentUserUid);
                         HashMap<String, Object> newBlockedUser = new HashMap();
-                        newBlockedUser.put(kBLOCKEDUSER, blockedList);
+                        newBlockedUser.put(kBLOCKEDUSERSLIST, blockedList);
                         firebase.child(kUSER).child(mChatMate.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -594,7 +595,7 @@ public class MessageActivity extends CustomActivity {
                         ArrayList<String> blockedLists = mChatMate.getBlockedUsersList();
                         int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
                         mChatMate.removeBlockedUser(mCurrentUserUid);
-                        firebase.child(kUSER).child(mChatMate.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
+                        firebase.child(kUSER).child(mChatMate.getObjectId()).child(kBLOCKEDUSERSLIST).child(String.valueOf(blockedPosition)).removeValue()
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {

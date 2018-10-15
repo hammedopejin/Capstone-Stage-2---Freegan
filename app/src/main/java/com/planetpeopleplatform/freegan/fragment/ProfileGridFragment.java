@@ -47,7 +47,7 @@ import butterknife.ButterKnife;
 import static android.app.Activity.RESULT_OK;
 import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
-import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
+import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSERSLIST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOST;
@@ -297,8 +297,7 @@ public class ProfileGridFragment extends Fragment {
                 if(dataSnapshot.exists()) {
                     mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
                     PopupMenu popup = new PopupMenu(getContext(), view);
-                    if (mCurrentUser.getBlockedUsersList().contains(mPoster.getObjectId())
-                            || mPoster.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
+                    if (mPoster.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
                         popup.inflate(R.menu.popup_user_settings_unblock_option);
                     } else {
                         popup.inflate(R.menu.popup_user_settings_block_option);
@@ -323,7 +322,7 @@ public class ProfileGridFragment extends Fragment {
                                     blockedList.add(mCurrentUserUid);
                                     mPoster.addBlockedUser(mCurrentUserUid);
                                     HashMap<String, Object> newBlockedUser = new HashMap<String, Object>();
-                                    newBlockedUser.put(kBLOCKEDUSER, blockedList);
+                                    newBlockedUser.put(kBLOCKEDUSERSLIST, blockedList);
                                     firebase.child(kUSER).child(mPoster.getObjectId()).updateChildren(newBlockedUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
@@ -345,7 +344,7 @@ public class ProfileGridFragment extends Fragment {
                                     ArrayList<String> blockedLists = mPoster.getBlockedUsersList();
                                     int blockedPosition = blockedLists.indexOf(mCurrentUserUid);
                                     mPoster.removeBlockedUser(mCurrentUserUid);
-                                    firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSER).child(String.valueOf(blockedPosition)).removeValue()
+                                    firebase.child(kUSER).child(mPoster.getObjectId()).child(kBLOCKEDUSERSLIST).child(String.valueOf(blockedPosition)).removeValue()
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {

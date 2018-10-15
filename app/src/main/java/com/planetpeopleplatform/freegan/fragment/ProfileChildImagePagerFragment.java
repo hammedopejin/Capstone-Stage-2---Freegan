@@ -22,8 +22,6 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -42,7 +40,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import butterknife.BindView;
@@ -53,7 +50,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.planetpeopleplatform.freegan.utils.Constants.FREEGAN_BASE_URL;
 import static com.planetpeopleplatform.freegan.utils.Constants.JSONARRAYKEY;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
-import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBUNDLE;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCURRENTUSER;
@@ -262,8 +258,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == EDIT_POST_REQUEST_CODE && resultCode == RESULT_OK) {
-            getActivity().finish();
-            getActivity().getSupportFragmentManager().popBackStack();
+            getActivity().recreate();
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
         } else if (requestCode == REPORT_USER_REQUEST_CODE && resultCode == RESULT_OK) {

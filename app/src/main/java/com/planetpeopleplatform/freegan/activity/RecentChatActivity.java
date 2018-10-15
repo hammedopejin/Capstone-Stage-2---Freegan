@@ -52,6 +52,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import tgio.rncryptor.RNCryptorNative;
 
+import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
 import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCHATROOMID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kCOUNTER;
@@ -349,7 +350,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
 
 
             Glide.with(getApplicationContext())
-                    .load(user.getUserImgUrl())
+                    .load(user.getUserImgUrl()).apply(centerInsideTransform()
+                    .placeholder(R.drawable.ic_account_circle_black_24dp))
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
@@ -366,7 +368,8 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
                     .into((de.hdodenhof.circleimageview.CircleImageView) itemView.findViewById(R.id.img_recent_user));
 
             Glide.with(getApplicationContext())
-                    .load(post.getImageUrl().get(0))
+                    .load(post.getImageUrl().get(0)).apply(centerInsideTransform()
+                    .placeholder(R.drawable.ic_account_circle_black_24dp))
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>

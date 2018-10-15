@@ -69,8 +69,6 @@ public class MainActivity extends AppCompatActivity implements ChoosePictureSour
                 .beginTransaction()
                 .replace(R.id.fragment_container, mFragment, MainGridFragment.class.getSimpleName())
                 .commit();
-
-
     }
 
     @Override

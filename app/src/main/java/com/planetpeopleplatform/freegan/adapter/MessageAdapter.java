@@ -21,6 +21,8 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.bumptech.glide.request.RequestOptions.centerInsideTransform;
+
 public class MessageAdapter extends RecyclerView.Adapter {
 
     private static final int VIEW_TYPE_MESSAGE_SENT = 1;
@@ -120,7 +122,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 }
 
                 // Insert the profile image from the URL into the ImageView.
-                Glide.with(mContext).load(mChatMate.getUserImgUrl()).into(profileImage);
+                Glide.with(mContext).load(mChatMate.getUserImgUrl()).apply(centerInsideTransform()
+                        .placeholder(R.drawable.ic_account_circle_black_24dp)).into(profileImage);
             }
         }
     }

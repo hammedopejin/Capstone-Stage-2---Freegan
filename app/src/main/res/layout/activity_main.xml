@@ -49,16 +49,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <TextView
-        android:id="@+id/empty_freegen_text"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:gravity="center"
-        android:text="@string/empty_freegen_text"
-        android:visibility="invisible"/>
-
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/main_content_swipe_refresh_layout"
@@ -86,5 +76,15 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:id="@+id/empty_freegen_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:gravity="center"
+        android:text="@string/empty_freegen_text"
+        android:visibility="invisible"/>
 
 </android.support.design.widget.CoordinatorLayout>
