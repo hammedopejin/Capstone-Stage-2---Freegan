@@ -145,7 +145,9 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
             public void onClick(View view) {
                 getActivity().onBackPressed();
                 if (savedInstanceState != null) {
-                    getActivity().recreate();
+                    Intent intent = getActivity().getIntent();
+                    getActivity().finish();
+                    startActivity(intent);
                 }
             }
         });

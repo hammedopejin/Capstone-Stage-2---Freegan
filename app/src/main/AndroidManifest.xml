@@ -93,7 +93,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Service listening for any incoming messages -->
+        <!-- Service listening for any incoming messages and message service ID -->
         <service
             android:name=".fcm.FreeganFirebaseMessagingService"
             android:exported="false">

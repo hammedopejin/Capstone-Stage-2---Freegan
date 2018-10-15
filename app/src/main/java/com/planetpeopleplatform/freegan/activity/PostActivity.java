@@ -72,8 +72,6 @@ import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 
 public class PostActivity extends AppCompatActivity {
 
-    private static final String TAG = PostActivity.class.getSimpleName();
-
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout mCoordinatorLayout;
 

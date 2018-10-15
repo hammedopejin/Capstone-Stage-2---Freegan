@@ -11,7 +11,7 @@
                 android:radius="20dp"
                 android:topRightRadius="0dp" />
 
-            <solid android:color="@color/colorPrimary" />
+            <solid android:color="@color/green" />
 
             <size
                 android:width="0dp"
@@ -31,7 +31,7 @@
                 android:radius="20dp"
                 android:topRightRadius="0dp" />
 
-            <solid android:color="@color/colorPrimary" />
+            <solid android:color="@color/green" />
 
             <size
                 android:width="0dp"

@@ -46,7 +46,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSERID;
 public class PushNotifications {
 
     private static DatabaseReference mRef = firebase.child(kRECENT);
-    private static boolean mShouldSendPushNotification = false;
 
     private static final int NOTIFICATION_MAX_CHARACTERS = 30;
     private static final int CHAT_MESSAGE_NOTIFICATION_ID = 0;
@@ -157,7 +156,6 @@ public class PushNotifications {
                 .setContentIntent(contentIntent(context, currentUserUid, chatRoomId,
                         post, chatMate))
                 .setNumber(counter)
-                //.addAction(ignoreReminderAction(context))
                 .setAutoCancel(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN

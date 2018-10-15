@@ -327,7 +327,9 @@ public class ProfileGridFragment extends Fragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                getActivity().recreate();
+                                                Intent intent = getActivity().getIntent();
+                                                getActivity().finish();
+                                                startActivity(intent);
                                                 Snackbar.make(mCoordinatorLayout,
                                                         R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
                                             } else {
@@ -349,7 +351,9 @@ public class ProfileGridFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
-                                                        getActivity().recreate();
+                                                        Intent intent = getActivity().getIntent();
+                                                        getActivity().finish();
+                                                        startActivity(intent);
                                                         Snackbar.make(mCoordinatorLayout,
                                                                 R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
                                                     } else {

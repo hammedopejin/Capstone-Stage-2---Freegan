@@ -304,7 +304,9 @@ public class MessageActivity extends CustomActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PROFILE_ACTIVITY_REQUEST_CODE){
-            recreate();
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
         }
     }
 
@@ -423,8 +425,6 @@ public class MessageActivity extends CustomActivity {
         mChatMessageEdittext.setText(null);
         DatabaseReference reference = chatRef.child(mChatRoomId).push();
 
-
-
         String messageId = reference.getKey();
         if (mChatMate != null && mCurrentUser != null && mPost != null) {
 
@@ -472,6 +472,7 @@ public class MessageActivity extends CustomActivity {
                             }
 
                         }
+                        mEmptyTextView.setVisibility(View.INVISIBLE);
                         mMessageAdapter.notifyDataSetChanged();
                         mMessageRecycler.smoothScrollToPosition(0);
                         mLoadingIndicator.setVisibility(View.INVISIBLE);
@@ -499,7 +500,6 @@ public class MessageActivity extends CustomActivity {
                                         (String) item.get(kTYPE), (String) item.get(kPOSTID));
                                 mMessageList.remove(0);
                                 mMessageList.add(0, message);
-
 
                                 if (!((item.get(kSENDERID)).equals(mCurrentUserUid))) {
                                     Utils.updateChatStatus(item, mChatRoomId);
@@ -579,7 +579,9 @@ public class MessageActivity extends CustomActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    recreate();
+                                    Intent intent = getIntent();
+                                    finish();
+                                    startActivity(intent);
                                     Snackbar.make(mCoordinatorLayout,
                                             R.string.alert_user_blocked_successfully_string, Snackbar.LENGTH_SHORT).show();
                                 } else {
@@ -600,7 +602,9 @@ public class MessageActivity extends CustomActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            recreate();
+                                            Intent intent = getIntent();
+                                            finish();
+                                            startActivity(intent);
                                             Snackbar.make(mCoordinatorLayout,
                                                     R.string.alert_user_unblocked_successfully_string, Snackbar.LENGTH_SHORT).show();
                                         } else {
