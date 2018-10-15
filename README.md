@@ -1,5 +1,4 @@
 # Capstone-Stage-2---Freegan 2018
-===================================
 Android version - Getting rid of and giving away item(s) with Freegan app comes with ease with the use of pictures and text description that allows other users of the app view and contact you.
 Allowing users to set location range enables users to set limits on how far they are willing to go to pick up items that they want and could have for free.
 
