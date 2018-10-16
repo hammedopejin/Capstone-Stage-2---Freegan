@@ -257,6 +257,8 @@
     <string name="image_holder_for_tab_indicator_string">Image holer for more images tab indicator to indicate that Freegan item has more than on image.</string>
     <string name="file_provider_authority">com.planetpeopleplatform.freegan.provider</string>
     <string name="place_holder_string">placeHolder</string>
+    <string name="send_typed_message_string">A button that appears after user typed in message to send to other chat participant. The button, when clicked sends the typed message to the other chat participant.</string>
+    <string name="blocked_user_button_string">A button that appears to indicate that chatting is disabled between chat participants.</string>
 
 
     <string name="alert_invitation_sent">Invitation sent successfully!</string>
@@ -271,5 +273,11 @@
     <string name="date_format_decending_with_details">yyyy-MM-dd hh:mm:ss a</string>
     <string name="date_format_decending">yyyy-MM-dd</string>
     <string name="time_format_decending">ddMMyyHHmmss</string>
+
+    <!-- Post Activity Strings -->
+    <string name="post_button_string">A button when clicked post a new item.</string>
+
+    <!-- EditPost Activity Strings -->
+    <string name="update_post_button_string">Button to update post item when clicked.</string>
 
 </resources>

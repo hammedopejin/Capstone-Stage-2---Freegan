@@ -128,7 +128,8 @@
                     android:background="@drawable/ic_block_red_a400_24dp"
                     android:clickable="false"
                     android:focusable="false"
-                    android:gravity="center" />
+                    android:gravity="center"
+                    android:contentDescription="@string/blocked_user_button_string"/>
 
             </LinearLayout>
 
@@ -178,6 +179,7 @@
                     android:visibility="gone"
                     app:elevation="@dimen/pad_0dp"
                     app:fabSize="mini"
+                    android:contentDescription="@string/send_typed_message_string"
                     android:layout_marginEnd="@dimen/pad_8dp" />
             </LinearLayout>
 

@@ -258,13 +258,15 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == EDIT_POST_REQUEST_CODE && resultCode == RESULT_OK) {
-            getActivity().recreate();
+            Intent intent = getActivity().getIntent();
+            getActivity().finish();
+            startActivity(intent);
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == REPORT_USER_REQUEST_CODE && resultCode == RESULT_OK) {
+        } else if (requestCode == REPORT_USER_REQUEST_CODE  && resultCode == RESULT_OK) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == SHARE_POST){
+        } else if (requestCode == SHARE_POST  && resultCode == RESULT_OK){
             Snackbar.make(mCoordinatorLayout, R.string.alert_freegen_successfully_shared_string, Snackbar.LENGTH_SHORT).show();
         } else if (requestCode == MESSAGE_ACTIVITY){
             getActivity().recreate();
@@ -320,8 +322,6 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
             }
         });
         popup.show();
-
-
     }
 
     private Intent createShareFreeganIntent() {

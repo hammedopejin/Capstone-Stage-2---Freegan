@@ -37,6 +37,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.fragment.ChoosePictureSourceDialogFragment;
+import com.planetpeopleplatform.freegan.fragment.DeleteDialogFragment;
 import com.planetpeopleplatform.freegan.model.Post;
 import com.planetpeopleplatform.freegan.model.User;
 import com.planetpeopleplatform.freegan.utils.Utils;
@@ -65,7 +66,7 @@ import static com.planetpeopleplatform.freegan.utils.Utils.SplitString;
 import static com.planetpeopleplatform.freegan.utils.Utils.getOutputMediaFile;
 
 public class EditPostActivity extends AppCompatActivity
-        implements ChoosePictureSourceDialogFragment.OnCompleteListener {
+        implements ChoosePictureSourceDialogFragment.OnCompleteListener, DeleteDialogFragment.OnCompleteListener {
 
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 2;
@@ -83,6 +84,7 @@ public class EditPostActivity extends AppCompatActivity
     private ArrayList<Uri> mSelectedImageUris = new ArrayList<>();
     private File mDestFile;
     private int mCurrentIndex;
+    private static Boolean mShowLoading = false;
 
     private Post mPost;
 
@@ -131,9 +133,21 @@ public class EditPostActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.edit_post_title);
 
-        Bundle argument = getIntent().getBundleExtra(kBUNDLE);
-        mCurrentUser = argument.getParcelable(kCURRENTUSER);
-        mPost = argument.getParcelable(kPOST);
+        if(savedInstanceState != null){
+            mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
+            mPost = savedInstanceState.getParcelable(kPOST);
+            mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
+
+            if(mShowLoading){
+                mLoadingIndicator.setVisibility(View.VISIBLE);
+                mShowLoading = true;
+            }
+        } else {
+            Bundle argument = getIntent().getBundleExtra(kBUNDLE);
+            mCurrentUser = argument.getParcelable(kCURRENTUSER);
+            mPost = argument.getParcelable(kPOST);
+        }
+
         if (mPost != null) {
             mItemDescriptionEditText.setText(mPost.getDescription());
         }
@@ -240,7 +254,14 @@ public class EditPostActivity extends AppCompatActivity
                 postToFirebase();
             }
         });
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(kCURRENTUSER, mCurrentUser);
+        outState.putParcelable(kPOST, mPost);
+        outState.putString(kIMAGEURL, String.valueOf(mSelectedImageUri));
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -329,6 +350,29 @@ public class EditPostActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onComplete(int source) {
+        if (source == 1){
+            takeCameraPicture();
+        } else if (source == 2){
+            captureGalleryImage();
+        } else if (source == 3){
+            mTempImg.setBackground(getResources().getDrawable(R.color.cardview_dark_background));
+            mTempImg.setImageDrawable(null);
+        }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 
     @Override
@@ -425,6 +469,7 @@ public class EditPostActivity extends AppCompatActivity
 
     private void postToFirebase() {
         mLoadingIndicator.setVisibility(View.VISIBLE);
+        mShowLoading = true;
         mItemPostButton.setVisibility(View.INVISIBLE);
         mItemDescriptionEditText.clearFocus();
         mItemDescriptionEditText.setVisibility(View.INVISIBLE);
@@ -463,6 +508,7 @@ public class EditPostActivity extends AppCompatActivity
                                 }
                             } else {
                                 mLoadingIndicator.setVisibility(View.INVISIBLE);
+                                mShowLoading = false;
                                 Snackbar.make(mCoordinatorLayout,
                                         R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
                             }
@@ -483,6 +529,7 @@ public class EditPostActivity extends AppCompatActivity
 
         if (mPostDownloadURLs.size() < 1) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mShowLoading = false;
             mItemPostButton.setVisibility(View.VISIBLE);
             mItemDescriptionEditText.setVisibility(View.VISIBLE);
             Snackbar.make(mCoordinatorLayout, R.string.alert_at_least_one_image_needed_string, Snackbar.LENGTH_SHORT).show();
@@ -514,10 +561,11 @@ public class EditPostActivity extends AppCompatActivity
         post.clear();
 
         mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mShowLoading = false;
 
         Snackbar.make(mCoordinatorLayout,
                 R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
-
+        setResult(RESULT_OK);
         finish();
     }
 
@@ -527,29 +575,4 @@ public class EditPostActivity extends AppCompatActivity
         dialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));
 
     }
-
-    @Override
-    public void onComplete(int source) {
-        if (source == 1){
-            takeCameraPicture();
-        } else if (source == 2){
-            captureGalleryImage();
-        } else if (source == 3){
-            mTempImg.setBackground(getResources().getDrawable(R.color.cardview_dark_background));
-            mTempImg.setImageDrawable(null);
-        }
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
 }

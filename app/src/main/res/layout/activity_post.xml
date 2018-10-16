@@ -47,6 +47,7 @@
             android:background="@drawable/round_corner_button"
             android:text="@string/post_string"
             android:textColor="@color/white"
+            android:contentDescription="@string/post_button_string"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/item_description_edit_text" />

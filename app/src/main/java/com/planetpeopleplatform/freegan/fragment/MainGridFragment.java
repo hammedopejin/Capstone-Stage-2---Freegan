@@ -99,6 +99,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private static Boolean mSortByFavorite = false;
     private Cursor mCursor;
     private Boolean mAskLocationFlag = false;
+    private final int GEOGRAPHIC_RADIUS = 50;
 
     // Store a member variable for the listener
     private EndlessRecyclerViewScrollListener mScrollListener;
@@ -414,7 +415,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             return;
         }
         mGeoQuery = geoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
-                mCurrentUser.getLongitude()), 50);
+                mCurrentUser.getLongitude()), GEOGRAPHIC_RADIUS);
 
         mTotalLoadSize = 0;
         mPostIds.clear();

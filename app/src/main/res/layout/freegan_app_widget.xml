@@ -36,6 +36,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="@string/last_message_received"
+        android:labelFor="@+id/message_layout"
         android:textColor="@color/white"
         android:layout_margin="@dimen/pad_8dp" />
 
@@ -58,6 +59,7 @@
                 android:textAlignment="textEnd"
                 android:gravity="end"
                 android:textSize="@dimen/txt_12sp"
+                android:labelFor="@+id/appwidget_user_name_text"
                 android:text="@string/from_string"
                 android:textColor="@color/white"
                 />
@@ -89,6 +91,7 @@
                 android:textAlignment="textEnd"
                 android:text="@string/message_string"
                 android:textColor="@color/white"
+                android:labelFor="@+id/appwidget_message_text"
                 android:textSize="@dimen/txt_12sp"
                 android:gravity="end" />
             <TextView
@@ -120,6 +123,7 @@
                 android:text="@string/date_string"
                 android:textColor="@color/white"
                 android:textSize="@dimen/txt_12sp"
+                android:labelFor="@+id/appwidget_date_text"
                 android:gravity="end" />
             <TextView
                 android:id="@+id/appwidget_date_text"

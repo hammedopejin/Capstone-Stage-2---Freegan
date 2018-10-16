@@ -99,6 +99,7 @@ public class PostActivity extends AppCompatActivity {
     private Uri mSelectedImageUri = null;
     private GeoFire mGeoFire;
     private File destFile;
+    private static Boolean mShowLoading = false;
 
 
     @Override
@@ -115,25 +116,27 @@ public class PostActivity extends AppCompatActivity {
                     destFile);
         }
 
-        int source = getIntent().getIntExtra(getString(R.string.source_string), 1);
-        if (source == 1){
-            takeCameraPicture();
-        } else {
-            captureGalleryImage();
-        }
-
         mCurrentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mGeoFire = new GeoFire(firebase.child(kPOSTLOCATION));
 
         if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
+            if (mShowLoading){
+                showLoading();
+            }
         } else {
             firebase.child(kUSER).child(mCurrentUserUid).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+                        int source = getIntent().getIntExtra(getString(R.string.source_string), 1);
+                        if (source == 1){
+                            takeCameraPicture();
+                        } else {
+                            captureGalleryImage();
+                        }
                     }
                 }
 
@@ -274,7 +277,6 @@ public class PostActivity extends AppCompatActivity {
 
         showLoading();
 
-
         // Upload file to Firebase Storage
         imageRef.putFile(mSelectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
@@ -326,6 +328,7 @@ public class PostActivity extends AppCompatActivity {
                     }
                     Snackbar.make(mCoordinatorLayout,
                             R.string.alert_post_upload_successful, Snackbar.LENGTH_SHORT).show();
+                    mShowLoading = false;
                     finish();
                 } else {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
@@ -342,6 +345,7 @@ public class PostActivity extends AppCompatActivity {
         mItemPostButton.setVisibility(View.INVISIBLE);
         /* Finally, show the loading indicator */
         mLoadingIndicator.setVisibility(View.VISIBLE);
+        mShowLoading = true;
     }
 
 
