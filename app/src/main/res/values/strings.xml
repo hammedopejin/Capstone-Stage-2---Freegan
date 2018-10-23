@@ -266,8 +266,8 @@
 
 
     <!-- Url link Strings -->
-    <string name="google_privacy_policies_url_string">https://policies.google.com/privacy</string>
-    <string name="google_map_platform_terms_url_string">https://cloud.google.com/maps-platform/terms/</string>
+    <string name="freegan_privacy_policies_url_string">https://docs.google.com/document/d/e/2PACX-1vSigTJFkQwupqxC7FwW27fEfSzLXJl2WMMjfZnFpAPE8lLfSb6vRvUhez3belX-OI68MQp26Fc4pvdJ/pub</string>
+    <string name="freegan_platform_terms_url_string">https://docs.google.com/document/d/e/2PACX-1vQ-9nRW3YDdq3M26rbNGOxsuxNdVU3jfVJl1H4L8SYmD7WY9KXotcW94oPySm5ew4i6aeVgFj3tQPId/pub</string>
 
     <!-- Strings formatting Strings -->
     <string name="date_format_decending_with_details">yyyy-MM-dd hh:mm:ss a</string>
