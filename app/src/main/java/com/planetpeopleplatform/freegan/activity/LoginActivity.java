@@ -21,6 +21,8 @@ import com.planetpeopleplatform.freegan.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.planetpeopleplatform.freegan.model.User.loginUserAndUpdateInstanceId;
+
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -69,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if(currentUser!=null) {
-
+            loginUserAndUpdateInstanceId(currentUser.getUid());
             Intent intent = new Intent(this, MainActivity.class);
             startActivityForResult(intent, RC_SIGN_IN);
         }

@@ -111,6 +111,12 @@ public class User implements Parcelable{
         }
     };
 
+    public static void loginUserAndUpdateInstanceId(String objectId){
+        DatabaseReference ref = Constants.firebase.child(Constants.kUSER).child(objectId);
+        String token = FirebaseInstanceId.getInstance().getToken();
+        ref.child(kINSTANCEID).setValue(token);
+    }
+
     public static void registerUserWith(String email, String fireUserUid, String userName)
         {
 
@@ -127,7 +133,7 @@ public class User implements Parcelable{
         DatabaseReference ref = Constants.firebase.child(Constants.kUSER).child(fuser.objectId);
         ref.setValue(fuser);
 
-        String token =   FirebaseInstanceId.getInstance().getToken();
+        String token = FirebaseInstanceId.getInstance().getToken();
         ref.child(kINSTANCEID).setValue(token);
 
     }
