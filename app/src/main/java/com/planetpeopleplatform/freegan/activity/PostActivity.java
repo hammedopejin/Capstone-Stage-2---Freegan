@@ -3,6 +3,7 @@ package com.planetpeopleplatform.freegan.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -31,12 +32,18 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.planetpeopleplatform.freegan.R;
@@ -49,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -100,6 +108,7 @@ public class PostActivity extends AppCompatActivity {
     private GeoFire mGeoFire;
     private File destFile;
     private static Boolean mShowLoading = false;
+    private String mImageLabelText;
 
 
     @Override
@@ -180,6 +189,11 @@ public class PostActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
+            try {
+                runImageLabeling(MediaStore.Images.Media.getBitmap(this.getContentResolver(), mSelectedImageUri));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             try {
                  destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
@@ -219,7 +233,11 @@ public class PostActivity extends AppCompatActivity {
 
         }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
 
-
+            try {
+                runImageLabeling(MediaStore.Images.Media.getBitmap(this.getContentResolver(), mSelectedImageUri));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             // Load the image with Glide to prevent OOM error when the image drawables are very large.
             Glide.with(this)
@@ -248,6 +266,48 @@ public class PostActivity extends AppCompatActivity {
             if (resultCode == RESULT_CANCELED) {
                 finish();
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+                permissions, grantResults);
+        switch (requestCode) {
+            case CAMERA_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+
+                    Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+                    intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
+                    startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
+
+                } else {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            break;
+            case READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        == PackageManager.PERMISSION_GRANTED) {
+
+                    Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
+                    intentGalley.setType("image/jpeg");
+                    intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                    startActivityForResult(Intent.createChooser(intentGalley,
+                            getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
+                } else {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            break;
         }
     }
 
@@ -382,45 +442,30 @@ public class PostActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode,
-                permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0 &&
-                        ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+    private void runImageLabeling(Bitmap bitmap) {
+        //Create a FirebaseVisionImage
+        FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
 
-                    Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //Get access to an instance of FirebaseImageDetector
+        FirebaseVisionLabelDetector detector = FirebaseVision.getInstance().getVisionLabelDetector();
 
-
-                    intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mSelectedImageUri);
-                    startActivityForResult(intentCamera, RC_TAKE_CAMERA_PHOTO_CODE);
-
-                } else {
-                    Snackbar.make(mCoordinatorLayout,
-                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
-                    finish();
-                }
+        //Use the detector to detect the labels inside the image
+        detector.detectInImage(image).addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionLabel>>() {
+            @Override
+            public void onSuccess(List<FirebaseVisionLabel> firebaseVisionLabels) {
+                mImageLabelText = firebaseVisionLabels.get(0).getLabel();
+                mItemDescriptionEditText.setText(mImageLabelText);
+                mItemDescriptionEditText.setSelection(mImageLabelText.length());
+                Snackbar.make(mCoordinatorLayout, R.string.alert_image_text_suggestion_string,
+                        Snackbar.LENGTH_LONG).show();
             }
-            break;
-            case READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE: {
-                if (grantResults.length > 0 && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        == PackageManager.PERMISSION_GRANTED) {
-
-                    Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
-                    intentGalley.setType("image/jpeg");
-                    intentGalley.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                    startActivityForResult(Intent.createChooser(intentGalley,
-                            getString(R.string.alert_complete_action_using_string)), RC_PHOTO_GALLERY_PICKER_CODE);
-                } else {
-                    Snackbar.make(mCoordinatorLayout,
-                            R.string.alert_permission_needed_string, Snackbar.LENGTH_SHORT).show();
-                    finish();
-                }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(mCoordinatorLayout, R.string.error_image_text_suggestion_string,
+                        Snackbar.LENGTH_LONG).show();
             }
-            break;
-        }
+        });
     }
+
 }

@@ -3,6 +3,8 @@ package com.planetpeopleplatform.freegan.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 
 import java.text.SimpleDateFormat;
@@ -10,10 +12,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.planetpeopleplatform.freegan.utils.Constants;
 
+import static com.planetpeopleplatform.freegan.utils.Constants.firebase;
 import static com.planetpeopleplatform.freegan.utils.Constants.kBLOCKEDUSERSLIST;
 import static com.planetpeopleplatform.freegan.utils.Constants.kEMAIL;
+import static com.planetpeopleplatform.freegan.utils.Constants.kINSTANCEID;
+import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 
 public class User implements Parcelable{
@@ -120,6 +126,9 @@ public class User implements Parcelable{
 
         DatabaseReference ref = Constants.firebase.child(Constants.kUSER).child(fuser.objectId);
         ref.setValue(fuser);
+
+        String token =   FirebaseInstanceId.getInstance().getToken();
+        ref.child(kINSTANCEID).setValue(token);
 
     }
 

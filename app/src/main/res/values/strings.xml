@@ -145,7 +145,7 @@
     <string name="edit_post_title">Edit post</string>
 
     <!-- Description strings  -->
-    <string name="back_arrow_description_string">Back arrow to navigate back to previous screen</string>
+    <string name="back_arrow_description_string">Back arrow image, when clicked navigates user back to previous screen</string>
     <string name="favorite_button_description_string">Star button to mark a post item as favorite and store for future view.</string>
 
 
@@ -171,6 +171,7 @@
 
     <!-- Alerts and error messages  -->
     <string name="alert_reason_for_report_missing_string">Reason for reporting user missing.</string>
+    <string name="alert_image_text_suggestion_string">Image description suggested by Google FirebaseVisionImage!</string>
     <string name="alert_user_unblocked_successfully_string">User successfully unblocked!</string>
     <string name="alert_message_sent_successfully">Message sent successfully!</string>
     <string name="alert_user_blocked_successfully_string">User blocked successfully</string>
@@ -209,6 +210,7 @@
     <string name="error_decrypting_string">error decrypting</string>
     <string name="error_fetching_data_string">Error fetching data!</string>
     <string name="error_fetching_your_location_string">Error retrieving your current location!</string>
+    <string name="error_image_text_suggestion_string">Sorry, something went wrong with image text suggestion!</string>
 
     <string name="err_image_source_unrecognized_string">Image from unrecognized source!</string>
     <string name="err_image_compression_string">Error compressing image!</string>

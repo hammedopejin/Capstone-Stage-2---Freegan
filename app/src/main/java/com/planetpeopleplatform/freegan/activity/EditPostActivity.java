@@ -150,6 +150,7 @@ public class EditPostActivity extends AppCompatActivity
 
         if (mPost != null) {
             mItemDescriptionEditText.setText(mPost.getDescription());
+            mItemDescriptionEditText.setSelection(mPost.getDescription().length());
         }
 
         int photoSize = 0;

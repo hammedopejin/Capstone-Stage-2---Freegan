@@ -82,6 +82,9 @@ dependencies {
     implementation 'com.github.castorflex.verticalviewpager:library:19.0.1'
     //Image compression
     implementation 'id.zelory:compressor:2.1.0'
+    //ImageLabelling
+    implementation 'com.google.firebase:firebase-ml-vision:18.0.1'
+    implementation 'com.google.firebase:firebase-ml-vision-image-label-model:17.0.2'
 
 
     testImplementation 'junit:junit:4.12'

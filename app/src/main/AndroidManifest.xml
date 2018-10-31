@@ -61,7 +61,8 @@
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".activity.PostActivity" />
+        <activity android:name=".activity.PostActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".activity.CustomActivity" />
         <activity android:name=".activity.RecentChatActivity" />
         <activity android:name=".activity.ProfileActivity" />
