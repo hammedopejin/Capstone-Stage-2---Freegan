@@ -45,8 +45,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String TAG = SettingsFragment.class.getSimpleName();
-
     private FirebaseAuth mAuth;
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 3;
     private static final int PLACE_PICKER_REQUEST_CODE = 300;

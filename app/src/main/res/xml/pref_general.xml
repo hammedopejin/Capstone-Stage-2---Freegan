@@ -49,5 +49,4 @@
         android:icon="@android:drawable/ic_lock_power_off"/>
 
 
-
 </PreferenceScreen>

@@ -41,35 +41,30 @@ public class User implements Parcelable{
 
 
     public User (String _objectId, String _pushId, String _createdAt, String _updatedAt, String _email,
-                 String _username, String _userimgurl, String _loginMethod) {
+                 String _username, String _userimgurl, String _loginMethod, Double latitude, Double longitude) {
 
         this.objectId = _objectId;
         this.pushId = _pushId;
-
         this.createdAt = _createdAt;
         this.updatedAt = _updatedAt;
-
         this.email = _email;
         this.userName = _username;
         this.userImgUrl = _userimgurl;
-
         this.loginMethod = _loginMethod;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.blockedUsersList.add(PLACE_HOLDER);
+
     }
 
     public User (HashMap<String, Object> dictionary){
+        this((String) dictionary.get(Constants.kOBJECTID),(String) dictionary.get(Constants.kPUSHID),
+                (String) dictionary.get(Constants.kCREATEDAT), (String) dictionary.get(Constants.kUPDATEDAT),
+                (String) dictionary.get(kEMAIL), (String) dictionary.get(Constants.kUSERNAME),
+                (String) dictionary.get(kUSERIMAGEURL), (String) dictionary.get(Constants.kLOGINMETHOD),
+                (Double) dictionary.get(Constants.kLATITUDE), (Double) dictionary.get(Constants.kLONGITUDE));
 
-        objectId = (String) dictionary.get(Constants.kOBJECTID);
-        pushId = (String) dictionary.get(Constants.kPUSHID);
-        createdAt = (String) dictionary.get(Constants.kCREATEDAT);
-        updatedAt = (String) dictionary.get(Constants.kUPDATEDAT);
-        email = (String) dictionary.get(kEMAIL);
-        userName = (String) dictionary.get(Constants.kUSERNAME);
-        userImgUrl = (String) dictionary.get(kUSERIMAGEURL);
-        loginMethod = (String) dictionary.get(Constants.kLOGINMETHOD);
-        latitude = (Double) dictionary.get(Constants.kLATITUDE);
-        longitude = (Double) dictionary.get(Constants.kLONGITUDE);
-        blockedUsersList = (ArrayList<String>) dictionary.get(kBLOCKEDUSERSLIST);
+        this.blockedUsersList = (ArrayList<String>) dictionary.get(kBLOCKEDUSERSLIST);
     }
 
     private static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
@@ -121,7 +116,7 @@ public class User implements Parcelable{
         {
 
             User fuser = new User(fireUserUid, "", sfd.format(dataobj),
-                    sfd.format(dataobj), email, userName, "", kEMAIL);
+                    sfd.format(dataobj), email, userName, "", kEMAIL, 0.0, 0.0);
 
             fuser.saveUserInBackground(fuser);
 

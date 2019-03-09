@@ -149,15 +149,17 @@ public class RecentChatActivity extends CustomActivity  implements DeleteDialogF
         SimpleDateFormat sdf = new SimpleDateFormat(DF_SIMPLE_STRING_WITH_DETAILS);
 
         public int compare(HashMap<String, Object> ord1, HashMap<String, Object> ord2) {
-            Date d1 = null;
-            Date d2 = null;
+            Date d1 = new Date();
+            Date d2 = new Date();
             try {
                 d1 = sdf.parse((String) ord1.get(kDATE));
                 d2 = sdf.parse((String) ord2.get(kDATE));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            return (d1.getTime() > d2.getTime() ? -1 : 1);     //descending
+            if (d1.getTime() > d2.getTime()) return -1;     //descending
+            else if (d1.getTime() < d2.getTime()) return 1;
+            else return  0;//descending
         }
     };
 

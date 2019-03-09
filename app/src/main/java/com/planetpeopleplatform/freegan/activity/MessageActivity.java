@@ -94,13 +94,18 @@ public class MessageActivity extends CustomActivity {
     private Parcelable mRecyclerViewState;
     private static final int INITIAL_MASSAGES_LOAD_SIZE = 30;
 
-    /** The Conversation list.  */
+    /**
+     * The Conversation list.
+     */
     private ArrayList mMessageList = new ArrayList<Message>();
 
-    /** The message adapter.  */
+    /**
+     * The message adapter.
+     */
     private MessageAdapter mMessageAdapter = null;
 
-    /** The current user object.
+    /**
+     * The current user object.
      * Allow access to the current user info
      */
     private User mCurrentUser = null;
@@ -184,7 +189,7 @@ public class MessageActivity extends CustomActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    mCurrentUser = new User((HashMap<String,Object>) dataSnapshot.getValue());
+                    mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
                     mMessageAdapter = new MessageAdapter(MessageActivity.this, mMessageList, mChatMate);
 
                     mLinearLayoutManager.setSmoothScrollbarEnabled(true);
@@ -192,16 +197,16 @@ public class MessageActivity extends CustomActivity {
                     mMessageRecycler.setLayoutManager(mLinearLayoutManager);
                     mMessageRecycler.setAdapter(mMessageAdapter);
 
-                        if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
+                    if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
                             || mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
-                            mChatLayout.setVisibility(View.GONE);
-                            mBlockedChatLayout.setVisibility(View.VISIBLE);
-                            mChatMessageEdittext.setEnabled(false);
-                        } else {
-                            mChatLayout.setVisibility(View.VISIBLE);
-                            mBlockedChatLayout.setVisibility(View.GONE);
-                            mChatMessageEdittext.setEnabled(true);
-                        }
+                        mChatLayout.setVisibility(View.GONE);
+                        mBlockedChatLayout.setVisibility(View.VISIBLE);
+                        mChatMessageEdittext.setEnabled(false);
+                    } else {
+                        mChatLayout.setVisibility(View.VISIBLE);
+                        mBlockedChatLayout.setVisibility(View.GONE);
+                        mChatMessageEdittext.setEnabled(true);
+                    }
                 }
             }
 
@@ -215,7 +220,7 @@ public class MessageActivity extends CustomActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    mChatMate = new User((HashMap<String,Object>) dataSnapshot.getValue());
+                    mChatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
 
                     if (mCurrentUser.getBlockedUsersList().contains(mChatMate.getObjectId())
                             || mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
@@ -303,7 +308,7 @@ public class MessageActivity extends CustomActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PROFILE_ACTIVITY_REQUEST_CODE){
+        if (requestCode == PROFILE_ACTIVITY_REQUEST_CODE) {
             Intent intent = getIntent();
             finish();
             startActivity(intent);
@@ -320,7 +325,7 @@ public class MessageActivity extends CustomActivity {
     @Override
     public void onBackPressed() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            releaseInstance ();
+            releaseInstance();
         }
         super.onBackPressed();
     }
@@ -369,10 +374,10 @@ public class MessageActivity extends CustomActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
 
-                if (dataSnapshot.exists()){
+                if (dataSnapshot.exists()) {
 
                     mLastSeenKey.add(dataSnapshot.getKey());
-                    HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
+                    HashMap<String, Object> item = (HashMap<String, Object>) dataSnapshot.getValue();
 
                     if (item != null && item.get(kTYPE) != null) {
 
@@ -397,10 +402,17 @@ public class MessageActivity extends CustomActivity {
                 }
             }
 
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {}
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {}
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {
+            }
+
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+            }
+
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {
+            }
+
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
         });
         mMessageAdapter.notifyDataSetChanged();
     }
@@ -419,7 +431,7 @@ public class MessageActivity extends CustomActivity {
         }
 
         SimpleDateFormat sfd = new SimpleDateFormat(getString(R.string.date_format_decending_with_details));
-        RNCryptorNative rncryptor =  new RNCryptorNative();
+        RNCryptorNative rncryptor = new RNCryptorNative();
 
         String encrypted = new String((rncryptor.encrypt(mChatMessageEdittext.getText().toString(), mChatRoomId)));
         mChatMessageEdittext.setText(null);
@@ -446,11 +458,11 @@ public class MessageActivity extends CustomActivity {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
 
-                    if (dataSnapshot.exists()){
+                    if (dataSnapshot.exists()) {
 
                         mLastSeenKey.add(dataSnapshot.getKey());
 
-                        HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
+                        HashMap<String, Object> item = (HashMap<String, Object>) dataSnapshot.getValue();
 
                         if (item != null && item.get(kTYPE) != null) {
 
@@ -481,17 +493,17 @@ public class MessageActivity extends CustomActivity {
 
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {
 
-                    if (dataSnapshot.exists()){
+                    if (dataSnapshot.exists()) {
 
                         mLastSeenKey.add(dataSnapshot.getKey());
 
-                        HashMap<String,Object> item = (HashMap<String,Object>) dataSnapshot.getValue();
+                        HashMap<String, Object> item = (HashMap<String, Object>) dataSnapshot.getValue();
 
                         if (item.get(kTYPE) != null) {
 
                             if (legitTypes.contains(item.get(kTYPE))) {
 
-                                RNCryptorNative rncryptor  =  new RNCryptorNative();
+                                RNCryptorNative rncryptor = new RNCryptorNative();
                                 String decrypted = rncryptor.decrypt((String) (item.get(kMESSAGE)), mChatRoomId);
                                 Message message = new Message(decrypted, (String) item.get(kDATE),
                                         (String) item.get(kMESSAGEID), (String) item.get(kSENDERID),
@@ -512,8 +524,13 @@ public class MessageActivity extends CustomActivity {
                     }
 
                 }
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {}
+
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                }
+
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {
+                }
+
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
             };
@@ -522,7 +539,7 @@ public class MessageActivity extends CustomActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
-                    if(!dataSnapshot.exists()){
+                    if (!dataSnapshot.exists()) {
                         mEmptyTextView.setVisibility(View.VISIBLE);
                     }
                 }
@@ -546,11 +563,11 @@ public class MessageActivity extends CustomActivity {
 
         PopupMenu popup = new PopupMenu(this, view);
 
-            if (mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
-                popup.inflate(R.menu.popup_chat_visitor_settings_unblock_option);
-            } else {
-                popup.inflate(R.menu.popup_chat_visitor_settings);
-            }
+        if (mChatMate.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {
+            popup.inflate(R.menu.popup_chat_visitor_settings_unblock_option);
+        } else {
+            popup.inflate(R.menu.popup_chat_visitor_settings);
+        }
 
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -626,13 +643,13 @@ public class MessageActivity extends CustomActivity {
 
     }
 
-    public void startProfileView(View view){
+    public void startProfileView(View view) {
         Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
         profileIntent.putExtra(kPOSTERID, mPost.getPostUserObjectId());
         startActivityForResult(profileIntent, PROFILE_ACTIVITY_REQUEST_CODE);
     }
 
-    public void startChatMateProfileView(View view){
+    public void startChatMateProfileView(View view) {
         Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
         profileIntent.putExtra(kPOSTERID, mChatMate.getObjectId());
         startActivityForResult(profileIntent, PROFILE_ACTIVITY_REQUEST_CODE);

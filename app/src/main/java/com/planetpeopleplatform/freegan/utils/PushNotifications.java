@@ -61,7 +61,7 @@ public class PushNotifications {
     //Helper method for fetching post
     public static void loadPost(final Context context, final String messageDate,
                                 String postId, final String chatMateId,
-                                final String message, final String userName, final String chatRoomId, final String currentUserUid){
+                                final String message, final String userName, final String chatRoomId, final String currentUserUid) {
 
         firebase.child(kPOST).child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -88,7 +88,7 @@ public class PushNotifications {
     private static void loadUser(final Context context,
                                  final String messageDate, final String chatMateId,
                                  final String message, final String userName,
-                                 final Post post, final String chatRoomId, final String currentUserUid){
+                                 final Post post, final String chatRoomId, final String currentUserUid) {
         firebase.child(kUSER).child(chatMateId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -96,7 +96,8 @@ public class PushNotifications {
                     User chatMate = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
                     numberOfUnreadMessagesOfUser(context, messageDate, post, chatMate,
                             message, userName, chatRoomId, currentUserUid);
-                }catch (Exception ex){}
+                } catch (Exception ex) {
+                }
             }
 
             @Override
@@ -114,7 +115,7 @@ public class PushNotifications {
     private static void sendNotification(Context context, String messageDate,
                                          Post post, User chatMate,
                                          String message, String userName, String chatRoomId, String currentUserUid,
-                                          int counter) {
+                                         int counter) {
 
         RNCryptorNative rncryptor = new RNCryptorNative();
         String decrypted = rncryptor.decrypt(message, chatRoomId);
@@ -131,11 +132,11 @@ public class PushNotifications {
 
         //Now update all widgets
         updateFreeganWidgets(context, appWidgetManager,
-                appWidgetIds,  userName,
-                 decrypted, messageDate,
-                 currentUserUid,
-                 chatRoomId,
-                 post,  chatMate, counter);
+                appWidgetIds, userName,
+                decrypted, messageDate,
+                currentUserUid,
+                chatRoomId,
+                post, chatMate, counter);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -284,7 +285,7 @@ public class PushNotifications {
         SendNotification(Context context, String messageDate,
                          Post post, User chatMate,
                          String message, String userName, String chatRoomId, String currentUserUid,
-                         int counter){
+                         int counter) {
             mContext = context;
             mMessageDate = messageDate;
             mPost = post;
