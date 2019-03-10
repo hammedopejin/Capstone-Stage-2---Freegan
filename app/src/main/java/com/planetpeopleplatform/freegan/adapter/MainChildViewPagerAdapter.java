@@ -18,7 +18,7 @@ public class MainChildViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        if (mPost == null){
+        if (mPost == null) {
             return 0;
         }
         return mPost.getImageUrl().size();
@@ -26,7 +26,7 @@ public class MainChildViewPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if (mPost == null){
+        if (mPost == null) {
             return null;
         }
         return MainImageFragment.newInstance(mPost, position);

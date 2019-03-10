@@ -16,12 +16,12 @@ public class MainImagePagerAdapter extends FragmentStatePagerAdapter {
         // Note: Initialize with the child fragment manager.
         super(fragment.getChildFragmentManager());
 
-        this.mListPosts =  listPosts;
+        this.mListPosts = listPosts;
     }
 
     @Override
     public int getCount() {
-        if (mListPosts == null){
+        if (mListPosts == null) {
             return 0;
         }
         return mListPosts.size();

@@ -127,23 +127,23 @@ public class SettingsActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
+        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data != null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
 
             try {
                 destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
-            } catch (NullPointerException ex){
+            } catch (NullPointerException ex) {
                 try {
                     destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
             postPictureToFirebase();
 
-        } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
+        } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE && resultCode == RESULT_OK) {
             postPictureToFirebase();
         }
     }
@@ -162,10 +162,10 @@ public class SettingsActivity extends AppCompatActivity
                 permissions, grantResults);
 
         switch (requestCode) {
-            case CAMERA_PERMISSION_REQUEST_CODE : {
+            case CAMERA_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0 &&
                         ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -198,7 +198,7 @@ public class SettingsActivity extends AppCompatActivity
 
     @Override
     public void onComplete(int source) {
-        if (source == 1){
+        if (source == 1) {
             takeCameraPicture();
         } else {
             captureGalleryImage();
@@ -215,11 +215,11 @@ public class SettingsActivity extends AppCompatActivity
         }
 
         SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));
-        final Date dataobj= new Date();
+        final Date dataobj = new Date();
 
-        String imagePath = SplitString(mCurrentUser.getEmail()) + "."+ df.format(dataobj)+ ".jpg";
+        String imagePath = SplitString(mCurrentUser.getEmail()) + "." + df.format(dataobj) + ".jpg";
 
-        final StorageReference imageRef = storageRef.child("user_images/"+imagePath );
+        final StorageReference imageRef = storageRef.child("user_images/" + imagePath);
         mLoadingIndicator.setVisibility(View.VISIBLE);
 
         if (mCurrentUser.getUserImgUrl() != null && !mCurrentUser.getUserImgUrl().isEmpty()) {
@@ -257,13 +257,13 @@ public class SettingsActivity extends AppCompatActivity
         });
     }
 
-    private void captureGalleryImage(){
+    private void captureGalleryImage() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ) {
+                != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE }, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
         } else {
 
             Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
@@ -275,14 +275,14 @@ public class SettingsActivity extends AppCompatActivity
 
     }
 
-    private void takeCameraPicture(){
+    private void takeCameraPicture() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ) {
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
-        }else {
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_PERMISSION_REQUEST_CODE);
+        } else {
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 

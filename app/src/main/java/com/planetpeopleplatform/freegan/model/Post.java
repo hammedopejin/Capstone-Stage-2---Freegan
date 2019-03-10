@@ -16,7 +16,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPROFILEIMAGEURL;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERNAME;
 
 
-public class Post implements Parcelable{
+public class Post implements Parcelable {
 
     private String description;
     private ArrayList<String> imageUrl = new ArrayList<>();
@@ -39,8 +39,8 @@ public class Post implements Parcelable{
         this.postId = (String) postData.get(kPOSTID);
     }
 
-    public Post (String postId, String postUserObjectId,
-                 String description, ArrayList<String> imageUrl, String profileImgUrl, String userName, String postDate) {
+    public Post(String postId, String postUserObjectId,
+                String description, ArrayList<String> imageUrl, String profileImgUrl, String userName, String postDate) {
         this.postId = postId;
         this.postUserObjectId = postUserObjectId;
         this.description = description;
@@ -73,49 +73,58 @@ public class Post implements Parcelable{
         }
     };
 
-    public String getPostId () { return this.postId; }
+    public String getPostId() {
+        return this.postId;
+    }
+
     public void setPostId(String postId) {
         this.postId = postId;
     }
 
-    public String getPostUserObjectId () {
+    public String getPostUserObjectId() {
         return this.postUserObjectId;
     }
-    public void setPostUserObjectId (String postUserObjectId){
+
+    public void setPostUserObjectId(String postUserObjectId) {
         this.postUserObjectId = postUserObjectId;
     }
 
-    public String getDescription () {
+    public String getDescription() {
         return this.description;
     }
-    public void setDescription (String description){
+
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public ArrayList<String> getImageUrl () {
+    public ArrayList<String> getImageUrl() {
         return this.imageUrl;
     }
-    public void setImageUrl (ArrayList<String> imageUrl){
+
+    public void setImageUrl(ArrayList<String> imageUrl) {
         this.imageUrl = imageUrl;
     }
 
-    public String getProfileImgUrl () {
+    public String getProfileImgUrl() {
         return this.profileImgUrl;
     }
-    public void setProfileImgUrl (String profileImgUrl){
+
+    public void setProfileImgUrl(String profileImgUrl) {
         this.profileImgUrl = profileImgUrl;
     }
 
-    public String getUserName () {
+    public String getUserName() {
         return userName;
     }
-    public void setUserName (String userName){
+
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
     public String getPostDate() {
         return this.postDate;
     }
+
     public void setPostDate(String postDate) {
         this.postDate = postDate;
     }

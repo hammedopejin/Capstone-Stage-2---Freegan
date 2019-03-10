@@ -23,7 +23,7 @@ public class Message implements Parcelable {
 
     public Message(String message, String date, String messageId, String senderId, String receiverId,
                    String chatRoomId, String senderName, String status, String type,
-                   String postId){
+                   String postId) {
         this.message = message;
         this.messageId = messageId;
         this.senderId = senderId;

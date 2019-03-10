@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,39 +9,39 @@
 
     <TextView
         android:id="@+id/text_message_body"
-        tools:text="hello, hello!"
-        android:background="@drawable/message_sent_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/pad_8dp"
+        android:layout_marginRight="@dimen/pad_8dp"
+        android:background="@drawable/message_sent_box"
         android:maxWidth="240dp"
         android:padding="@dimen/pad_8dp"
         android:textColor="#ffffff"
         android:textSize="@dimen/txt_16sp"
-        android:layout_marginRight="@dimen/pad_8dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginEnd="@dimen/pad_8dp" />
+        tools:text="hello, hello!" />
 
     <TextView
         android:id="@+id/text_message_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/txt_10sp"
+        android:layout_marginEnd="@dimen/pad_4dp"
         android:layout_marginRight="@dimen/pad_4dp"
+        android:textSize="@dimen/txt_10sp"
         app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
-        app:layout_constraintRight_toLeftOf="@+id/text_message_body"
-        android:layout_marginEnd="@dimen/pad_4dp" />
+        app:layout_constraintRight_toLeftOf="@+id/text_message_body" />
 
     <ImageView
         android:id="@+id/text_message_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
-        app:layout_constraintTop_toBottomOf="@+id/text_message_body"
-        app:layout_constraintRight_toRightOf="@+id/text_message_body"
-        android:paddingTop="@dimen/pad_8dp"
-        android:layout_marginRight="@dimen/pad_4dp"
         android:layout_marginEnd="@dimen/pad_4dp"
-        android:contentDescription="@string/message_status_image_description" />
+        android:layout_marginRight="@dimen/pad_4dp"
+        android:contentDescription="@string/message_status_image_description"
+        android:paddingTop="@dimen/pad_8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/text_message_body"
+        app:layout_constraintRight_toRightOf="@+id/text_message_body"
+        app:layout_constraintTop_toBottomOf="@+id/text_message_body" />
 
 </android.support.constraint.ConstraintLayout>

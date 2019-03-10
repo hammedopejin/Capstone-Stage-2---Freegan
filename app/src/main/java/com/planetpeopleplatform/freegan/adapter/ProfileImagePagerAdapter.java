@@ -18,14 +18,14 @@ public class ProfileImagePagerAdapter extends FragmentStatePagerAdapter {
     public ProfileImagePagerAdapter(Fragment fragment, ArrayList<Post> listPosts, User poster, User currentUser) {
         // Note: Initialize with the child fragment manager.
         super(fragment.getChildFragmentManager());
-        this.listPosts =  listPosts;
+        this.listPosts = listPosts;
         this.mPoster = poster;
         this.mCurrentUser = currentUser;
     }
 
     @Override
     public int getCount() {
-        if (listPosts == null){
+        if (listPosts == null) {
             return 0;
         }
         return listPosts.size();

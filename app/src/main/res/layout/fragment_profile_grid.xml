@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/fragment_container">
+    android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar_container"
@@ -25,24 +24,24 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:background="@color/transparent"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profile_image_view"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/profile_image_height"
-                    android:layout_marginBottom="@dimen/general_layout_margin"
-                    android:layout_marginEnd="@dimen/general_layout_margin"
-                    android:layout_marginLeft="@dimen/general_layout_margin"
-                    android:layout_marginRight="@dimen/general_layout_margin"
                     android:layout_marginStart="@dimen/general_layout_margin"
+                    android:layout_marginLeft="@dimen/general_layout_margin"
                     android:layout_marginTop="@dimen/general_layout_margin"
-                    android:padding="@dimen/pad_40dp"
+                    android:layout_marginEnd="@dimen/general_layout_margin"
+                    android:layout_marginRight="@dimen/general_layout_margin"
+                    android:layout_marginBottom="@dimen/general_layout_margin"
                     android:background="@color/transparent"
                     android:contentDescription="@string/user_display_picture"
                     android:fitsSystemWindows="true"
+                    android:padding="@dimen/pad_40dp"
                     app:layout_collapseMode="parallax"
                     app:layout_collapseParallaxMultiplier="0.5"
                     app:srcCompat="@drawable/ic_account_circle_black_24dp" />
@@ -64,42 +63,41 @@
                     android:layout_width="?android:attr/actionBarSize"
                     android:layout_height="match_parent"
                     android:background="@color/transparent"
-                    android:src="@drawable/back_arrow"
-                    android:contentDescription="@string/back_arrow_description_string" />
+                    android:contentDescription="@string/back_arrow_description_string"
+                    android:src="@drawable/back_arrow" />
 
                 <ImageButton
                     android:id="@+id/settings"
                     android:layout_width="?android:attr/actionBarSize"
                     android:layout_height="match_parent"
-                    android:background="@color/transparent"
                     android:layout_gravity="end"
-                    app:srcCompat="@drawable/ic_settings_white_24dp"
-                    android:paddingEnd="@dimen/general_padding"
+                    android:background="@color/transparent"
+                    android:contentDescription="@string/settings_option_image_button_string"
                     android:paddingStart="@dimen/general_padding"
-                    android:contentDescription="@string/settings_option_image_button_string" />
+                    android:paddingEnd="@dimen/general_padding"
+                    app:srcCompat="@drawable/ic_settings_white_24dp" />
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/recycler_view"
-        android:scrollbarStyle="outsideOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="@dimen/list_side_margin"
-        android:paddingEnd="@dimen/list_side_margin"
-        android:fitsSystemWindows="true"
         android:clipToPadding="false"
+        android:fitsSystemWindows="true"
+        android:paddingStart="@dimen/list_side_margin"
         android:paddingLeft="@dimen/list_side_margin"
+        android:paddingEnd="@dimen/list_side_margin"
         android:paddingRight="@dimen/list_side_margin"
+        android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
-        app:spanCount="@integer/grid_span_count"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:spanCount="@integer/grid_span_count" />
 
     <!-- A progress bar that will be shown to users to indicate that profile data is loading -->
     <ProgressBar

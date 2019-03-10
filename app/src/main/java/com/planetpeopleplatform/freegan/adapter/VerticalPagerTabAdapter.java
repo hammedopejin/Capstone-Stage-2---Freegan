@@ -18,7 +18,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
 
     private int currentSelected = 0;
 
-    public VerticalPagerTabAdapter(Post data,  ListView listView, OnItemClickListener listener){
+    public VerticalPagerTabAdapter(Post data, ListView listView, OnItemClickListener listener) {
         this.mPost = data;
         this.mListView = listView;
         this.mListener = listener;
@@ -28,10 +28,10 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
 
     @Override
     public int getCount() {
-        if (mPost == null){
+        if (mPost == null) {
             return 0;
         }
-        if(mPost.getImageUrl().size() > 1) {
+        if (mPost.getImageUrl().size() > 1) {
             return mPost.getImageUrl().size();
         }
         return 0;
@@ -39,7 +39,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
 
     @Override
     public Object getItem(int i) {
-        if (mPost == null){
+        if (mPost == null) {
             return null;
         }
         return mPost.getImageUrl().get(i);
@@ -55,16 +55,16 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
         // Currently not using viewHolder pattern cause there aren't too many tabs yet.
 
 
-        if(view == null){
+        if (view == null) {
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_tab, viewGroup, false);
         }
 
         ImageView tabTitle = view.findViewById(R.id.image_tab_icon);
 
-        if(i == currentSelected){
+        if (i == currentSelected) {
             // change the appearance
             tabTitle.setImageResource((R.drawable.ic_brightness_1_custom_red_24dp));
-        }else{
+        } else {
             // change the appearance
             tabTitle.setImageResource((R.drawable.ic_brightness_1_dark_gray_24dp));
         }
@@ -77,13 +77,13 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
      * Return item view at the given position or null if position is not visible.
      */
     private View getViewByPosition(int pos) {
-        if(mListView == null){
-            return  null;
+        if (mListView == null) {
+            return null;
         }
         final int firstListItemPosition = mListView.getFirstVisiblePosition();
         final int lastListItemPosition = firstListItemPosition + mListView.getChildCount() - 1;
 
-        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+        if (pos < firstListItemPosition || pos > lastListItemPosition) {
             return null;
         } else {
             final int childIndex = pos - firstListItemPosition;
@@ -92,18 +92,18 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
     }
 
 
-    private void select(int position){
-        if(currentSelected >= 0){
+    private void select(int position) {
+        if (currentSelected >= 0) {
             deselect(currentSelected);
         }
 
         View targetView = getViewByPosition(position);
-        if(targetView != null) {
+        if (targetView != null) {
             // change the appearance
-            ((ImageView)(targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_custom_red_24dp));
+            ((ImageView) (targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_custom_red_24dp));
         }
 
-        if(mListener != null){
+        if (mListener != null) {
             mListener.selectItem(position);
         }
 
@@ -112,11 +112,11 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
     }
 
     private void deselect(int position) {
-        if(getViewByPosition(position) != null){
+        if (getViewByPosition(position) != null) {
             View targetView = getViewByPosition(position);
-            if(targetView != null) {
+            if (targetView != null) {
                 // change the appearance
-                ((ImageView)(targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_dark_gray_24dp));
+                ((ImageView) (targetView.findViewById(R.id.image_tab_icon))).setImageResource((R.drawable.ic_brightness_1_dark_gray_24dp));
 
             }
         }
@@ -130,7 +130,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
         select(i);
     }
 
-    public void OnItemClickListener(VerticalPagerTabAdapter.OnItemClickListener listener){
+    public void OnItemClickListener(VerticalPagerTabAdapter.OnItemClickListener listener) {
         this.mListener = listener;
     }
 
@@ -138,7 +138,7 @@ public class VerticalPagerTabAdapter extends BaseAdapter implements AdapterView.
         select(i);
     }
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void selectItem(int position);
     }
 }

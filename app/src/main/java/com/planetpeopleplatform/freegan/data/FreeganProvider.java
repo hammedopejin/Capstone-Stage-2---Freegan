@@ -86,7 +86,6 @@ public class FreeganProvider extends ContentProvider {
     }
 
 
-
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues contentValues) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -147,7 +146,7 @@ public class FreeganProvider extends ContentProvider {
         int rowsUpdated;
 
         final int match = sUriMatcher.match(uri);
-        if (contentValues == null){
+        if (contentValues == null) {
             throw new IllegalArgumentException(CANNOT_HAVE_NULL);
         }
 
@@ -187,17 +186,17 @@ public class FreeganProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : contentValues) {
-                        if (value == null){
+                        if (value == null) {
                             throw new IllegalArgumentException(CANNOT_HAVE_NULL);
                         }
                         long id = -1;
-                             id = db.insertWithOnConflict(FreeganContract.FreegansEntry.TABLE_NAME,
-                                    null, value, SQLiteDatabase.CONFLICT_REPLACE);
+                        id = db.insertWithOnConflict(FreeganContract.FreegansEntry.TABLE_NAME,
+                                null, value, SQLiteDatabase.CONFLICT_REPLACE);
                         if (id != -1) {
                             returnCount++;
                         }
                     }
-                    if(returnCount > 0){
+                    if (returnCount > 0) {
                         // If no errors, declare a successful transaction.
                         // database will not populate if this is not called
                         db.setTransactionSuccessful();
@@ -205,7 +204,7 @@ public class FreeganProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                if(returnCount > 0){
+                if (returnCount > 0) {
                     // if there was successful insertion, notify the content resolver that there
                     // was a change
                     getContext().getContentResolver().notifyChange(uri, null);

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/coordinator_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.planetpeopleplatform.freegan.activity.PostActivity">
@@ -11,8 +11,8 @@
         android:id="@+id/item_photo_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:contentDescription="@string/new_freegan_to_post_image_string" />
+        android:contentDescription="@string/new_freegan_to_post_image_string"
+        android:scaleType="fitXY" />
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -23,11 +23,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="@dimen/general_layout_margin"
-            android:layout_marginLeft="@dimen/general_layout_margin"
-            android:layout_marginRight="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
+            android:layout_marginLeft="@dimen/general_layout_margin"
             android:layout_marginTop="@dimen/post_activity_edit_text_margin_top"
+            android:layout_marginEnd="@dimen/general_layout_margin"
+            android:layout_marginRight="@dimen/general_layout_margin"
             android:hint="@string/enter_item_description"
             android:inputType="textLongMessage"
             android:textColor="@color/white"
@@ -39,15 +39,15 @@
             android:id="@+id/item_post_button"
             android:layout_width="@dimen/button_width"
             android:layout_height="@dimen/button_height"
-            android:layout_marginEnd="@dimen/general_layout_margin"
-            android:layout_marginLeft="@dimen/general_layout_margin"
-            android:layout_marginRight="@dimen/general_layout_margin"
             android:layout_marginStart="@dimen/general_layout_margin"
+            android:layout_marginLeft="@dimen/general_layout_margin"
             android:layout_marginTop="@dimen/general_layout_margin"
+            android:layout_marginEnd="@dimen/general_layout_margin"
+            android:layout_marginRight="@dimen/general_layout_margin"
             android:background="@drawable/round_corner_button"
+            android:contentDescription="@string/post_button_string"
             android:text="@string/post_string"
             android:textColor="@color/white"
-            android:contentDescription="@string/post_button_string"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/item_description_edit_text" />

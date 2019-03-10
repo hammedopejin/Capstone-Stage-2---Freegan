@@ -155,8 +155,8 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
         final SharedPreferences sharedPref = getActivity().getApplicationContext().getSharedPreferences(
                 getString(R.string.com_planetpeopleplatform_freegan_preference_favorite_file_key), MODE_PRIVATE);
 
-        final boolean[] mIsFavorited = { sharedPref.getBoolean(mPost.getPostId(), false) };
-        if (mIsFavorited[0]){
+        final boolean[] mIsFavorited = {sharedPref.getBoolean(mPost.getPostId(), false)};
+        if (mIsFavorited[0]) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_on));
             } else {
@@ -168,7 +168,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
             @Override
             public void onClick(View view) {
-                if (mIsFavorited[0]){
+                if (mIsFavorited[0]) {
                     Uri uri = FreeganContract.FreegansEntry.buildFreeganUriWithFreeganId(mPost.getPostId());
                     deleteData(uri);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -180,7 +180,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putBoolean(mPost.getPostId(), mIsFavorited[0]);
                     editor.apply();
-                }else {
+                } else {
                     insertData();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_on));
@@ -206,7 +206,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
+                        if (dataSnapshot.exists()) {
                             User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
                             if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
 
@@ -256,7 +256,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == MESSAGE_ACTIVITY || requestCode == RC_PROFILE_ACTIVITY){
+        if (requestCode == MESSAGE_ACTIVITY || requestCode == RC_PROFILE_ACTIVITY) {
             getActivity().recreate();
         }
     }
@@ -268,7 +268,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
         mToolbarContainer.setVisibility(View.INVISIBLE);
     }
 
-    private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId){
+    private void loadUserProfilePicture(final View view, final Fragment fragment, String posterId) {
         firebase.child(kUSER).child(posterId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -295,7 +295,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
                             .into(mPosterImageButton);
 
 
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
                             Snackbar.LENGTH_SHORT).show();
                 }
@@ -314,7 +314,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     mCurrentUser = new User((HashMap<String, Object>) dataSnapshot.getValue());
                 }
             }
@@ -328,7 +328,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     }
 
     // insert data into database
-    private void insertData(){
+    private void insertData() {
         ContentValues postValues = new ContentValues();
 
         postValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION, mPost.getDescription());
@@ -353,7 +353,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
     }
 
     // delete data from database
-    private void deleteData(Uri uri){
+    private void deleteData(Uri uri) {
         getActivity().getApplicationContext().getContentResolver().delete(uri,
                 null, null);
     }
@@ -370,7 +370,7 @@ public class MainChildImagePagerFragment extends Fragment implements VerticalPag
 
     @Override
     public void onPageSelected(int position) {
-        if(mTabAdapter != null){
+        if (mTabAdapter != null) {
             mTabAdapter.setCurrentSelected(position);
         }
     }

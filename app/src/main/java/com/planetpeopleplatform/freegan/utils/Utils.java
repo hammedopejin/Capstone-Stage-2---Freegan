@@ -62,7 +62,7 @@ public class Utils {
     private static final String SCHEME_CONTENT = "content";
     private static final String TAG = Utils.class.getSimpleName();
     public final static String DF_SIMPLE_STRING_WITH_DETAILS = "yyyy-MM-dd hh:mm:ss a";
-    public final static String DF_SIMPLE_STRING= "yyyyMMdd_HHmmss";
+    public final static String DF_SIMPLE_STRING = "yyyyMMdd_HHmmss";
 
     public static String startChat(User user1, User user2, String postId) {
 
@@ -81,8 +81,8 @@ public class Utils {
 
         List<String> members = listOf(userId1, userId2);
 
-        createRecent( userId1,  chatRoomId,  members,  userId2,  user2.getUserName(), postId,  kPRIVATE);
-        createRecent( userId2,  chatRoomId,  members,  userId1,  user1.getUserName(), postId,  kPRIVATE);
+        createRecent(userId1, chatRoomId, members, userId2, user2.getUserName(), postId, kPRIVATE);
+        createRecent(userId2, chatRoomId, members, userId1, user1.getUserName(), postId, kPRIVATE);
 
 
         return chatRoomId;
@@ -92,7 +92,7 @@ public class Utils {
 
         HashMap<String, Object> values = new HashMap<String, Object>();
         values.put(kSTATUS, Message.STATUS_READ);
-        firebase.child(kMESSAGE).child(chatRoomId).child(((String)message.get(kMESSAGEID))).updateChildren(values);
+        firebase.child(kMESSAGE).child(chatRoomId).child(((String) message.get(kMESSAGEID))).updateChildren(values);
 
     }
 
@@ -102,43 +102,43 @@ public class Utils {
 
         firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo(chatRoomId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                Boolean create = true;
+                        Boolean create = true;
 
-                if (dataSnapshot.exists()) {
-                    for (Object recent : ( (HashMap<String, Object>) dataSnapshot.getValue()).values() ){
-                        HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
-                        if (currentRecent.get(kUSERID).equals(userId)){
-                            create = false;
+                        if (dataSnapshot.exists()) {
+                            for (Object recent : ((HashMap<String, Object>) dataSnapshot.getValue()).values()) {
+                                HashMap<String, Object> currentRecent = (HashMap<String, Object>) recent;
+                                if (currentRecent.get(kUSERID).equals(userId)) {
+                                    create = false;
+                                }
+
+                                firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo((String) currentRecent.get(kCHATROOMID))
+                                        .addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
+                            }
                         }
+                        if (create && !(userId.equals(withUserUserId))) {
 
-                        firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo((String)currentRecent.get(kCHATROOMID))
-                                .addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                    }
-                                });
+                            createRecentItem(userId, chatRoomId, members, withUserUserId, withUserUsername, postId, type);
+                        }
                     }
-                }
-                if (create && !(userId.equals(withUserUserId))) {
 
-                    createRecentItem(userId, chatRoomId, members, withUserUserId, withUserUsername, postId, type);
-                }
-            }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+                    }
+                });
 
     }
 
@@ -167,17 +167,17 @@ public class Utils {
         reference.setValue(recent);
     }
 
-    public static class DateHelper{
+    public static class DateHelper {
         public static ThreadLocal<DateFormat> DF_SIMPLE_FORMAT = new ThreadLocal<DateFormat>() {
             @Override
-            protected DateFormat initialValue()  {
+            protected DateFormat initialValue() {
                 return new SimpleDateFormat(DF_SIMPLE_STRING_WITH_DETAILS, Locale.US);
             }
         };
     }
 
 
-    public static void updateRecents(String chatRoomId, final String lastMessage){
+    public static void updateRecents(String chatRoomId, final String lastMessage) {
 
         firebase.child(kRECENT).orderByChild(kCHATROOMID).equalTo(chatRoomId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -185,9 +185,9 @@ public class Utils {
 
                 if (dataSnapshot.exists()) {
 
-                    for (Object recent : (((HashMap<String, Object>)dataSnapshot.getValue()).values())) {
+                    for (Object recent : (((HashMap<String, Object>) dataSnapshot.getValue()).values())) {
 
-                        updateRecentItem((HashMap<String, Object>)recent, lastMessage);
+                        updateRecentItem((HashMap<String, Object>) recent, lastMessage);
                     }
                 }
             }
@@ -219,7 +219,6 @@ public class Utils {
         firebase.child(kRECENT).child(((String) recent.get(kRECENTID))).updateChildren(newRecent);
 
     }
-
 
 
     public static void clearRecentCounter(String chatRoomID) {
@@ -400,23 +399,23 @@ public class Utils {
     }
 
     public static String SplitString(String email) {
-        String[] split= email.split("@");
+        String[] split = email.split("@");
         return split[0];
     }
 
-    public static File getOutputMediaFile(Context context){
+    public static File getOutputMediaFile(Context context) {
         File mediaStorageDir = new File(context.getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES), context.getString(R.string.app_name));
 
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
                 return null;
             }
         }
 
         String timeStamp = new SimpleDateFormat(DF_SIMPLE_STRING).format(new Date());
         return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
+                "IMG_" + timeStamp + ".jpg");
     }
 
     public static void closeOnError(CoordinatorLayout coordinatorLayout, Activity activity) {

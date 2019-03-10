@@ -56,7 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         mUserNameEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(18)});
         mEmailEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
-        mAuth= FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
     }
 
 
@@ -65,19 +65,19 @@ public class RegisterActivity extends AppCompatActivity {
         super.onStart();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser!=null) {
+        if (currentUser != null) {
             Intent intent = new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivityForResult(intent, RC_REGISTER);
         }
     }
 
 
-    private void createUserInFireBase(String email, String password){
+    private void createUserInFireBase(String email, String password) {
 
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     saveUserAndLogIn();
                 } else {
                     Snackbar.make(mCoordinatorLayout,
@@ -102,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_REGISTER){
+        if (requestCode == RC_REGISTER) {
             if (resultCode == RESULT_CANCELED) {
                 finish();
             }
@@ -124,15 +124,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
 
-
     public void registerButtonTapped(View view) {
-        if (mUserNameEditText.getText() == null || mEmailEditText.getText() == null || mPasswordEditText.getText() == null){
+        if (mUserNameEditText.getText() == null || mEmailEditText.getText() == null || mPasswordEditText.getText() == null) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_all_text_field_must_be_entered_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
         if (!(mUserNameEditText.getText().toString().length() > 0) || !(mEmailEditText.getText().toString().length() > 0)
-                || !(mPasswordEditText.getText().toString().length() > 0)){
+                || !(mPasswordEditText.getText().toString().length() > 0)) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_all_text_field_must_be_entered_string, Snackbar.LENGTH_SHORT).show();
             return;
@@ -143,7 +142,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void goToLogin(View view) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivityForResult(intent, RC_REGISTER);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, RC_REGISTER);
     }
 }

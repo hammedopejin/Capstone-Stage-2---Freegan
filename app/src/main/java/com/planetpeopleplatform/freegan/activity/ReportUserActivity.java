@@ -93,7 +93,7 @@ public class ReportUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String description = mReportDescriptionEditText.getText().toString();
-                if(description.equals("")){
+                if (description.equals("")) {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.alert_reason_for_report_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
@@ -124,14 +124,14 @@ public class ReportUserActivity extends AppCompatActivity {
     private void postToFirebase() {
         showLoading();
         final SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-        final Date dataobj= new Date();
+        final Date dataobj = new Date();
 
         DatabaseReference reference = firebase.child(kREPORTMESSAGE).push();
         String messageId = reference.getKey();
 
         HashMap<String, Object> message = new HashMap<String, Object>();
 
-        message.put(kMESSAGE, mReportDescriptionEditText.getText().toString() );
+        message.put(kMESSAGE, mReportDescriptionEditText.getText().toString());
         message.put(kMESSAGEID, messageId);
         message.put(kSENDERID, mCurrentUser.getObjectId());
         message.put(kSENDERNAME, mCurrentUser.getUserName());
@@ -145,31 +145,31 @@ public class ReportUserActivity extends AppCompatActivity {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
 
         reference.setValue(message).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
-                        Snackbar.make(mCoordinatorLayout,
-                                R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        Snackbar.make(mCoordinatorLayout,
-                                R.string.err_message_sending_failed_string, Snackbar.LENGTH_SHORT).show();
-                    }
-                    task.addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            finish();
-                        }
-                    });
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.err_message_sending_failed_string, Snackbar.LENGTH_SHORT).show();
                 }
-            });
+                task.addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        finish();
+                    }
+                });
+            }
+        });
     }
 
     private void showLoading() {
-            /* Then, hide the data */
-            mReportDescriptionEditText.setVisibility(View.INVISIBLE);
-            mReportUserButton.setVisibility(View.INVISIBLE);
-            /* Finally, show the loading indicator */
-            mLoadingIndicator.setVisibility(View.VISIBLE);
+        /* Then, hide the data */
+        mReportDescriptionEditText.setVisibility(View.INVISIBLE);
+        mReportUserButton.setVisibility(View.INVISIBLE);
+        /* Finally, show the loading indicator */
+        mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 }
 

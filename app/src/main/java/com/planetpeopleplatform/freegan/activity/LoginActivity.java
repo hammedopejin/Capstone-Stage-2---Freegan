@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mEmailEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
-        mAuth= FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
     }
 
 
@@ -62,15 +62,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void loadFreegans(){
+    private void loadFreegans() {
 
-        if (mAuth == null){
+        if (mAuth == null) {
             finish();
         }
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if(currentUser!=null) {
+        if (currentUser != null) {
             loginUserAndUpdateInstanceId(currentUser.getUid());
             Intent intent = new Intent(this, MainActivity.class);
             startActivityForResult(intent, RC_SIGN_IN);
@@ -78,15 +78,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
-    private void loginToFireBase(String email, String password){
+    private void loginToFireBase(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     loadFreegans();
-                }else
-                {
+                } else {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_login_failed_string, Snackbar.LENGTH_SHORT).show();
                     showDataView();
@@ -97,12 +95,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void signInTapped(View view) {
-        if (mEmailEditText.getText() == null || mPasswordEditText.getText() == null){
+        if (mEmailEditText.getText() == null || mPasswordEditText.getText() == null) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_all_text_field_must_be_entered_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
-        if (!(mEmailEditText.getText().toString().length() > 0) || !(mPasswordEditText.getText().toString().length() > 0)){
+        if (!(mEmailEditText.getText().toString().length() > 0) || !(mPasswordEditText.getText().toString().length() > 0)) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_all_text_field_must_be_entered_string, Snackbar.LENGTH_SHORT).show();
             return;
@@ -116,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_SIGN_IN){
+        if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_CANCELED) {
                 finish();
             }

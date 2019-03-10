@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    android:id="@+id/chat_content"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent">
+    android:id="@+id/chat_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/toolbar"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-        android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
+        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
+        android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:background="@color/Primary"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <ImageView
             android:id="@+id/chat_options"
@@ -23,10 +21,10 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
-            android:padding="@dimen/pad_8dp"
-            app:srcCompat="@drawable/ic_more_vert_white_24dp"
+            android:contentDescription="@string/chat_options_image_description"
             android:focusable="true"
-            android:contentDescription="@string/chat_options_image_description" />
+            android:padding="@dimen/pad_8dp"
+            app:srcCompat="@drawable/ic_more_vert_white_24dp" />
 
         <ImageView
             android:id="@+id/post_Img"
@@ -34,38 +32,39 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
-            android:padding="@dimen/pad_8dp"
-            app:srcCompat="@drawable/ic_account_circle_black_24dp"
+            android:contentDescription="@string/post_image_description"
             android:focusable="true"
-            android:contentDescription="@string/post_image_description" />
+            android:padding="@dimen/pad_8dp"
+            app:srcCompat="@drawable/ic_account_circle_black_24dp" />
     </android.support.v7.widget.Toolbar>
 
-    <android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_marginTop="?android:attr/actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
         tools:context="com.planetpeopleplatform.freegan.activity.MessageActivity">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="@dimen/pad_chat_item"
+            app:layout_constraintBottom_toTopOf="@+id/divider"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginBottom="@dimen/pad_chat_item"
-            app:layout_constraintBottom_toTopOf="@+id/divider">
+            app:layout_constraintTop_toTopOf="parent">
+
             <TextView
                 android:id="@+id/empty_chat_message_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:gravity="center"
                 android:text="@string/empty_chat_message_text"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/reyclerview_message_list"
                 android:layout_width="match_parent"
@@ -76,16 +75,16 @@
                 tools:listitem="@layout/item_message_received" />
         </FrameLayout>
 
-    <!-- A horizontal line between the chatbox and RecyclerView -->
-    <View
-        android:id="@+id/divider"
-        android:layout_width="@dimen/pad_0dp"
-        android:layout_height="@dimen/pad_2dp"
-        android:background="#dfdfdf"
-        android:layout_marginBottom="@dimen/pad_0dp"
-        app:layout_constraintBottom_toTopOf="@+id/layout_chat_box"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        <!-- A horizontal line between the chatbox and RecyclerView -->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="@dimen/pad_0dp"
+            android:layout_height="@dimen/pad_2dp"
+            android:layout_marginBottom="@dimen/pad_0dp"
+            android:background="#dfdfdf"
+            app:layout_constraintBottom_toTopOf="@+id/layout_chat_box"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <FrameLayout
             android:id="@+id/layout_chat_box"
@@ -93,16 +92,16 @@
             android:layout_height="wrap_content"
             android:minHeight="@dimen/pad_chat_item"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent">
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
 
             <LinearLayout
                 android:id="@+id/layout_blocked_user"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:minHeight="@dimen/pad_chat_item"
                 android:background="#ffffff"
+                android:minHeight="@dimen/pad_chat_item"
+                android:orientation="horizontal"
                 android:visibility="gone">
 
                 <TextView
@@ -110,12 +109,12 @@
                     android:layout_width="@dimen/pad_0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:textAlignment="center"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:text="@string/alert_blocked_user_string" />
+                    android:text="@string/alert_blocked_user_string"
+                    android:textAlignment="center" />
 
                 <Button
                     android:id="@+id/button_chat_box_blocked"
@@ -127,9 +126,9 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:background="@drawable/ic_block_red_a400_24dp"
                     android:clickable="false"
+                    android:contentDescription="@string/blocked_user_button_string"
                     android:focusable="false"
-                    android:gravity="center"
-                    android:contentDescription="@string/blocked_user_button_string"/>
+                    android:gravity="center" />
 
             </LinearLayout>
 
@@ -137,9 +136,9 @@
                 android:id="@+id/layout_chat_user"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
+                android:background="@color/whitebackground"
                 android:minHeight="@dimen/pad_chat_item"
-                android:background="@color/whitebackground">
+                android:orientation="horizontal">
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/chat_message_edit_text"
@@ -148,20 +147,20 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="@dimen/pad_16dp"
-                    android:layout_marginRight="@dimen/pad_16dp"
                     android:layout_marginTop="@dimen/pad_8dp"
+                    android:layout_marginRight="@dimen/pad_16dp"
                     android:layout_marginBottom="@dimen/pad_8dp"
                     android:layout_weight="1"
                     android:background="@drawable/round_chat_text_input_box"
                     android:hint="@string/enter_message_here"
                     android:maxLines="6"
-                    android:textColorHint="@color/gray_light"
                     android:paddingStart="@dimen/pad_8dp"
                     android:paddingLeft="@dimen/pad_8dp"
-                    android:paddingRight="@dimen/pad_8dp"
+                    android:paddingTop="@dimen/pad_8dp"
                     android:paddingEnd="@dimen/pad_8dp"
+                    android:paddingRight="@dimen/pad_8dp"
                     android:paddingBottom="@dimen/pad_8dp"
-                    android:paddingTop="@dimen/pad_8dp"/>
+                    android:textColorHint="@color/gray_light" />
 
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/button_chat_box_send"
@@ -169,18 +168,18 @@
                     android:layout_width="@dimen/fab_layout_width"
                     android:layout_height="@dimen/fab_layout_height"
                     android:layout_gravity="bottom"
-                    app:srcCompat="@drawable/ic_send_white_24dp"
                     android:layout_marginTop="@dimen/pad_8dp"
-                    android:layout_marginBottom="@dimen/pad_8dp"
+                    android:layout_marginEnd="@dimen/pad_8dp"
                     android:layout_marginRight="@dimen/pad_8dp"
+                    android:layout_marginBottom="@dimen/pad_8dp"
                     android:clickable="true"
+                    android:contentDescription="@string/send_typed_message_string"
                     android:focusable="true"
                     android:gravity="center"
                     android:visibility="gone"
                     app:elevation="@dimen/pad_0dp"
                     app:fabSize="mini"
-                    android:contentDescription="@string/send_typed_message_string"
-                    android:layout_marginEnd="@dimen/pad_8dp" />
+                    app:srcCompat="@drawable/ic_send_white_24dp" />
             </LinearLayout>
 
         </FrameLayout>

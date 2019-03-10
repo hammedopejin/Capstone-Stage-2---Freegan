@@ -17,7 +17,7 @@ public class ProfileChildViewPagerAdaper extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        if (mPost == null){
+        if (mPost == null) {
             return 0;
         }
         return mPost.getImageUrl().size();
@@ -25,7 +25,7 @@ public class ProfileChildViewPagerAdaper extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if (mPost == null){
+        if (mPost == null) {
             return null;
         }
         return ProfileImageFragment.newInstance(mPost.getImageUrl(), position);

@@ -150,7 +150,7 @@ public class ProfileGridFragment extends Fragment {
         mSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPoster.getObjectId().equals(mCurrentUserUid)){
+                if (mPoster.getObjectId().equals(mCurrentUserUid)) {
                     Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
                     startActivity(settingsIntent);
                 } else {
@@ -255,36 +255,36 @@ public class ProfileGridFragment extends Fragment {
     }
 
 
-    private void loadPosts(){
+    private void loadPosts() {
         showDataView();
         firebase.child(kPOST).orderByChild(kPOSTUSEROBJECTID).equalTo(mPoster.getObjectId())
                 .addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try{
-                    mListPosts.clear();
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        try {
+                            mListPosts.clear();
 
-                    HashMap<String, Object> postData= (HashMap<String, Object>) dataSnapshot.getValue();
+                            HashMap<String, Object> postData = (HashMap<String, Object>) dataSnapshot.getValue();
 
-                    if (postData != null) {
-                        for (String key : postData.keySet()){
-                            HashMap<String, Object> post = (HashMap<String, Object>) postData.get(key);
-                            mListPosts.add(new Post(post));
+                            if (postData != null) {
+                                for (String key : postData.keySet()) {
+                                    HashMap<String, Object> post = (HashMap<String, Object>) postData.get(key);
+                                    mListPosts.add(new Post(post));
+                                }
+                            }
+
+                            mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster, mCurrentUser));
+
+                        } catch (Exception e) {
+                            Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
                         }
                     }
 
-                    mRecyclerView.setAdapter(new ProfileGridAdapter(mFragment, mListPosts, mPoster, mCurrentUser));
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }catch (Exception e){
-                    Log.d(TAG, "onDataChange: " + e.getLocalizedMessage());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+                    }
+                });
 
     }
 
@@ -294,7 +294,7 @@ public class ProfileGridFragment extends Fragment {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
+                if (dataSnapshot.exists()) {
                     mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
                     PopupMenu popup = new PopupMenu(getContext(), view);
                     if (mPoster.getBlockedUsersList().contains(mCurrentUser.getObjectId())) {

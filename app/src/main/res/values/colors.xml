@@ -9,21 +9,21 @@
     <color name="Secondary">#49a797</color>
     <color name="customRed">#DD2C00</color>
 
-    <color name="blue"  >#FF33B5E5</color>
-    <color name="purple" >#FFAA66CC</color>
-    <color name="green" >#99cc00</color>
-    <color name="orange"  >#FFFFBB33</color>
-    <color name="red"  >#FFFF4444</color>
-    <color name="darkblue"  >#FF0099CC</color>
-    <color name="darkpurple"  >#FF9933CC</color>
-    <color name="darkgreen"  >#669900</color>
-    <color name="darkorange"  >#FFFF8800</color>
-    <color name="darkred"  >#FFCC0000</color>
-    <color name="customblue"  >#3b5998</color>
-    <color name="lowDarkfont"  >#5D070E07</color>
-    <color name="white" >#ffffff</color>
-    <color name="whiteback"  >#f9f9f9</color>
-    <color name="whitebackground"  >#d4d3d3</color>
+    <color name="blue">#FF33B5E5</color>
+    <color name="purple">#FFAA66CC</color>
+    <color name="green">#99cc00</color>
+    <color name="orange">#FFFFBB33</color>
+    <color name="red">#FFFF4444</color>
+    <color name="darkblue">#FF0099CC</color>
+    <color name="darkpurple">#FF9933CC</color>
+    <color name="darkgreen">#669900</color>
+    <color name="darkorange">#FFFF8800</color>
+    <color name="darkred">#FFCC0000</color>
+    <color name="customblue">#3b5998</color>
+    <color name="lowDarkfont">#5D070E07</color>
+    <color name="white">#ffffff</color>
+    <color name="whiteback">#f9f9f9</color>
+    <color name="whitebackground">#d4d3d3</color>
 
 
     <color name="white_smoke">#F7F7F7</color>

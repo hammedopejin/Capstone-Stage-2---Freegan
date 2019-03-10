@@ -9,35 +9,34 @@
         android:id="@+id/nestedViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/transparent"/>
+        android:background="@color/transparent" />
 
     <ListView
         android:id="@+id/lv_tabs"
         android:layout_width="@dimen/pad_10dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="?android:attr/actionBarSize"
         android:layout_marginStart="@dimen/pad_8dp"
         android:layout_marginLeft="@dimen/pad_8dp"
-        android:background="@drawable/scrim"/>
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:background="@drawable/scrim" />
 
-    <android.support.v7.widget.Toolbar
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/toolbar"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-        android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
+        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
+        android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:background="@drawable/scrim"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <ImageButton
             android:id="@+id/back_arrow"
             android:layout_width="?android:attr/actionBarSize"
             android:layout_height="match_parent"
-            android:src="@drawable/back_arrow"
             android:background="@color/transparent"
-            android:contentDescription="@string/back_arrow_description_string" />
+            android:contentDescription="@string/back_arrow_description_string"
+            android:src="@drawable/back_arrow" />
 
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -46,13 +45,13 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
-            android:paddingBottom="@dimen/circle_image_padding"
-            android:paddingLeft="@dimen/circle_image_padding"
-            android:paddingRight="@dimen/circle_image_padding"
+            android:focusable="true"
             android:paddingStart="@dimen/circle_image_padding"
+            android:paddingLeft="@dimen/circle_image_padding"
             android:paddingTop="@dimen/circle_image_padding"
-            app:srcCompat="@drawable/ic_account_circle_black_24dp"
-            android:focusable="true" />
+            android:paddingRight="@dimen/circle_image_padding"
+            android:paddingBottom="@dimen/circle_image_padding"
+            app:srcCompat="@drawable/ic_account_circle_black_24dp" />
 
         <ImageView
             android:id="@+id/favorite_image"
@@ -60,43 +59,43 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:clickable="true"
-            android:paddingBottom="@dimen/circle_image_padding"
-            android:paddingLeft="@dimen/circle_image_padding"
-            android:paddingRight="@dimen/circle_image_padding"
-            android:paddingStart="@dimen/circle_image_padding"
-            android:paddingTop="@dimen/circle_image_padding"
-            app:srcCompat="@android:drawable/star_big_off"
+            android:contentDescription="@string/favorite_button_description_string"
             android:focusable="true"
-            android:contentDescription="@string/favorite_button_description_string" />
+            android:paddingStart="@dimen/circle_image_padding"
+            android:paddingLeft="@dimen/circle_image_padding"
+            android:paddingTop="@dimen/circle_image_padding"
+            android:paddingRight="@dimen/circle_image_padding"
+            android:paddingBottom="@dimen/circle_image_padding"
+            app:srcCompat="@android:drawable/star_big_off" />
 
     </android.support.v7.widget.Toolbar>
 
     <TextView
         android:id="@+id/text_view"
+        style="@style/Subhead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Subhead"
         android:layout_gravity="bottom"
         android:layout_margin="@dimen/text_padding"
-        android:textSize="@dimen/detail_title_text_size"
+        android:background="@drawable/scrim"
+        android:maxLines="2"
         android:paddingLeft="@dimen/text_padding"
         android:paddingTop="@dimen/text_padding"
         android:paddingRight="@dimen/text_padding"
         android:paddingBottom="@dimen/text_padding"
-        android:maxLines="2"
-        android:background="@drawable/scrim"/>
+        android:textSize="@dimen/detail_title_text_size" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/contact_button_view"
-        android:contentDescription="@string/contact_giver_button"
-        android:layout_gravity="bottom|end"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin_bottom"
         android:layout_width="@dimen/fab_layout_width"
         android:layout_height="@dimen/fab_layout_height"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:contentDescription="@string/contact_giver_button"
         android:elevation="@dimen/fab_elevation"
-        android:src="@android:drawable/sym_action_chat"
-        android:layout_marginEnd="@dimen/fab_margin"/>
+        android:src="@android:drawable/sym_action_chat" />
 
 
 </android.support.design.widget.CoordinatorLayout>

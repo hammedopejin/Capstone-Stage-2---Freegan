@@ -22,7 +22,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kINSTANCEID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSERIMAGEURL;
 
-public class User implements Parcelable{
+public class User implements Parcelable {
 
     private static final String PLACE_HOLDER = "placeHolder";
 
@@ -40,8 +40,8 @@ public class User implements Parcelable{
     private ArrayList<String> blockedUsersList = new ArrayList<>();
 
 
-    public User (String _objectId, String _pushId, String _createdAt, String _updatedAt, String _email,
-                 String _username, String _userimgurl, String _loginMethod, Double latitude, Double longitude) {
+    public User(String _objectId, String _pushId, String _createdAt, String _updatedAt, String _email,
+                String _username, String _userimgurl, String _loginMethod, Double latitude, Double longitude) {
 
         this.objectId = _objectId;
         this.pushId = _pushId;
@@ -57,8 +57,8 @@ public class User implements Parcelable{
 
     }
 
-    public User (HashMap<String, Object> dictionary){
-        this((String) dictionary.get(Constants.kOBJECTID),(String) dictionary.get(Constants.kPUSHID),
+    public User(HashMap<String, Object> dictionary) {
+        this((String) dictionary.get(Constants.kOBJECTID), (String) dictionary.get(Constants.kPUSHID),
                 (String) dictionary.get(Constants.kCREATEDAT), (String) dictionary.get(Constants.kUPDATEDAT),
                 (String) dictionary.get(kEMAIL), (String) dictionary.get(Constants.kUSERNAME),
                 (String) dictionary.get(kUSERIMAGEURL), (String) dictionary.get(Constants.kLOGINMETHOD),
@@ -68,7 +68,7 @@ public class User implements Parcelable{
     }
 
     private static SimpleDateFormat sfd = new SimpleDateFormat("yyyy-MM-dd");
-    private static Date dataobj= new Date();
+    private static Date dataobj = new Date();
 
 
     protected User(Parcel in) {
@@ -106,21 +106,20 @@ public class User implements Parcelable{
         }
     };
 
-    public static void loginUserAndUpdateInstanceId(String objectId){
+    public static void loginUserAndUpdateInstanceId(String objectId) {
         DatabaseReference ref = Constants.firebase.child(Constants.kUSER).child(objectId);
         String token = FirebaseInstanceId.getInstance().getToken();
         ref.child(kINSTANCEID).setValue(token);
     }
 
-    public static void registerUserWith(String email, String fireUserUid, String userName)
-        {
+    public static void registerUserWith(String email, String fireUserUid, String userName) {
 
-            User fuser = new User(fireUserUid, "", sfd.format(dataobj),
-                    sfd.format(dataobj), email, userName, "", kEMAIL, 0.0, 0.0);
+        User fuser = new User(fireUserUid, "", sfd.format(dataobj),
+                sfd.format(dataobj), email, userName, "", kEMAIL, 0.0, 0.0);
 
-            fuser.saveUserInBackground(fuser);
+        fuser.saveUserInBackground(fuser);
 
-        }
+    }
 
     //Save user funcs
     private void saveUserInBackground(User fuser) {
@@ -133,51 +132,58 @@ public class User implements Parcelable{
 
     }
 
-    public String getObjectId () {
+    public String getObjectId() {
         return objectId;
     }
-    public void setObjectId (String objectId){
+
+    public void setObjectId(String objectId) {
         this.objectId = objectId;
     }
 
-    public String getPushId () {
+    public String getPushId() {
         return pushId;
     }
-    public void setPushId (String pushId){
+
+    public void setPushId(String pushId) {
         this.pushId = pushId;
     }
 
-    public String getCreatedAt () {
+    public String getCreatedAt() {
         return createdAt;
     }
-    public void setCreatedAt (String createdAt){
+
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt () {
+    public String getUpdatedAt() {
         return updatedAt;
     }
-    public void setUpdatedAt (String updatedAt){
+
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public String getEmail () {
+    public String getEmail() {
         return email;
     }
-    public void setEmail (String email){
+
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getUserName () {
+    public String getUserName() {
         return userName;
     }
-    public void setUserName (String userName){
+
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 
     public String getLoginMethod() {
         return loginMethod;
     }
+
     public void setLoginMethod(String loginMethod) {
         this.loginMethod = loginMethod;
     }
@@ -185,18 +191,23 @@ public class User implements Parcelable{
     public String getUserImgUrl() {
         return userImgUrl;
     }
-    public void setUserImgUrl(String userImgUrl) { this.userImgUrl = userImgUrl; }
+
+    public void setUserImgUrl(String userImgUrl) {
+        this.userImgUrl = userImgUrl;
+    }
 
     public String getStatus() {
         return status;
     }
-    public  void setStatus(String status) {
+
+    public void setStatus(String status) {
         this.status = status;
     }
 
     public Double getLatitude() {
         return latitude;
     }
+
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
@@ -204,6 +215,7 @@ public class User implements Parcelable{
     public Double getLongitude() {
         return longitude;
     }
+
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
@@ -217,15 +229,15 @@ public class User implements Parcelable{
     }
 
     public void addBlockedUser(String blockedUserId) {
-        if(this.blockedUsersList != null) {
+        if (this.blockedUsersList != null) {
             if (!(this.blockedUsersList.contains(blockedUserId))) {
                 this.blockedUsersList.add(blockedUserId);
             }
         }
     }
 
-    public void removeBlockedUser(String blockedUserId){
-        if(this.blockedUsersList != null) {
+    public void removeBlockedUser(String blockedUserId) {
+        if (this.blockedUsersList != null) {
             if (this.blockedUsersList.contains(blockedUserId)) {
                 this.blockedUsersList.remove(blockedUserId);
             }
@@ -233,10 +245,10 @@ public class User implements Parcelable{
     }
 
     //Set User status
-    public void put(String status, Boolean online){
-        if (online){
+    public void put(String status, Boolean online) {
+        if (online) {
             this.status = status;
-        }else{
+        } else {
             this.status = "offline";
         }
     }

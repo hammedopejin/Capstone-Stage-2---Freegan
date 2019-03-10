@@ -133,12 +133,12 @@ public class EditPostActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.edit_post_title);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mPost = savedInstanceState.getParcelable(kPOST);
             mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
 
-            if(mShowLoading){
+            if (mShowLoading) {
                 mLoadingIndicator.setVisibility(View.VISIBLE);
                 mShowLoading = true;
             }
@@ -166,15 +166,15 @@ public class EditPostActivity extends AppCompatActivity
 
         Glide.with(this).load(mPost.getImageUrl().get(0)).into(mItemPhotoFrame1);
         mPostDownloadURLs.add(0, mPost.getImageUrl().get(0));
-        if(!(mPost.getImageUrl().get(1).equals(getString(R.string.place_holder_string)))) {
+        if (!(mPost.getImageUrl().get(1).equals(getString(R.string.place_holder_string)))) {
             Glide.with(this).load(mPost.getImageUrl().get(1)).into(mItemPhotoFrame2);
             mPostDownloadURLs.add(1, mPost.getImageUrl().get(1));
         }
-        if(!(mPost.getImageUrl().get(2).equals(getString(R.string.place_holder_string)))) {
+        if (!(mPost.getImageUrl().get(2).equals(getString(R.string.place_holder_string)))) {
             Glide.with(this).load(mPost.getImageUrl().get(2)).into(mItemPhotoFrame3);
             mPostDownloadURLs.add(2, mPost.getImageUrl().get(2));
         }
-        if(!(mPost.getImageUrl().get(3).equals(getString(R.string.place_holder_string)))) {
+        if (!(mPost.getImageUrl().get(3).equals(getString(R.string.place_holder_string)))) {
             Glide.with(this).load(mPost.getImageUrl().get(3)).into(mItemPhotoFrame4);
             mPostDownloadURLs.add(3, mPost.getImageUrl().get(3));
         }
@@ -188,7 +188,7 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame1;
                 mCurrentIndex = 0;
-                if (mTempImg.getDrawable() == null){
+                if (mTempImg.getDrawable() == null) {
                     editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
                     if (mPost.getImageUrl().size() > 1) {
@@ -206,11 +206,11 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame2;
                 mCurrentIndex = 1;
-                if (mTempImg.getDrawable() == null){
+                if (mTempImg.getDrawable() == null) {
                     editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
                 } else {
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                    editPostPicture(String.valueOf(1), FLAG_DELETE );
+                    editPostPicture(String.valueOf(1), FLAG_DELETE);
                 }
             }
         });
@@ -220,11 +220,11 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame3;
                 mCurrentIndex = 2;
-                if (mTempImg.getDrawable() == null){
-                    editPostPicture(String.valueOf(2),  FLAG_NEW_PIC);
+                if (mTempImg.getDrawable() == null) {
+                    editPostPicture(String.valueOf(2), FLAG_NEW_PIC);
                 } else {
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                    editPostPicture(String.valueOf(2), FLAG_DELETE );
+                    editPostPicture(String.valueOf(2), FLAG_DELETE);
                 }
             }
         });
@@ -234,11 +234,11 @@ public class EditPostActivity extends AppCompatActivity
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame4;
                 mCurrentIndex = 3;
-                if (mTempImg.getDrawable() == null){
+                if (mTempImg.getDrawable() == null) {
                     editPostPicture(String.valueOf(3), FLAG_NEW_PIC);
                 } else {
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                    editPostPicture(String.valueOf(3), FLAG_DELETE );
+                    editPostPicture(String.valueOf(3), FLAG_DELETE);
                 }
             }
         });
@@ -247,7 +247,7 @@ public class EditPostActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 String description = mItemDescriptionEditText.getText().toString();
-                if(description.equals("")){
+                if (description.equals("")) {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_description_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
@@ -269,17 +269,17 @@ public class EditPostActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
+        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data != null && resultCode == RESULT_OK) {
 
             mSelectedImageUri = data.getData();
 
             try {
                 mDestFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
-            } catch (NullPointerException ex){
+            } catch (NullPointerException ex) {
                 try {
                     mDestFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
@@ -316,7 +316,7 @@ public class EditPostActivity extends AppCompatActivity
             mTempImg.setBackgroundResource(R.color.transparent);
             mTempImg.setEnabled(false);
 
-        }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
+        } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE && resultCode == RESULT_OK) {
 
             try {
                 File compressedImageFile = new Compressor(this).compressToFile(mDestFile);
@@ -353,11 +353,11 @@ public class EditPostActivity extends AppCompatActivity
 
     @Override
     public void onComplete(int source) {
-        if (source == 1){
+        if (source == 1) {
             takeCameraPicture();
-        } else if (source == 2){
+        } else if (source == 2) {
             captureGalleryImage();
-        } else if (source == 3){
+        } else if (source == 3) {
             mTempImg.setBackground(getResources().getDrawable(R.color.cardview_dark_background));
             mTempImg.setImageDrawable(null);
         }
@@ -383,10 +383,10 @@ public class EditPostActivity extends AppCompatActivity
                 permissions, grantResults);
 
         switch (requestCode) {
-            case CAMERA_PERMISSION_REQUEST_CODE : {
+            case CAMERA_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0 &&
                         ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     mDestFile = getOutputMediaFile(this);
                     if (mDestFile != null) {
@@ -426,14 +426,14 @@ public class EditPostActivity extends AppCompatActivity
         }
     }
 
-    private void takeCameraPicture(){
+    private void takeCameraPicture() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ) {
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
-        }else {
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_PERMISSION_REQUEST_CODE);
+        } else {
 
             mDestFile = getOutputMediaFile(this);
             if (mDestFile != null) {
@@ -452,12 +452,12 @@ public class EditPostActivity extends AppCompatActivity
         }
     }
 
-    private void captureGalleryImage(){
+    private void captureGalleryImage() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ) {
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE }, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
         } else {
 
             Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
@@ -484,37 +484,37 @@ public class EditPostActivity extends AppCompatActivity
 
                 mImageRef.add(storageRef.child("post_pics/" + imagePath));
 
-                    // Upload file to Firebase Storage
+                // Upload file to Firebase Storage
                 final int finalI = i;
                 mImageRef.get(finalI).putFile(mSelectedImageUris.get(finalI))
-                            .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                        @Override
-                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                            if (!task.isSuccessful()) {
-                                throw task.getException();
+                        .continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+                                return mImageRef.get(finalI).getDownloadUrl();
                             }
-                            return mImageRef.get(finalI).getDownloadUrl();
-                        }
-                    })
+                        })
 
                         .addOnCompleteListener(new OnCompleteListener<Uri>() {
 
-                        @Override
-                        public void onComplete(@NonNull Task<Uri> task) {
-                            if (task.isSuccessful()) {
-                                mPostDownloadURLs.add(task.getResult().toString());
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                if (task.isSuccessful()) {
+                                    mPostDownloadURLs.add(task.getResult().toString());
 
-                                if (finalI == (mSelectedImageUris.size() - 1)) {
-                                    postIt();
+                                    if (finalI == (mSelectedImageUris.size() - 1)) {
+                                        postIt();
+                                    }
+                                } else {
+                                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                                    mShowLoading = false;
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
                                 }
-                            } else {
-                                mLoadingIndicator.setVisibility(View.INVISIBLE);
-                                mShowLoading = false;
-                                Snackbar.make(mCoordinatorLayout,
-                                        R.string.err_post_upload_fail_string, Snackbar.LENGTH_SHORT).show();
                             }
-                        }
-                    });
+                        });
 
             }
 
@@ -524,7 +524,7 @@ public class EditPostActivity extends AppCompatActivity
 
     }
 
-    private void postIt(){
+    private void postIt() {
 
         mPostDownloadURLs.removeAll(mToDeletePostDownloadURLs);
 
@@ -540,7 +540,7 @@ public class EditPostActivity extends AppCompatActivity
         mSelectedImageUris.clear();
         mImageRef.clear();
 
-        for (int i = 0; i < mToDeletePostDownloadURLs.size(); i ++){
+        for (int i = 0; i < mToDeletePostDownloadURLs.size(); i++) {
             StorageReference toDelete = storage.getReferenceFromUrl((String) mToDeletePostDownloadURLs.get(i));
             toDelete.delete();
         }
@@ -550,7 +550,7 @@ public class EditPostActivity extends AppCompatActivity
         DatabaseReference imagesReference = firebase.child(kPOST).child(mPost.getPostId()).child(kIMAGEURL);
         HashMap<String, Object> post = new HashMap<String, Object>();
 
-        post.put(kDESCRIPTION, mItemDescriptionEditText.getText().toString() );
+        post.put(kDESCRIPTION, mItemDescriptionEditText.getText().toString());
         post.put(kPOSTDATE, sfd.format(new Date()));
 
         reference.updateChildren(post);

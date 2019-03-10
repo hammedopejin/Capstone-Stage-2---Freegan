@@ -60,7 +60,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 import static com.planetpeopleplatform.freegan.utils.Utils.closeOnError;
 
 public class ProfileChildImagePagerFragment extends Fragment implements VerticalPagerTabAdapter.OnItemClickListener,
-        ViewPager.OnPageChangeListener  {
+        ViewPager.OnPageChangeListener {
 
     private static final int EDIT_POST_REQUEST_CODE = 123;
     private static final int REPORT_USER_REQUEST_CODE = 234;
@@ -172,8 +172,8 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
         final SharedPreferences sharedPref = getActivity().getApplicationContext().getSharedPreferences(
                 getString(R.string.com_planetpeopleplatform_freegan_preference_favorite_file_key), MODE_PRIVATE);
 
-        final boolean[] mIsFavorited = { sharedPref.getBoolean(mPost.getPostId(), false) };
-        if (mIsFavorited[0]){
+        final boolean[] mIsFavorited = {sharedPref.getBoolean(mPost.getPostId(), false)};
+        if (mIsFavorited[0]) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_on));
             } else {
@@ -185,7 +185,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
 
             @Override
             public void onClick(View view) {
-                if (mIsFavorited[0]){
+                if (mIsFavorited[0]) {
                     Uri uri = FreeganContract.FreegansEntry.buildFreeganUriWithFreeganId(mPost.getPostId());
                     deleteData(uri);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -197,7 +197,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putBoolean(mPost.getPostId(), mIsFavorited[0]);
                     editor.apply();
-                }else {
+                } else {
                     insertData();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         mFavoriteImageButton.setImageDrawable(getActivity().getDrawable(android.R.drawable.star_big_on));
@@ -223,7 +223,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
+                        if (dataSnapshot.exists()) {
                             User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
                             if (!(chatMate.getObjectId().equals(mCurrentUserUid))) {
 
@@ -263,12 +263,12 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
             startActivity(intent);
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_post_update_successful, Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == REPORT_USER_REQUEST_CODE  && resultCode == RESULT_OK) {
+        } else if (requestCode == REPORT_USER_REQUEST_CODE && resultCode == RESULT_OK) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_message_sent_successfully, Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == SHARE_POST  && resultCode == RESULT_OK){
+        } else if (requestCode == SHARE_POST && resultCode == RESULT_OK) {
             Snackbar.make(mCoordinatorLayout, R.string.alert_freegen_successfully_shared_string, Snackbar.LENGTH_SHORT).show();
-        } else if (requestCode == MESSAGE_ACTIVITY){
+        } else if (requestCode == MESSAGE_ACTIVITY) {
             getActivity().recreate();
         }
     }
@@ -328,7 +328,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
         Intent shareIntent = ShareCompat.IntentBuilder.from(getActivity())
                 .setType(getString(R.string.mime_text_plain_string))
                 .setText(FREEGAN_BASE_URL + getString(R.string.freegan_item_share_string) + mPost.getDescription()
-                + getString(R.string.posted_by_string) + mPost.getUserName())
+                        + getString(R.string.posted_by_string) + mPost.getUserName())
                 .getIntent();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
@@ -346,7 +346,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
     }
 
     // insert data into database
-    private void insertData(){
+    private void insertData() {
         ContentValues postValues = new ContentValues();
 
         postValues.put(FreeganContract.FreegansEntry.COLUMN_POST_DESCRIPTION, mPost.getDescription());
@@ -371,7 +371,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
     }
 
     // delete data from database
-    private void deleteData(Uri uri){
+    private void deleteData(Uri uri) {
         getActivity().getApplicationContext().getContentResolver().delete(uri,
                 null, null);
     }
@@ -388,7 +388,7 @@ public class ProfileChildImagePagerFragment extends Fragment implements Vertical
 
     @Override
     public void onPageSelected(int position) {
-        if(mTabAdapter != null){
+        if (mTabAdapter != null) {
             mTabAdapter.setCurrentSelected(position);
         }
     }

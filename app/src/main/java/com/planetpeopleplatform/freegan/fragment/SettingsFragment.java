@@ -142,16 +142,16 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         findPreference(getString(R.string.user_profile_image_key))
                 .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                        = new ChoosePictureSourceDialogFragment();
-                if (getFragmentManager() != null) {
-                    choosePictureSourceDialogFragment.show(getFragmentManager(),getString(R.string.choose_fragment_alert_tag));
-                }
-                return true;
-            }
-        });
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
+                                = new ChoosePictureSourceDialogFragment();
+                        if (getFragmentManager() != null) {
+                            choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                        }
+                        return true;
+                    }
+                });
 
         findPreference(getString(R.string.user_name_key))
                 .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
@@ -194,10 +194,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
                     public boolean onPreferenceClick(Preference preference) {
                         if (checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                                 != PackageManager.PERMISSION_GRANTED) {
-                           requestPermissions(
+                            requestPermissions(
                                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                     PERMISSIONS_REQUEST_FINE_LOCATION);
-                        }else {
+                        } else {
                             addNewLocation();
                         }
 
@@ -209,8 +209,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 .setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                       Intent privacyPolicyIntent = new Intent(getContext(), PrivacyPolicyActivity.class);
-                       getActivity().startActivity(privacyPolicyIntent);
+                        Intent privacyPolicyIntent = new Intent(getContext(), PrivacyPolicyActivity.class);
+                        getActivity().startActivity(privacyPolicyIntent);
 
                         return true;
                     }
@@ -242,7 +242,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 permissions, grantResults);
 
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_FINE_LOCATION : {
+            case PERMISSIONS_REQUEST_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -260,7 +260,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PLACE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
+        if (requestCode == PLACE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(getContext(), data);
             if (place == null) {
                 return;

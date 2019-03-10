@@ -7,7 +7,7 @@ public class FreeganItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     private ItemTouchHelperAdapter mAdapter;
 
-    public FreeganItemTouchHelperCallback(ItemTouchHelperAdapter adapter){
+    public FreeganItemTouchHelperCallback(ItemTouchHelperAdapter adapter) {
         mAdapter = adapter;
     }
 

@@ -70,7 +70,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        if (mMessageList == null){
+        if (mMessageList == null) {
             return 0;
         }
         return mMessageList.size();
@@ -90,7 +90,6 @@ public class MessageAdapter extends RecyclerView.Adapter {
             return VIEW_TYPE_MESSAGE_SENT;
         }
     }
-
 
 
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {

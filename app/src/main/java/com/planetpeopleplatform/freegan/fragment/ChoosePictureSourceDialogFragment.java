@@ -38,10 +38,9 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        if(!(getArguments() == null)) {
+        if (!(getArguments() == null)) {
             mFlag = getArguments().getInt(kFLAG);
         }
-
 
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -60,7 +59,7 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
             }
         });
 
-        if (mFlag == FLAG_DELETE){
+        if (mFlag == FLAG_DELETE) {
             alertDialogBuilder.setNeutralButton(R.string.delete_string, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -72,7 +71,7 @@ public class ChoosePictureSourceDialogFragment extends DialogFragment {
         return alertDialogBuilder.create();
     }
 
-    public static ChoosePictureSourceDialogFragment newInstance (int flag) {
+    public static ChoosePictureSourceDialogFragment newInstance(int flag) {
         ChoosePictureSourceDialogFragment fragment = new ChoosePictureSourceDialogFragment();
         Bundle argument = new Bundle();
         argument.putInt(kFLAG, flag);

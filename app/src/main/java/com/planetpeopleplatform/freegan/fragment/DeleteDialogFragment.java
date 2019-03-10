@@ -37,7 +37,6 @@ public class DeleteDialogFragment extends DialogFragment {
     int mPosition = 0;
 
 
-
     public interface OnCompleteListener {
         void onComplete(int position);
     }
@@ -75,7 +74,7 @@ public class DeleteDialogFragment extends DialogFragment {
 
         //For Post and post location delete
         if (mChildRef != null) {
-            if(mChildRef.equals(kPOST)) {
+            if (mChildRef.equals(kPOST)) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                 alertDialogBuilder.setTitle(title);
                 alertDialogBuilder.setMessage(R.string.delete_message);
@@ -101,7 +100,7 @@ public class DeleteDialogFragment extends DialogFragment {
                                             HashMap<String, Object> snapshotValue = (HashMap<String, Object>) dataSnapshot.getValue();
 
                                             if (snapshotValue != null) {
-                                                for (String object : snapshotValue.keySet()){
+                                                for (String object : snapshotValue.keySet()) {
                                                     firebase.child(kRECENT).child(object).removeValue();
                                                 }
                                             }

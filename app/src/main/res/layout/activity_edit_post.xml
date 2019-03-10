@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    android:id="@+id/coordinator_layout"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent">
+    android:id="@+id/coordinator_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/toolbar"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
-        android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
+        android:layout_marginLeft="@dimen/list_toolbar_side_margin"
+        android:layout_marginRight="@dimen/list_toolbar_side_margin"
         android:background="@color/Primary"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
-    </android.support.v7.widget.Toolbar>
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -26,53 +23,53 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
+            android:layout_marginStart="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
             android:layout_marginTop="@dimen/edit_post_picture_size"
             android:layout_marginEnd="@dimen/pad_8dp"
-            android:layout_marginLeft="@dimen/pad_8dp"
             android:layout_marginRight="@dimen/pad_8dp"
-            android:layout_marginStart="@dimen/pad_8dp"
+            android:gravity="center_horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" >
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/item_photo_frame1"
-            android:layout_width="@dimen/edit_post_picture_size"
-            android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_weight="1"
-            android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/secdond_freegan_item_image" />
+            <ImageView
+                android:id="@+id/item_photo_frame1"
+                android:layout_width="@dimen/edit_post_picture_size"
+                android:layout_height="@dimen/edit_post_picture_size"
+                android:layout_weight="1"
+                android:background="@color/cardview_dark_background"
+                android:contentDescription="@string/secdond_freegan_item_image" />
 
-        <ImageView
-            android:id="@+id/item_photo_frame4"
-            android:layout_width="@dimen/edit_post_picture_size"
-            android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_marginLeft="@dimen/pad_8dp"
-            android:layout_marginStart="@dimen/pad_8dp"
-            android:layout_weight="1"
-            android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/forth_freegan_item_image" />
+            <ImageView
+                android:id="@+id/item_photo_frame4"
+                android:layout_width="@dimen/edit_post_picture_size"
+                android:layout_height="@dimen/edit_post_picture_size"
+                android:layout_marginStart="@dimen/pad_8dp"
+                android:layout_marginLeft="@dimen/pad_8dp"
+                android:layout_weight="1"
+                android:background="@color/cardview_dark_background"
+                android:contentDescription="@string/forth_freegan_item_image" />
 
-        <ImageView
-            android:id="@+id/item_photo_frame2"
-            android:layout_width="@dimen/edit_post_picture_size"
-            android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_marginLeft="@dimen/pad_8dp"
-            android:layout_marginStart="@dimen/pad_8dp"
-            android:layout_weight="1"
-            android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/first_freegan_item_image" />
+            <ImageView
+                android:id="@+id/item_photo_frame2"
+                android:layout_width="@dimen/edit_post_picture_size"
+                android:layout_height="@dimen/edit_post_picture_size"
+                android:layout_marginStart="@dimen/pad_8dp"
+                android:layout_marginLeft="@dimen/pad_8dp"
+                android:layout_weight="1"
+                android:background="@color/cardview_dark_background"
+                android:contentDescription="@string/first_freegan_item_image" />
 
-        <ImageView
-            android:id="@+id/item_photo_frame3"
-            android:layout_width="@dimen/edit_post_picture_size"
-            android:layout_height="@dimen/edit_post_picture_size"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:background="@color/cardview_dark_background"
-            android:contentDescription="@string/third_freegan_item_image" />
+            <ImageView
+                android:id="@+id/item_photo_frame3"
+                android:layout_width="@dimen/edit_post_picture_size"
+                android:layout_height="@dimen/edit_post_picture_size"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_weight="1"
+                android:background="@color/cardview_dark_background"
+                android:contentDescription="@string/third_freegan_item_image" />
 
         </LinearLayout>
 
@@ -80,11 +77,11 @@
             android:id="@+id/item_description_edit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/pad_16dp"
-            android:layout_marginEnd="@dimen/pad_8dp"
-            android:layout_marginLeft="@dimen/pad_8dp"
-            android:layout_marginRight="@dimen/pad_8dp"
             android:layout_marginStart="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginBottom="@dimen/pad_16dp"
             android:ems="10"
             android:hint="@string/enter_item_description"
             android:inputType="textMultiLine"
@@ -97,15 +94,15 @@
             android:id="@+id/item_post_button"
             android:layout_width="@dimen/button_width"
             android:layout_height="@dimen/button_height"
-            android:layout_marginBottom="@dimen/pad_16dp"
-            android:layout_marginEnd="@dimen/pad_8dp"
-            android:layout_marginLeft="@dimen/pad_8dp"
-            android:layout_marginRight="@dimen/pad_8dp"
             android:layout_marginStart="@dimen/pad_8dp"
+            android:layout_marginLeft="@dimen/pad_8dp"
+            android:layout_marginEnd="@dimen/pad_8dp"
+            android:layout_marginRight="@dimen/pad_8dp"
+            android:layout_marginBottom="@dimen/pad_16dp"
             android:background="@drawable/round_corner_button"
+            android:contentDescription="@string/update_post_button_string"
             android:text="@string/save_changes_string"
             android:textColor="@color/white"
-            android:contentDescription="@string/update_post_button_string"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -119,7 +116,6 @@
         android:layout_height="@dimen/progressbar_size"
         android:layout_gravity="center"
         android:visibility="invisible" />
-
 
 
 </android.support.design.widget.CoordinatorLayout>

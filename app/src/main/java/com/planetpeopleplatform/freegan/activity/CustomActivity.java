@@ -14,42 +14,42 @@ import static android.view.View.*;
  */
 public class CustomActivity extends AppCompatActivity implements OnClickListener {
 
-         OnTouchListener TOUCH;
+    OnTouchListener TOUCH;
 
-        @Override
-        public void setContentView(int layoutResID) {
-            super.setContentView(layoutResID);
-            setupActionBar();
-        }
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        setupActionBar();
+    }
 
-        void setupActionBar() {
-            ActionBar actionBar  = (ActionBar) getSupportActionBar();
-            if (actionBar == null)
-                return;
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            actionBar.setDisplayUseLogoEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-        }
-
-
-        void setTouchNClick(int id) {
-            View v = setClick(id);
-            if (v != null)
-                v.setOnTouchListener(TOUCH);
-        }
+    void setupActionBar() {
+        ActionBar actionBar = (ActionBar) getSupportActionBar();
+        if (actionBar == null)
+            return;
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+    }
 
 
-        View setClick(int id) {
-            View v  = findViewById(id);
-            if (v != null)
-                v.setOnClickListener(this);
-            return v;
-        }
+    void setTouchNClick(int id) {
+        View v = setClick(id);
+        if (v != null)
+            v.setOnTouchListener(TOUCH);
+    }
 
-        @Override
-            public void onClick(View view) {
 
-        }
+    View setClick(int id) {
+        View v = findViewById(id);
+        if (v != null)
+            v.setOnClickListener(this);
+        return v;
+    }
+
+    @Override
+    public void onClick(View view) {
+
+    }
 }

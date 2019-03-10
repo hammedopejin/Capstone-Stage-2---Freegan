@@ -38,10 +38,10 @@ public class FreeganAppWidget extends AppWidgetProvider {
         views.setTextViewText(R.id.appwidget_message_text, message);
         views.setTextViewText(R.id.appwidget_date_text, date);
         String numberOfUnreadMessages;
-        if (counter < 0){
+        if (counter < 0) {
             counter = 0;
         }
-        if (counter == 0){
+        if (counter == 0) {
             numberOfUnreadMessages = context.getString(R.string.no_unread_message_string);
         } else if (counter == 1) {
             numberOfUnreadMessages = context.getString(R.string.one_unread_message_string);

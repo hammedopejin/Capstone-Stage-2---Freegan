@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DataSource;
@@ -41,7 +42,7 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
 
     private final RequestManager mRequestManager;
     private final MainGridAdapter.ViewHolderListener mViewHolderListener;
-    private  ArrayList<Post> mListPosts;
+    private ArrayList<Post> mListPosts;
 
     /**
      * Constructs a new grid adapter for the given {@link Fragment}.
@@ -67,12 +68,11 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
 
     @Override
     public int getItemCount() {
-        if (mListPosts == null){
+        if (mListPosts == null) {
             return 0;
         }
         return mListPosts.size();
     }
-
 
 
     private class ViewHolderListenerImpl implements MainGridAdapter.ViewHolderListener {
@@ -103,8 +103,8 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
          * Handles a view click by setting the current position to the given {@code position} and
          * starting a {@link  MainImagePagerFragment} which displays the image at the position.
          *
-         * @param view the clicked {@link ImageView} (the shared element view will be re-mapped at the
-         * MainGridFragment's SharedElementCallback)
+         * @param view     the clicked {@link ImageView} (the shared element view will be re-mapped at the
+         *                 MainGridFragment's SharedElementCallback)
          * @param position the selected view position
          */
         @Override
@@ -159,7 +159,7 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
 
         /**
          * Binds this view holder to the given adapter position.
-         *
+         * <p>
          * The binding will load the image into the image view, as well as set its transition name for
          * later.
          */
@@ -175,7 +175,7 @@ public class MainGridAdapter extends RecyclerView.Adapter<MainGridAdapter.ImageV
         }
 
         void setImage(final int adapterPosition) {
-            if (mRequestManager != null && mImage != null && mListPosts!= null && mViewHolderListener != null) {
+            if (mRequestManager != null && mImage != null && mListPosts != null && mViewHolderListener != null) {
                 // Load the image with Glide to prevent OOM error when the image drawables are very large.
                 mRequestManager
                         .load(mListPosts.get(adapterPosition).getImageUrl().get(0))

@@ -25,7 +25,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTER;
 import static com.planetpeopleplatform.freegan.utils.Constants.kPOSTERID;
 import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
-public class ProfileActivity extends AppCompatActivity implements DeleteDialogFragment.OnCompleteListener{
+public class ProfileActivity extends AppCompatActivity implements DeleteDialogFragment.OnCompleteListener {
 
     public static int currentPosition;
     private static final String KEY_CURRENT_POSITION = "com.planetpeopleplatform.freegan.key.currentPosition";
@@ -73,13 +73,13 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(MenuItem item) {
         //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int id = item.getItemId();
         switch (id) {
@@ -104,7 +104,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
     }
 
     private void getCurrentUser(String currentUserUid) {
-        if(mCurrentUserValueEventListener == null) {
+        if (mCurrentUserValueEventListener == null) {
             mCurrentUserValueEventListener = new ValueEventListener() {
 
                 @Override
@@ -130,7 +130,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
 
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()) {
+                    if (dataSnapshot.exists()) {
                         mPoster = new User((HashMap<String, Object>) dataSnapshot.getValue());
                         FragmentManager fragmentManager = getSupportFragmentManager();
                         fragmentManager
@@ -155,7 +155,7 @@ public class ProfileActivity extends AppCompatActivity implements DeleteDialogFr
             firebase.child(kUSER).child(mPosterId).removeEventListener(mPosterValueEventListener);
             mPosterValueEventListener = null;
         }
-        if (mCurrentUserValueEventListener != null){
+        if (mCurrentUserValueEventListener != null) {
             firebase.child(kUSER).child(mCurrentUserUid).removeEventListener(mCurrentUserValueEventListener);
             mCurrentUserValueEventListener = null;
         }

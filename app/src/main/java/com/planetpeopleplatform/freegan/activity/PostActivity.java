@@ -131,7 +131,7 @@ public class PostActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
             mSelectedImageUri = Uri.parse(savedInstanceState.getString(kIMAGEURL));
-            if (mShowLoading){
+            if (mShowLoading) {
                 showLoading();
             }
         } else {
@@ -141,7 +141,7 @@ public class PostActivity extends AppCompatActivity {
                     if (dataSnapshot.exists()) {
                         mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
                         int source = getIntent().getIntExtra(getString(R.string.source_string), 1);
-                        if (source == 1){
+                        if (source == 1) {
                             takeCameraPicture();
                         } else {
                             captureGalleryImage();
@@ -161,12 +161,12 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String description = mItemDescriptionEditText.getText().toString();
-                if(description.equals("")){
+                if (description.equals("")) {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_description_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                if(!mImageSelected){
+                if (!mImageSelected) {
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_image_missing_string, Snackbar.LENGTH_SHORT).show();
                     return;
@@ -187,7 +187,7 @@ public class PostActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data!=null && resultCode == RESULT_OK) {
+        if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE && data != null && resultCode == RESULT_OK) {
             mSelectedImageUri = data.getData();
             try {
                 runImageLabeling(MediaStore.Images.Media.getBitmap(this.getContentResolver(), mSelectedImageUri));
@@ -196,12 +196,12 @@ public class PostActivity extends AppCompatActivity {
             }
 
             try {
-                 destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
-            } catch (NullPointerException ex){
+                destFile = new File(Utils.getPathFromGooglePhotosUri(mSelectedImageUri, getApplicationContext()));
+            } catch (NullPointerException ex) {
                 try {
                     destFile = new File(Utils.getPathFromUri(mSelectedImageUri, getApplicationContext()));
 
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     Snackbar.make(mCoordinatorLayout, R.string.err_image_source_unrecognized_string, Snackbar.LENGTH_SHORT).show();
                 }
             }
@@ -231,7 +231,7 @@ public class PostActivity extends AppCompatActivity {
             mItemPhotoFrame.setBackgroundResource(R.color.transparent);
             mImageSelected = true;
 
-        }else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE  && resultCode == RESULT_OK){
+        } else if (requestCode == RC_TAKE_CAMERA_PHOTO_CODE && resultCode == RESULT_OK) {
 
             try {
                 runImageLabeling(MediaStore.Images.Media.getBitmap(this.getContentResolver(), mSelectedImageUri));
@@ -262,7 +262,7 @@ public class PostActivity extends AppCompatActivity {
             mItemPhotoFrame.setBackgroundResource(R.color.transparent);
             mImageSelected = true;
 
-        } else if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE || requestCode == RC_TAKE_CAMERA_PHOTO_CODE){
+        } else if (requestCode == RC_PHOTO_GALLERY_PICKER_CODE || requestCode == RC_TAKE_CAMERA_PHOTO_CODE) {
             if (resultCode == RESULT_CANCELED) {
                 finish();
             }
@@ -313,7 +313,7 @@ public class PostActivity extends AppCompatActivity {
 
     private void postToFirebase() {
 
-        if (mCurrentUser.getLatitude() == null){
+        if (mCurrentUser.getLatitude() == null) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_location_missing_string, Snackbar.LENGTH_SHORT).show();
             return;
@@ -329,11 +329,11 @@ public class PostActivity extends AppCompatActivity {
 
         final SimpleDateFormat sfd = new SimpleDateFormat(getString(R.string.date_format_decending));
         SimpleDateFormat df = new SimpleDateFormat(getString(R.string.time_format_decending));
-        final Date dataobj= new Date();
+        final Date dataobj = new Date();
 
-        String imagePath = SplitString(mCurrentUser.getEmail()) + "."+ df.format(dataobj)+ ".jpg";
+        String imagePath = SplitString(mCurrentUser.getEmail()) + "." + df.format(dataobj) + ".jpg";
 
-        final StorageReference imageRef = storageRef.child("post_pics/"+imagePath );
+        final StorageReference imageRef = storageRef.child("post_pics/" + imagePath);
 
         showLoading();
 
@@ -359,7 +359,7 @@ public class PostActivity extends AppCompatActivity {
 
                     HashMap<String, Object> post = new HashMap<String, Object>();
                     post.put((kPOSTID), postId);
-                    post.put(kDESCRIPTION, mItemDescriptionEditText.getText().toString() );
+                    post.put(kDESCRIPTION, mItemDescriptionEditText.getText().toString());
                     post.put(kIMAGEURL, mPostDownloadURL);
                     post.put(kPROFILEIMAGEURL, mCurrentUser.getUserImgUrl());
                     post.put(kUSERNAME, mCurrentUser.getUserName());
@@ -409,12 +409,12 @@ public class PostActivity extends AppCompatActivity {
     }
 
 
-    private void captureGalleryImage(){
+    private void captureGalleryImage() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ) {
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE }, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE);
         } else {
 
             Intent intentGalley = new Intent(Intent.ACTION_GET_CONTENT);
@@ -425,14 +425,14 @@ public class PostActivity extends AppCompatActivity {
         }
     }
 
-    private void takeCameraPicture(){
+    private void takeCameraPicture() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED ) {
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE }, CAMERA_PERMISSION_REQUEST_CODE);
-        }else {
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERA_PERMISSION_REQUEST_CODE);
+        } else {
 
 
             Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

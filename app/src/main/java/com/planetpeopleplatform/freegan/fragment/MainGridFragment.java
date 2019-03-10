@@ -86,7 +86,7 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
  * A fragment for displaying a grid of images.
  */
 public class MainGridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SharedPreferences.OnSharedPreferenceChangeListener{
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private ArrayList<Post> mListPosts = new ArrayList<>();
     private ArrayList<String> mPostIds = new ArrayList<>();
@@ -402,10 +402,10 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                 });
     }
 
-    private void checkPosts(){
+    private void checkPosts() {
         GeoFire geoFire = new GeoFire(firebase.child(kPOSTLOCATION));
 
-        if (mCurrentUser.getLatitude() == null || mCurrentUser.getLongitude() == null){
+        if (mCurrentUser.getLatitude() == null || mCurrentUser.getLongitude() == null) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_permission_needed_to_post_and_view_freegan_string, Snackbar.LENGTH_LONG).show();
             showDataView();
@@ -440,7 +440,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onGeoQueryReady() {
 
-                if (!(mPostIds.size() > 0)){
+                if (!(mPostIds.size() > 0)) {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     mEmptyTextView.setVisibility(View.VISIBLE);
                 } else {
@@ -460,44 +460,44 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         });
     }
 
-    private void loadPosts(int page_load_size, int offset){
+    private void loadPosts(int page_load_size, int offset) {
         showDataView();
 
         int maxBoundary = page_load_size + offset;
-        if(maxBoundary > mPostIds.size()){
+        if (maxBoundary > mPostIds.size()) {
             maxBoundary = mPostIds.size();
         }
 
         for (int i = offset; i < maxBoundary; i++) {
 
 
-                postRef.child(mPostIds.get(i)).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        try {
-                            HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
-                            if (post != null) {
-                                mListPosts.add(new Post(post));
-                                mMainGridAdapter.notifyDataSetChanged();
+            postRef.child(mPostIds.get(i)).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    try {
+                        HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
+                        if (post != null) {
+                            mListPosts.add(new Post(post));
+                            mMainGridAdapter.notifyDataSetChanged();
 
-                                if (mSwipeContainer.isRefreshing()) {
-                                    mSwipeContainer.setRefreshing(false);
-                                }
+                            if (mSwipeContainer.isRefreshing()) {
+                                mSwipeContainer.setRefreshing(false);
                             }
-
-                        } catch (Exception e) {
-                            Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
-                                    Snackbar.LENGTH_SHORT).show();
                         }
+
+                    } catch (Exception e) {
+                        Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
+                                Snackbar.LENGTH_SHORT).show();
                     }
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
+                }
+            });
 
-                postRef.child(mPostIds.get(i))
+            postRef.child(mPostIds.get(i))
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -648,7 +648,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                 }
             }
 
-            mListPosts.add(new Post (postId, postUserObjectId, description, imageUrls, profileImgUrl, userName, postDate));
+            mListPosts.add(new Post(postId, postUserObjectId, description, imageUrls, profileImgUrl, userName, postDate));
             mMainGridAdapter.notifyDataSetChanged();
 
             mCursor.moveToNext();

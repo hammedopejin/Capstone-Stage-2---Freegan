@@ -42,7 +42,7 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
     private final RequestManager mRequestManager;
     private final ProfileGridAdapter.ViewHolderListener mViewHolderListener;
-    private  ArrayList<Post> mListPosts;
+    private ArrayList<Post> mListPosts;
     private User mPoster;
     private User mCurrentUser;
 
@@ -72,12 +72,11 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
     @Override
     public int getItemCount() {
-        if (mListPosts == null){
+        if (mListPosts == null) {
             return 0;
         }
         return mListPosts.size();
     }
-
 
 
     private class ViewHolderListenerImpl implements ProfileGridAdapter.ViewHolderListener {
@@ -151,7 +150,7 @@ public class ProfileGridAdapter extends RecyclerView.Adapter<ProfileGridAdapter.
 
         /**
          * Binds this view holder to the given adapter position.
-         *
+         * <p>
          * The binding will load the image into the image view, as well as set its transition name for
          * later.
          */

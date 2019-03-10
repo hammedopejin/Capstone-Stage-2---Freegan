@@ -9,6 +9,7 @@ public class Constants {
 
     //Firebase Reference
     public static FirebaseDatabase database;
+
     public static FirebaseDatabase getDatabase() {
         if (database == null) {
             database = FirebaseDatabase.getInstance();
@@ -16,6 +17,7 @@ public class Constants {
         }
         return database;
     }
+
     public static DatabaseReference firebase = getDatabase().getReference();
 
     public static FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -102,7 +104,7 @@ public class Constants {
 
     //Delete Dialog
     public static final String kTITLE = "title";
-    public static final String kKEY= "key";
+    public static final String kKEY = "key";
     public static final String kCHILDREF = "childRef";
     public static final String kPOSITION = "position";
     public static final String kFLAG = "flag";

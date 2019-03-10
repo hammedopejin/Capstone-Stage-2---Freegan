@@ -69,25 +69,25 @@ public class UpdateUserNameActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mLoadingIndicator.setVisibility(View.VISIBLE);
                 String newUserName = mUserNameEditText.getText().toString();
-                if (!(newUserName.length() > 0)){
+                if (!(newUserName.length() > 0)) {
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     return;
                 }
                 firebase.child(kUSER).child(mCurrentUserUid).child(kUSERNAME).setValue(newUserName)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            mLoadingIndicator.setVisibility(View.INVISIBLE);
-                            Snackbar.make(mCoordinatorLayout,
-                                    R.string.alert_username_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
-                        }else {
-                            mLoadingIndicator.setVisibility(View.INVISIBLE);
-                            Snackbar.make(mCoordinatorLayout,
-                                    R.string.err_username_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.alert_username_successfully_updated_string, Snackbar.LENGTH_SHORT).show();
+                                } else {
+                                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                                    Snackbar.make(mCoordinatorLayout,
+                                            R.string.err_username_failed_to_update_string, Snackbar.LENGTH_SHORT).show();
+                                }
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         finish();
