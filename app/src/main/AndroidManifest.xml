@@ -19,9 +19,6 @@
         android:roundIcon="@mipmap/ic_freegan_logo_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCSGoXGj_DBV7s-Ram-Fw7JlJqwVTopHjo" />
 
         <!--
      Set custom default icon. This is used when no icon is set for incoming notification messages.

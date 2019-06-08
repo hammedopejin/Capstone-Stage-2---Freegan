@@ -3,6 +3,7 @@ package com.planetpeopleplatform.freegan.fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -12,16 +13,19 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.planetpeopleplatform.freegan.BuildConfig;
 import com.planetpeopleplatform.freegan.R;
 import com.planetpeopleplatform.freegan.activity.LoginActivity;
 import com.planetpeopleplatform.freegan.activity.PrivacyPolicyActivity;
@@ -31,7 +35,11 @@ import com.planetpeopleplatform.freegan.activity.UpdatePasswordActivity;
 import com.planetpeopleplatform.freegan.activity.UpdateUserNameActivity;
 import com.planetpeopleplatform.freegan.model.User;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static android.support.v4.content.ContextCompat.checkSelfPermission;
@@ -47,7 +55,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     private FirebaseAuth mAuth;
     private static final int PERMISSIONS_REQUEST_FINE_LOCATION = 3;
-    private static final int PLACE_PICKER_REQUEST_CODE = 300;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 300;
     private User mCurrentUser;
     private String mCurrentUserUid;
     private CoordinatorLayout mCoordinatorLayout;
@@ -119,6 +127,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+                    if(mCurrentUser.getLongitude() != null && mCurrentUser.getLatitude() != null && getActivity() != null){
+                        Geocoder geocoder = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+                        try {
+                            findPreference(getString(R.string.user_location_key))
+                                    .setSummary(geocoder.getFromLocation(mCurrentUser.getLatitude(),
+                                            mCurrentUser.getLongitude(), 1).get(0)
+                                            .getAddressLine(0).substring(geocoder.getFromLocation(mCurrentUser.getLatitude(),
+                                            mCurrentUser.getLongitude(), 1).get(0).getAddressLine(0).indexOf(",") + 2));
+
+                        } catch (IOException e) {
+
+                        }
+                    }
                 }
             }
 
@@ -127,6 +148,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
             }
         });
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getContext().getApplicationContext(), BuildConfig.ApiKey);
+        }
 
         Preference button = findPreference(getString(R.string.logout_button_key));
 
@@ -260,34 +285,43 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PLACE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
-            Place place = PlacePicker.getPlace(getContext(), data);
-            if (place == null) {
-                return;
+        CoordinatorLayout coordinatorLayout = getActivity().findViewById(R.id.fragment_container);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                updateUserLocation(place);
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Snackbar.make(coordinatorLayout,
+                        R.string.err_location_saving_string, Snackbar.LENGTH_SHORT).show();
+
             }
-            updateUserLocation(place);
         }
     }
 
     public void addNewLocation() {
-        try {
-            // Start a new Activity for the Place Picker API, this will trigger {@code #onActivityResult}
-            // when a place is selected or with the user cancels.
-            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            Intent i = builder.build(getActivity());
-            startActivityForResult(i, PLACE_PICKER_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
-            Snackbar.make(mCoordinatorLayout, R.string.err_google_play_service_error_string, Snackbar.LENGTH_SHORT).show();
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Snackbar.make(mCoordinatorLayout, R.string.err_google_play_service_error_string, Snackbar.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Snackbar.make(mCoordinatorLayout, R.string.err_google_play_service_error_string, Snackbar.LENGTH_SHORT).show();
-        }
+
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.LAT_LNG);
+
+        // Start the autocomplete intent.
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.FULLSCREEN, fields)
+                .build(getContext().getApplicationContext());
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+
     }
 
     /* Update Geofire */
     private void updateUserLocation(Place place) {
 
+        if (place == null) {
+            return;
+        }
+
+        findPreference(getString(R.string.user_location_key)).setSummary(place.getAddress());
 
         HashMap<String, Object> newLocation = new HashMap<String, Object>();
         newLocation.put(kLATITUDE, place.getLatLng().latitude);

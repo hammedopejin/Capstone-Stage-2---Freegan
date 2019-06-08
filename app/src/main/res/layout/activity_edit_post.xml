@@ -42,7 +42,7 @@
                 android:contentDescription="@string/secdond_freegan_item_image" />
 
             <ImageView
-                android:id="@+id/item_photo_frame4"
+                android:id="@+id/item_photo_frame2"
                 android:layout_width="@dimen/edit_post_picture_size"
                 android:layout_height="@dimen/edit_post_picture_size"
                 android:layout_marginStart="@dimen/pad_8dp"
@@ -52,7 +52,7 @@
                 android:contentDescription="@string/forth_freegan_item_image" />
 
             <ImageView
-                android:id="@+id/item_photo_frame2"
+                android:id="@+id/item_photo_frame3"
                 android:layout_width="@dimen/edit_post_picture_size"
                 android:layout_height="@dimen/edit_post_picture_size"
                 android:layout_marginStart="@dimen/pad_8dp"
@@ -62,7 +62,7 @@
                 android:contentDescription="@string/first_freegan_item_image" />
 
             <ImageView
-                android:id="@+id/item_photo_frame3"
+                android:id="@+id/item_photo_frame4"
                 android:layout_width="@dimen/edit_post_picture_size"
                 android:layout_height="@dimen/edit_post_picture_size"
                 android:layout_marginStart="8dp"

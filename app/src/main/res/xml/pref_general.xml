@@ -23,7 +23,7 @@
         android:icon="@android:drawable/ic_lock_lock" />
     <Preference android:title="@string/location_string"
         android:key="@string/user_location_key"
-        android:summary=""
+        android:summary="Irvine, CA 92620"
         android:icon="@android:drawable/ic_menu_mylocation" />
 
     <Preference android:title=""

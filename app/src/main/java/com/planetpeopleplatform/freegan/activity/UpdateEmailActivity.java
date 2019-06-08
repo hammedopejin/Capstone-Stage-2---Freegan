@@ -27,7 +27,6 @@ import static com.planetpeopleplatform.freegan.utils.Constants.kUSER;
 
 public class UpdateEmailActivity extends AppCompatActivity {
 
-    private static final String TAG = UpdateEmailActivity.class.getSimpleName();
     private FirebaseUser mUser;
     private String mCurrentUserUid = null;
 
@@ -69,11 +68,10 @@ public class UpdateEmailActivity extends AppCompatActivity {
         mUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLoadingIndicator.setVisibility(View.VISIBLE);
+
                 String newEmail = mEmailEditText.getText().toString();
 
-                if (!(newEmail.length() > 0)) {
-                    mLoadingIndicator.setVisibility(View.INVISIBLE);
+                if (!(newEmail.length() > 0) || mUser.getEmail().equals(newEmail)) {
                     return;
                 }
 
@@ -86,7 +84,7 @@ public class UpdateEmailActivity extends AppCompatActivity {
 
 
     private void updateUserEmail(final String newEmail) {
-
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         mUser.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

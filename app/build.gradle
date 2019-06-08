@@ -22,9 +22,13 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
+        debug {
+            buildConfigField 'String', "ApiKey", Freegan_Android_Place_Key
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "ApiKey", Freegan_Android_Place_Key
             signingConfig signingConfigs.config
         }
     }
@@ -75,7 +79,7 @@ dependencies {
     //Location
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     //Places
-    implementation 'com.google.android.gms:play-services-places:16.0.0'
+    implementation 'com.google.android.libraries.places:places:1.1.0'
     //Geofire lib
     implementation 'com.firebase:geofire-android:2.3.1'
     //Vertical View Pager

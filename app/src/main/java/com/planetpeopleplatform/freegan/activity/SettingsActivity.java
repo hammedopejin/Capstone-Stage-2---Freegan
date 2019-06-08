@@ -243,7 +243,7 @@ public class SettingsActivity extends AppCompatActivity
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
                     mPostDownloadURL = downloadUri.toString();
-                    firebase.child("users").child(mCurrentUser.getObjectId()).child(kUSERIMAGEURL).setValue(mPostDownloadURL);
+                    firebase.child(kUSER).child(mCurrentUser.getObjectId()).child(kUSERIMAGEURL).setValue(mPostDownloadURL);
                     mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Snackbar.make(mCoordinatorLayout,
                             R.string.alert_successfully_uploaded_photo_string, Snackbar.LENGTH_SHORT).show();

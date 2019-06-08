@@ -202,8 +202,8 @@
     <string name="err_login_failed_string">login failed</string>
     <string name="err_post_upload_fail_string">Post upload failed:</string>
     <string name="err_message_sending_failed_string">Message failed to send!</string>
-    <string name="err_image_missing_string">An image must be selected</string>
-    <string name="err_description_missing_string">Item must have description</string>
+    <string name="err_image_missing_string">An image must be selected!</string>
+    <string name="err_description_missing_string">Item must have description!</string>
     <string name="err_location_saving_string">There was an error saving the location to GeoFire:</string>
     <string name="err_upload_failed_string">upload failed</string>
     <string name="err_password_failed_to_update_string">Password failed to update!</string>

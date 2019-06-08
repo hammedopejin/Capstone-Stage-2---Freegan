@@ -107,14 +107,7 @@ public class RecentChatActivity extends CustomActivity implements DeleteDialogFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recent_chat);
         ButterKnife.bind(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.chats_title);
-
-
-        mCurrentUserUid = getIntent().getStringExtra(kCURRENTUSERID);
+        setUpToolBar();
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         mCurrentUserUid = auth.getCurrentUser().getUid();
@@ -163,6 +156,13 @@ public class RecentChatActivity extends CustomActivity implements DeleteDialogFr
         }
     };
 
+    private void setUpToolBar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.chats_title);
+    }
+
     private void attachDatabaseReadListener() {
         if (mValueEventListener == null) {
             mValueEventListener = new ValueEventListener() {
@@ -200,11 +200,13 @@ public class RecentChatActivity extends CustomActivity implements DeleteDialogFr
 
                                 if (mRecents.size() == map.size()) {
                                     for (int i = 0; i < mRecents.size(); i++) {
+
                                         if (((HashMap<String, Object>) mRecents.get(i)).get(kLASTMESSAGE).toString().isEmpty()) {
                                             mRecents.remove(i);
                                             mPostIds.remove(i);
                                             mWithUserIds.remove(i);
                                             mChatRoomIDs.remove(i);
+                                            i--;
                                         }
                                     }
                                     loadUser(getApplicationContext(), mPostIds, mWithUserIds, mRecents, mChatRoomIDs);
@@ -312,27 +314,31 @@ public class RecentChatActivity extends CustomActivity implements DeleteDialogFr
 
         for (int i = 0; i < withUserIds.size(); i++) {
             final int finalI = i;
-            firebase.child(kUSER).child(withUserIds.get(i))
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
 
-                                User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
-                                mUserList.add(chatMate);
+            if (!(withUserIds.get(i).equals(mCurrentUserUid))) {
 
-                                if ((withUserIds.size() - 1) == finalI) {
-                                    loadPost(context, postIds, mUserList, recents, chatRoomIDs);
+                firebase.child(kUSER).child(withUserIds.get(i))
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+
+                                    User chatMate = new User((HashMap<String, Object>) dataSnapshot.getValue());
+                                    mUserList.add(chatMate);
+
+                                    if ((withUserIds.size() - 1) == finalI) {
+                                        loadPost(context, postIds, mUserList, recents, chatRoomIDs);
+                                    }
+
                                 }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
                             }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
+                        });
+            }
         }
 
     }
@@ -420,7 +426,7 @@ public class RecentChatActivity extends CustomActivity implements DeleteDialogFr
         @Override
         public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
 
-            if (uList.size() != 0 && uPosts.size() != 0) {
+            if (uList.size() > 0 && uPosts.size() > 0) {
 
                 ((Item) holder).bindData(uList.get(holder.getAdapterPosition()), uPosts.get(holder.getAdapterPosition()));
                 holder.itemView.setTag(holder.getAdapterPosition());

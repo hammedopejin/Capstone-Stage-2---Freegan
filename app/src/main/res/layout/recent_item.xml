@@ -104,6 +104,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/main_color_green"
-        android:orientation="vertical"></android.support.v7.widget.LinearLayoutCompat>
+        android:orientation="vertical"/>
 
 </LinearLayout>

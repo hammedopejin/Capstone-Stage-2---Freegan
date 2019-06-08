@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -148,18 +149,13 @@ public class EditPostActivity extends AppCompatActivity
             mPost = argument.getParcelable(kPOST);
         }
 
+        int photoSize = 0;
         if (mPost != null) {
             mItemDescriptionEditText.setText(mPost.getDescription());
             mItemDescriptionEditText.setSelection(mPost.getDescription().length());
-        }
-
-        int photoSize = 0;
-        if (mPost != null) {
             photoSize = mPost.getImageUrl().size();
-        }
 
-        for (int i = photoSize; i < 4; i++) {
-            if (mPost != null) {
+            for (int i = photoSize; i < 4; i++) {
                 mPost.getImageUrl().add(i, getString(R.string.place_holder_string));
             }
         }
@@ -182,18 +178,18 @@ public class EditPostActivity extends AppCompatActivity
         mItemDescriptionEditText.clearFocus();
         mItemDescriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(80)});
 
-        // ImagePickerButton shows an image picker to upload a image
+        // ImagePickerButton shows an image picker to upload an image
         mItemPhotoFrame1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mTempImg = mItemPhotoFrame1;
                 mCurrentIndex = 0;
                 if (mTempImg.getDrawable() == null) {
-                    editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
+                    editPostPicture(FLAG_NEW_PIC);
                 } else {
                     if (mPost.getImageUrl().size() > 1) {
                         mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                        editPostPicture(String.valueOf(0), FLAG_DELETE);
+                        editPostPicture(FLAG_DELETE);
                     } else {
                         Snackbar.make(mCoordinatorLayout, R.string.alert_at_least_one_image_needed_string, Snackbar.LENGTH_SHORT).show();
                     }
@@ -207,10 +203,10 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame2;
                 mCurrentIndex = 1;
                 if (mTempImg.getDrawable() == null) {
-                    editPostPicture(String.valueOf(1), FLAG_NEW_PIC);
+                    editPostPicture(FLAG_NEW_PIC);
                 } else {
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                    editPostPicture(String.valueOf(1), FLAG_DELETE);
+                    editPostPicture(FLAG_DELETE);
                 }
             }
         });
@@ -221,10 +217,10 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame3;
                 mCurrentIndex = 2;
                 if (mTempImg.getDrawable() == null) {
-                    editPostPicture(String.valueOf(2), FLAG_NEW_PIC);
+                    editPostPicture(FLAG_NEW_PIC);
                 } else {
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                    editPostPicture(String.valueOf(2), FLAG_DELETE);
+                    editPostPicture(FLAG_DELETE);
                 }
             }
         });
@@ -235,10 +231,10 @@ public class EditPostActivity extends AppCompatActivity
                 mTempImg = mItemPhotoFrame4;
                 mCurrentIndex = 3;
                 if (mTempImg.getDrawable() == null) {
-                    editPostPicture(String.valueOf(3), FLAG_NEW_PIC);
+                    editPostPicture(FLAG_NEW_PIC);
                 } else {
                     mToDeletePostDownloadURLs.add(mPost.getImageUrl().get(mCurrentIndex));
-                    editPostPicture(String.valueOf(3), FLAG_DELETE);
+                    editPostPicture(FLAG_DELETE);
                 }
             }
         });
@@ -528,11 +524,22 @@ public class EditPostActivity extends AppCompatActivity
 
         mPostDownloadURLs.removeAll(mToDeletePostDownloadURLs);
 
+        int size = mPost.getImageUrl().size();
+        for (int i = 0; i < size; i++) {
+            if(mPost.getImageUrl().get(i).equals(getString(R.string.place_holder_string))) {
+                mPost.getImageUrl().remove(i);
+                i--;
+                size--;
+            }
+        }
+
+        if ((mItemDescriptionEditText.getText().toString().equals(mPost.getDescription())) && (mPostDownloadURLs.equals(mPost.getImageUrl()))) {
+            hideViews();
+            return;
+        }
+
         if (mPostDownloadURLs.size() < 1) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            mShowLoading = false;
-            mItemPostButton.setVisibility(View.VISIBLE);
-            mItemDescriptionEditText.setVisibility(View.VISIBLE);
+            hideViews();
             Snackbar.make(mCoordinatorLayout, R.string.alert_at_least_one_image_needed_string, Snackbar.LENGTH_SHORT).show();
             return;
         }
@@ -570,7 +577,14 @@ public class EditPostActivity extends AppCompatActivity
         finish();
     }
 
-    private void editPostPicture(String position, int flag) {
+    private void hideViews() {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mShowLoading = false;
+        mItemPostButton.setVisibility(View.VISIBLE);
+        mItemDescriptionEditText.setVisibility(View.VISIBLE);
+    }
+
+    private void editPostPicture(int flag) {
 
         ChoosePictureSourceDialogFragment dialogFragment = ChoosePictureSourceDialogFragment.newInstance(flag);
         dialogFragment.show(getSupportFragmentManager(), getString(R.string.choose_fragment_alert_tag));

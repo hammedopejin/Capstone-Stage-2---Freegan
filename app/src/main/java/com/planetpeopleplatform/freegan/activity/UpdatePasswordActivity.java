@@ -60,15 +60,13 @@ public class UpdatePasswordActivity extends AppCompatActivity {
         mUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLoadingIndicator.setVisibility(View.VISIBLE);
+
                 String newPassword = mPasswordEditText.getText().toString();
                 String newPassword2 = mPasswordEditText2.getText().toString();
                 if ((!(newPassword.length() > 0)) || (!(newPassword2.length() > 0))) {
-                    mLoadingIndicator.setVisibility(View.INVISIBLE);
                     return;
                 }
                 if (!(newPassword.equals(newPassword2))) {
-                    mLoadingIndicator.setVisibility(View.INVISIBLE);
                     Snackbar.make(mCoordinatorLayout,
                             R.string.err_password_must_match_string, Snackbar.LENGTH_SHORT).show();
                     return;
@@ -83,7 +81,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
 
 
     private void updateUserPassword(String newPassword) {
-
+        mLoadingIndicator.setVisibility(View.VISIBLE);
         mUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

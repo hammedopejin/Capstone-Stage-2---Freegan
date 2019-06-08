@@ -133,61 +133,17 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                              @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main_grid, container, false);
         ButterKnife.bind(this, rootView);
-        setRetainInstance(true);
 
-        mSearchView = getActivity().findViewById(R.id.searchView);
-        mSwipeContainer = getActivity().findViewById(R.id.main_content_swipe_refresh_layout);
-        mRecyclerView = getActivity().findViewById(R.id.recycler_view);
-        mEmptyTextView = getActivity().findViewById(R.id.empty_freegen_text);
+        initializeViews();
+        setupSharedPreferences();
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         mCurrentUserUid = auth.getCurrentUser().getUid();
 
-        mStaggeredGridLayoutManager = new StaggeredGridLayoutManager
-                (getResources().getInteger(R.integer.grid_span_count), GridLayoutManager.VERTICAL);
         mFragment = this;
-
-        // Retain an instance so that you can call `resetState()` for fresh searches
-        mScrollListener = new EndlessRecyclerViewScrollListener(mStaggeredGridLayoutManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if (totalItemsCount > mTotalLoadSize) {
-                    if (PAGE_LOAD_SIZE < mPostIds.size()) {
-                        loadPosts(PAGE_LOAD_SIZE, totalItemsCount);
-                        mTotalLoadSize = mTotalLoadSize + PAGE_LOAD_SIZE;
-                    } else {
-                        loadPosts(mPostIds.size(), totalItemsCount);
-                    }
-                }
-            }
-        };
 
         prepareTransitions();
         postponeEnterTransition();
-
-        // ImagePickerButton shows an image picker to upload a image
-        mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mCurrentUser.getLatitude() == null) {
-                    checkPosts();
-                } else {
-                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
-                            = new ChoosePictureSourceDialogFragment();
-                    if (getFragmentManager() != null) {
-                        choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
-                    }
-                }
-            }
-        });
-
-        mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
-        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                onResume();
-            }
-        });
 
         if (savedInstanceState != null) {
             mCurrentUser = savedInstanceState.getParcelable(kCURRENTUSER);
@@ -195,11 +151,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             MainActivity.currentPosition = savedInstanceState.getInt(KEY_CURRENT_POSITION, 0);
         }
 
-        mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
-        mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
-        mRecyclerView.hasFixedSize();
-        mRecyclerView.setAdapter(mMainGridAdapter);
-        mRecyclerView.addOnScrollListener(mScrollListener);
+        setupRecyclerView();
+        checkNetworkAndFireUpFreegan();
 
         return rootView;
     }
@@ -255,63 +208,6 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onResume() {
         super.onResume();
-        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
-        mToolbarContainer.setVisibility(View.VISIBLE);
-        if (mSwipeContainer.isRefreshing()) {
-            mSwipeContainer.setRefreshing(false);
-        }
-
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return searchFeed(query);
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return searchFeed(newText);
-            }
-        });
-
-        mRecyclerView.addOnScrollListener(mScrollListener);
-
-        setupSharedPreferences();
-        showLoading();
-        if (isNetworkAvailable()) {
-            if (mSortByFavorite) {
-                loadFavorite();
-            } else {
-
-                firebase.child(kUSER).child(mCurrentUserUid).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        if (dataSnapshot.exists()) {
-                            mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
-
-                            if (mCurrentUser.getLatitude() == null && !mAskLocationFlag) {
-                                if (checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                                        != PackageManager.PERMISSION_GRANTED) {
-                                    requestPermissions(
-                                            new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                                            PERMISSIONS_REQUEST_FINE_LOCATION);
-                                }
-                            } else {
-                                checkPosts();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-        } else {
-            Snackbar.make(mCoordinatorLayout, R.string.err_no_network_connection_string, Snackbar.LENGTH_LONG).show();
-        }
     }
 
     @Override
@@ -328,7 +224,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
             mGeoQuery.removeAllListeners();
         }
         // Unregister the listener
-        PreferenceManager.getDefaultSharedPreferences(getContext())
+        PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext())
                 .unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
     }
@@ -402,24 +298,140 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                 });
     }
 
+    private void setupRecyclerView() {
+        mMainGridAdapter = new MainGridAdapter(mFragment, mListPosts);
+        mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
+        mRecyclerView.hasFixedSize();
+        mRecyclerView.setAdapter(mMainGridAdapter);
+        mRecyclerView.addOnScrollListener(mScrollListener);
+    }
+
+    private void initializeViews() {
+        android.support.design.widget.AppBarLayout mToolbarContainer = getActivity().findViewById(R.id.toolbar_container);
+        mToolbarContainer.setVisibility(View.VISIBLE);
+
+        mStaggeredGridLayoutManager = new StaggeredGridLayoutManager
+                (getResources().getInteger(R.integer.grid_span_count), GridLayoutManager.VERTICAL);
+        mSearchView = getActivity().findViewById(R.id.searchView);
+        mSwipeContainer = getActivity().findViewById(R.id.main_content_swipe_refresh_layout);
+        mRecyclerView = getActivity().findViewById(R.id.recycler_view);
+        mEmptyTextView = getActivity().findViewById(R.id.empty_freegen_text);
+
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return searchFeed(query);
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return searchFeed(newText);
+            }
+        });
+
+        mSwipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
+        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                checkNetworkAndFireUpFreegan();
+            }
+        });
+
+        // Retain an instance so that you can call `resetState()` for fresh searches
+        mScrollListener = new EndlessRecyclerViewScrollListener(mStaggeredGridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                if (totalItemsCount > mTotalLoadSize) {
+                    if (PAGE_LOAD_SIZE < mPostIds.size()) {
+                        loadPosts(PAGE_LOAD_SIZE, totalItemsCount);
+                        mTotalLoadSize += PAGE_LOAD_SIZE;
+                    } else {
+                        loadPosts(mPostIds.size(), totalItemsCount);
+                    }
+                }
+            }
+        };
+
+        // ImagePickerButton shows an image picker to upload a image
+        mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurrentUser.getLatitude() == null || mCurrentUser.getLongitude() == null) {
+                    checkPosts();
+                } else {
+                    ChoosePictureSourceDialogFragment choosePictureSourceDialogFragment
+                            = new ChoosePictureSourceDialogFragment();
+                    if (getFragmentManager() != null) {
+                        choosePictureSourceDialogFragment.show(getFragmentManager(), getString(R.string.choose_fragment_alert_tag));
+                    }
+                }
+            }
+        });
+    }
+
+    private  void checkNetworkAndFireUpFreegan() {
+
+        showLoading();
+        if (isNetworkAvailable()) {
+            if (mSortByFavorite) {
+                loadFavorite();
+            } else {
+
+                firebase.child(kUSER).child(mCurrentUserUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.exists()) {
+                            mCurrentUser = new User((java.util.HashMap<String, Object>) dataSnapshot.getValue());
+
+                            if (mCurrentUser.getLatitude() == null && !mAskLocationFlag) {
+                                if (checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                        != PackageManager.PERMISSION_GRANTED) {
+                                    requestPermissions(
+                                            new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                            PERMISSIONS_REQUEST_FINE_LOCATION);
+                                }
+                            } else {
+                                checkPosts();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+        } else {
+            Snackbar.make(mCoordinatorLayout, R.string.err_no_network_connection_string, Snackbar.LENGTH_LONG).show();
+        }
+
+    }
+
     private void checkPosts() {
-        GeoFire geoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+
+        if (mSwipeContainer.isRefreshing()) {
+            mSwipeContainer.setRefreshing(false);
+        }
 
         if (mCurrentUser.getLatitude() == null || mCurrentUser.getLongitude() == null) {
             Snackbar.make(mCoordinatorLayout,
                     R.string.alert_permission_needed_to_post_and_view_freegan_string, Snackbar.LENGTH_LONG).show();
             showDataView();
-            if (mSwipeContainer.isRefreshing()) {
-                mSwipeContainer.setRefreshing(false);
-            }
+
             return;
         }
+
+        GeoFire geoFire = new GeoFire(firebase.child(kPOSTLOCATION));
+
         mGeoQuery = geoFire.queryAtLocation(new GeoLocation(mCurrentUser.getLatitude(),
                 mCurrentUser.getLongitude()), GEOGRAPHIC_RADIUS);
 
         mTotalLoadSize = 0;
         mPostIds.clear();
-        mListPosts.clear();
 
         mGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
@@ -469,7 +481,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
         }
 
         for (int i = offset; i < maxBoundary; i++) {
-
+            mListPosts.clear();
 
             postRef.child(mPostIds.get(i)).addValueEventListener(new ValueEventListener() {
                 @Override
@@ -478,13 +490,8 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
                         HashMap<String, Object> post = (HashMap<String, Object>) dataSnapshot.getValue();
                         if (post != null) {
                             mListPosts.add(new Post(post));
-                            mMainGridAdapter.notifyDataSetChanged();
-
-                            if (mSwipeContainer.isRefreshing()) {
-                                mSwipeContainer.setRefreshing(false);
-                            }
                         }
-
+                        mMainGridAdapter.notifyDataSetChanged();
                     } catch (Exception e) {
                         Snackbar.make(mCoordinatorLayout, getString(R.string.error_fetching_data_string),
                                 Snackbar.LENGTH_SHORT).show();
@@ -560,7 +567,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void setupSharedPreferences() {
         // Get all of the values from shared preferences to set it up
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
         loadSortFromPreferences(sharedPreferences);
 
         // Register the listener
@@ -663,7 +670,7 @@ public class MainGridFragment extends Fragment implements LoaderManager.LoaderCa
     private boolean isNetworkAvailable() {
         // Using ConnectivityManager to check for Network Connection
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()
-                .getSystemService(getContext().CONNECTIVITY_SERVICE);
+                .getSystemService(getContext().getApplicationContext().CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = null;
         if (connectivityManager != null) {
             activeNetworkInfo = connectivityManager
